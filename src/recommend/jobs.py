@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from collections import OrderedDict
 
+from src.common import normalize_location_input, parse_zip
 from src.phoenix.integration import build_recommendations
 from src.phoenix.ranking import rank_jobs as native_rank_jobs
 from src.recommend import oakland_jobs
-from src.recommend.person1_data import Person1DataUnavailable, load_person1, native_profile
+from src.recommend.person1_data import Person1DataUnavailable, load_indeed_jobs, load_person1, native_profile
 
 TIER = {"strong_match":"strong_match", "possible_match":"possible_match", "qualification_gap":"known_gaps"}
 LABELS = {"strong_match":"Strong matches", "possible_match":"Possible matches — confirm requirements", "known_gaps":"Jobs to work toward — known qualification gaps"}
@@ -43,14 +44,30 @@ def _public(card, job, source: str) -> dict:
                   "posting_status":card.availability, "pay_basis":card.pay_basis, "pay_source":card.pay.source}}
 
 
+def _profile_with_jobs(request: dict, source: str):
+    try:
+        jobs, rentals, _ = load_person1(source)
+    except Person1DataUnavailable:
+        if source != "real":
+            raise
+        jobs, _ = load_indeed_jobs()
+        profile = native_profile(request, source)
+        kind, key = normalize_location_input(profile.location)
+        if kind == "zip" and not profile.search_cities:
+            cities = {job.city for job in jobs if job.city and parse_zip(job.location_text) == key}
+            if len(cities) == 1:
+                profile = profile.model_copy(update={"search_cities": list(cities)})
+        return profile, jobs, []
+    return native_profile(request, source), jobs, rentals
+
+
 def rank_jobs(request: dict, sort: str, *, source: str = "real", area_city: str | None = None) -> dict:
     try:
-        jobs, _, _ = load_person1(source)
+        profile, jobs, _ = _profile_with_jobs({**request, "job_sort": sort}, source)
     except Person1DataUnavailable as error:
         if source == "real":
             return oakland_jobs.rank_jobs(request, sort, area_city=area_city)
         return {"status":"not_integrated", "sort":sort, "groups":[], "notes":[str(error)]}
-    profile = native_profile({**request, "job_sort":sort}, source)
     cards = native_rank_jobs(jobs, profile)
     by_id = {j.job_id:j for j in jobs}
     groups = OrderedDict()
@@ -76,8 +93,8 @@ def rank_jobs(request: dict, sort: str, *, source: str = "real", area_city: str 
 def selected_job_plan(request: dict, *, source: str = "real") -> dict:
     if request.get("selected_job_id") is None:
         return {}
-    jobs, rentals, _ = load_person1(source)
-    result = build_recommendations(native_profile(request, source), jobs, rentals,
+    profile, jobs, rentals = _profile_with_jobs(request, source)
+    result = build_recommendations(profile, jobs, rentals,
         data_mode="full" if source == "real" else "synthetic", selected_job_id=request["selected_job_id"],
         selected_interim_job_id=request.get("selected_interim_job_id"),
         scenario_hours_per_week=request.get("scenario_hours_per_week"),

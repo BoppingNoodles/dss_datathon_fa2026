@@ -25,6 +25,7 @@ function JobItem({ j, selected, loading, onSelect, onCompare }: {
   const tier = TIER[j.suitability_tier];
   const hasPay = j.pay.period != null && (j.pay.min != null || j.pay.max != null);
   const ruleBased = j.requirements.some((r) => r.source === "rule_extraction");
+  const unrankedSnapshot = j.source?.dataset === "Indeed";
   return (
     <li>
       <Card className="h-full gap-0 p-4 text-base">
@@ -39,7 +40,7 @@ function JobItem({ j, selected, loading, onSelect, onCompare }: {
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <Badge tone={tier.tone}>{ruleBased ? "Confirm fit" : tier.label}</Badge>
+        <Badge tone={tier.tone}>{unrankedSnapshot ? "Confirm fit" : tier.label}</Badge>
         {j.posted_date && <span className="text-sm text-muted-foreground">Posted {j.posted_date}</span>}
         <span className="text-sm text-muted-foreground">
           {j.location.distance_miles != null
@@ -52,7 +53,7 @@ function JobItem({ j, selected, loading, onSelect, onCompare }: {
       {j.pay.conversion_note && <p className="mt-1 text-sm text-muted-foreground">{j.pay.conversion_note}</p>}
 
       <details className="mt-3 text-sm">
-        <summary className="cursor-pointer font-medium text-brand-text">{ruleBased ? "Requirements from the posting" : "Requirements and how you match"}</summary>
+        <summary className="cursor-pointer font-medium text-brand-text">{unrankedSnapshot ? "Requirements from the posting" : "Requirements and how you match"}</summary>
         <div className="mt-2 space-y-2">
           {j.matches.length > 0 && <p><span className="font-medium text-ok">Matches: </span>{j.matches.join("; ")}</p>}
           {j.gaps.length > 0 && <p><span className="font-medium text-warn">Possible gaps: </span>{j.gaps.join("; ")}</p>}

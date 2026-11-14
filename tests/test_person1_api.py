@@ -47,6 +47,39 @@ def test_no_synthetic_request_reads_full_real_person1_data(person1_api):
     assert all(c["source"]["mode"]=="synthetic" for c in cards(data))
 
 
+def test_indeed_only_mode_personalizes_jobs_without_service_or_rental_data(client, monkeypatch, tmp_path):
+    from backend.app import main
+    from src.recommend import person1_data
+
+    monkeypatch.delenv("PHOENIX_SOURCE")
+    monkeypatch.setattr(main, "ROOT", tmp_path)
+    monkeypatch.setattr(person1_data, "INDEED_DIR", tmp_path)
+    (tmp_path / "coverage.json").write_text(json.dumps({
+        "data_mode": "full", "sources": [{"kind": "jobs", "counts": {"input_rows": 2}}],
+        "retained": {"jobs": 2},
+    }), encoding="utf-8")
+    jobs = [Job(job_id=title, title=title, company="Example", city="Oakland",
+                location_text="Oakland, CA 94612") for title in ("Warehouse associate", "Barista")]
+    (tmp_path / "jobs.jsonl").write_text("\n".join(job.model_dump_json() for job in jobs), encoding="utf-8")
+    main.load_data.cache_clear()
+    try:
+        assert main.data_source() == "real"
+        for location, skill, title in [("Oakland", "warehouse", "Warehouse associate"), ("94612", "barista", "Barista")]:
+            response = client.post("/recommendations", json=profile(location=location, experience={"skills": [skill]}))
+            assert response.status_code == 200, response.text
+            data = response.json()
+            assert [job["title"] for job in cards(data)] == [title]
+            assert data["data_coverage"]["sources"]["jobs"]["retained_records"] == 2
+            assert data["housing_areas"]["status"] == "not_integrated"
+            assert data["services"]["groups"] == []
+        selected = client.post("/recommendations", json=profile(location="94612", experience={"skills": ["barista"]},
+                                                               selected_job_id="Barista"))
+        assert selected.status_code == 200, selected.text
+        assert selected.json()["thirty_day_plan"]["target_job_id"] == "Barista"
+    finally:
+        main.load_data.cache_clear()
+
+
 def test_missing_synthetic_inputs_never_fall_back_to_real_oakland_export(person1_api, monkeypatch):
     from src.recommend import jobs, oakland_jobs
     from src.recommend.person1_data import Person1DataUnavailable

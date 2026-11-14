@@ -166,7 +166,7 @@ def prepare_data(*, indeed_paths: list[Path], zillow_paths: list[Path], output_d
         for kind in ["jobs", "rentals"]:
             count = db.execute("SELECT count(*) FROM records WHERE kind=?", (kind,)).fetchone()[0]
             report["retained"][kind] = count
-            with (output_dir / f"{kind}.jsonl").open("w") as handle:
+            with (output_dir / f"{kind}.jsonl").open("w", encoding="utf-8") as handle:
                 for (payload,) in db.execute("SELECT payload FROM records WHERE kind=? ORDER BY record_id", (kind,)):
                     handle.write(payload + "\n")
         report["retained"]["jobs_not_marked_expired"] = db.execute("SELECT count(*) FROM records WHERE kind='jobs' AND json_extract(payload, '$.is_expired')=0").fetchone()[0]
@@ -178,5 +178,5 @@ def prepare_data(*, indeed_paths: list[Path], zillow_paths: list[Path], output_d
 
 
 def load_records(path: Path, model: type[Job] | type[Rental]) -> list:
-    with path.open() as handle:
+    with path.open(encoding="utf-8") as handle:
         return [model.model_validate_json(line) for line in handle if line.strip()]

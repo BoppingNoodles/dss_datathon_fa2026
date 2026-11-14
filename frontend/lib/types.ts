@@ -97,6 +97,7 @@ export interface JobCard {
   pay: Pay;
   location: { text: string | null; city: string | null; precision: string; distance_miles: number | null; reference_point: string | null };
   rank_explanation: string;
+  source?: { dataset?: string };
   selectable?: boolean;
   is_selected?: boolean;
   credential_summary?: string | null;

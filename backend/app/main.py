@@ -35,6 +35,7 @@ from backend.app.schemas import (
 from src.common import ROOT, normalize_location_input
 from src.recommend import housing_math
 from src.recommend.jobs import rank_jobs
+from src.recommend.person1_data import indeed_jobs_ready
 from src.recommend.services import rank_services
 
 OPEN_TAB = {"work": "jobs", "housing": "housing"}
@@ -54,7 +55,7 @@ def data_source() -> str:
     env = os.environ.get("PHOENIX_SOURCE")
     if env:
         return env
-    return "real" if (ROOT / "data/processed/real/service_candidates.parquet").exists() else "synthetic"
+    return "real" if indeed_jobs_ready() or (ROOT / "data/processed/real/service_candidates.parquet").exists() else "synthetic"
 
 
 @lru_cache(maxsize=2)
@@ -62,6 +63,9 @@ def load_data(source: str) -> dict[str, Any]:
     d = ROOT / "data" / "processed" / source
     path = d / "service_candidates.parquet"
     if not path.exists():
+        if source == "real" and indeed_jobs_ready():
+            return {"candidates": pd.DataFrame(), "refs": pd.DataFrame(columns=["area_type", "area_key", "city_for_zip"]),
+                    "stats": {}, "services_unavailable": True}
         raise RuntimeError(f"{path} missing. Run `make services SOURCE={source}` first.")
     stats = {}
     for name in ("places_stats", "reviews_stats", "index_stats"):
@@ -176,7 +180,8 @@ def health() -> dict:
     source = data_source()
     try:
         d = load_data(source)
-        return {"status": "ok", "source": source, "service_candidates": int(len(d["candidates"]))}
+        return {"status": "degraded" if d.get("services_unavailable") else "ok", "source": source,
+                "service_candidates": int(len(d["candidates"]))}
     except RuntimeError as e:
         return {"status": "degraded", "source": source, "detail": str(e)}
 
@@ -188,8 +193,14 @@ def recommendations(req: RecommendationRequest) -> dict:
         d = load_data(source)
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e)) from e
-    services = rank_services(d["candidates"], d["refs"], need=req.priority_need, location=req.location,
-                             age=req.age, sort=req.service_sort)
+    if d.get("services_unavailable"):
+        services = {"status": "no_results", "priority_need": req.priority_need, "need_label": "Services",
+                    "sort": req.service_sort, "reference_point": {}, "search_area": req.location,
+                    "families_considered": [], "ranking_settings": {}, "groups": [],
+                    "notes": ["Service data has not been prepared in this checkout."]}
+    else:
+        services = rank_services(d["candidates"], d["refs"], need=req.priority_need, location=req.location,
+                                 age=req.age, sort=req.service_sort)
     jobs = jobs_section(req, d["refs"])
     housing = housing_section(req, d["candidates"])
     selection = selection_section(req)

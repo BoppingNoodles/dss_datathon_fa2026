@@ -205,6 +205,20 @@ while evaluation of the trained models is pending.
 
 ## Oakland Jobs data handoff
 
+### Personalized Jobs from Indeed only
+
+If Indeed is the only local dataset, prepare normalized listings and start the API:
+
+```powershell
+python -m src.phoenix prepare --indeed "$env:USERPROFILE/Downloads/indeed_job_listings.csv" --data-mode full --output data/processed/indeed
+python -m uvicorn backend.app.main:app --port 8000
+```
+
+Start the frontend as usual. Enter a city and select **Work** to see real
+Indeed snapshot listings matched to your profile. The API defaults to real
+mode when these files are present. Housing and Services need their own datasets.
+Set `PHOENIX_SOURCE=synthetic` explicitly when running the fictional demo.
+
 Run `python src/data/export_jobs.py` from the repository root. It reads
 `indeed_job_listings.csv` from Downloads and writes `data/jobs/oakland_jobs.json`.
 Pass a local CSV path as the first argument to use a different copy and use

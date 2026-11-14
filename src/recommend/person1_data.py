@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.common import normalize_location_input, processed_dir
+from src.common import ROOT, normalize_location_input, processed_dir
 from src.phoenix.ingest import load_records
 from src.phoenix.models import Education, Experience, Job, Point, Rental, UserProfile
 from src.recommend.services import resolve_location
@@ -21,6 +21,27 @@ from src.recommend.services import resolve_location
 
 class Person1DataUnavailable(RuntimeError):
     pass
+
+
+INDEED_DIR = ROOT / "data" / "processed" / "indeed"
+
+
+def indeed_jobs_ready() -> bool:
+    return all((INDEED_DIR / name).is_file() for name in ("jobs.jsonl", "coverage.json"))
+
+
+@lru_cache(maxsize=1)
+def _load_indeed(directory: Path, tokens: tuple) -> tuple[list[Job], dict]:
+    coverage = json.loads((directory / "coverage.json").read_text(encoding="utf-8"))
+    if coverage.get("data_mode") != "full" or not any(s.get("kind") == "jobs" for s in coverage.get("sources", [])):
+        raise Person1DataUnavailable("The Indeed jobs export needs a full jobs coverage manifest.")
+    return load_records(directory / "jobs.jsonl", Job), coverage
+
+
+def load_indeed_jobs() -> tuple[list[Job], dict]:
+    if not indeed_jobs_ready():
+        raise Person1DataUnavailable("Normalized Indeed jobs are unavailable.")
+    return _load_indeed(INDEED_DIR, tuple(_token(INDEED_DIR / name) for name in ("jobs.jsonl", "coverage.json")))
 
 
 def _token(path: Path) -> tuple[int, int]:
@@ -84,7 +105,10 @@ def native_profile(request: dict, source: str) -> UserProfile:
                 precision=ref.precision, label=ref.label, source="Places-derived area reference point, not a home address")
         profile = profile.model_copy(update=updates)
     if not profile.search_cities and normalize_location_input(profile.location)[0] == "zip":
-        _, rentals, _ = load_person1(source)
+        try:
+            _, rentals, _ = load_person1(source)
+        except Person1DataUnavailable:
+            rentals = []
         cities = {r.city for r in rentals if r.zipcode == profile.location.strip()}
         if len(cities) == 1:
             profile = profile.model_copy(update={"search_cities":sorted(cities)})
@@ -95,7 +119,9 @@ def coverage_summary(source: str) -> dict:
     try:
         _, _, coverage = load_person1(source)
     except Person1DataUnavailable:
-        return {}
+        if source != "real" or not indeed_jobs_ready():
+            return {}
+        _, coverage = load_indeed_jobs()
     return {
         "jobs": {"rows_read":sum(s["counts"]["input_rows"] for s in coverage.get("sources", []) if s["kind"] == "jobs"),
                  "retained_records":coverage.get("retained", {}).get("jobs"),

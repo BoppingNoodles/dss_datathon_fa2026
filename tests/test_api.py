@@ -54,6 +54,7 @@ def test_jobs_and_housing_not_invented_before_integration(client):
 
 def test_oakland_jobs_contract_and_sorts(client, monkeypatch, tmp_path):
     from backend.app import main
+    from src.recommend import person1_data
     from src.recommend.person1_data import Person1DataUnavailable
 
     # Isolate the real-mode Oakland fallback with fictional data. Synthetic
@@ -65,6 +66,7 @@ def test_oakland_jobs_contract_and_sorts(client, monkeypatch, tmp_path):
     monkeypatch.setenv("PHOENIX_SOURCE", "real")
     monkeypatch.setattr(main, "load_data", lambda source: synthetic_data)
     monkeypatch.setattr(jobs, "load_person1", unavailable)
+    monkeypatch.setattr(person1_data, "INDEED_DIR", tmp_path / "unavailable")
     path = tmp_path / "oakland_jobs.json"
     monkeypatch.setattr(oakland_jobs, "JOBS_PATH", path)
     row = {
