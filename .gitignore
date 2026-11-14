@@ -5,6 +5,7 @@ data/processed/
 data/synthetic/
 *.parquet
 .venv/
+.venv-nlp/
 __pycache__/
 .pytest_cache/
 .DS_Store
