@@ -1,0 +1,211 @@
+family,city,rated_candidates,m,baseline_m,top10_overlap_with_baseline
+behavioral_health,Berkeley,68,0,10,0.2
+behavioral_health,Berkeley,68,5,10,0.9
+behavioral_health,Berkeley,68,10,10,1.0
+behavioral_health,Berkeley,68,25,10,0.9
+behavioral_health,Berkeley,68,50,10,0.9
+behavioral_health,Emeryville,10,0,10,1.0
+behavioral_health,Emeryville,10,5,10,1.0
+behavioral_health,Emeryville,10,10,10,1.0
+behavioral_health,Emeryville,10,25,10,1.0
+behavioral_health,Emeryville,10,50,10,1.0
+behavioral_health,Hayward,19,0,10,1.0
+behavioral_health,Hayward,19,5,10,1.0
+behavioral_health,Hayward,19,10,10,1.0
+behavioral_health,Hayward,19,25,10,1.0
+behavioral_health,Hayward,19,50,10,1.0
+behavioral_health,Oakland,151,0,10,0.1
+behavioral_health,Oakland,151,5,10,0.9
+behavioral_health,Oakland,151,10,10,1.0
+behavioral_health,Oakland,151,25,10,0.9
+behavioral_health,Oakland,151,50,10,0.8
+behavioral_health,Richmond,11,0,10,1.0
+behavioral_health,Richmond,11,5,10,1.0
+behavioral_health,Richmond,11,10,10,1.0
+behavioral_health,Richmond,11,25,10,1.0
+behavioral_health,Richmond,11,50,10,0.9
+behavioral_health,San Leandro,17,0,10,0.8
+behavioral_health,San Leandro,17,5,10,0.9
+behavioral_health,San Leandro,17,10,10,1.0
+behavioral_health,San Leandro,17,25,10,1.0
+behavioral_health,San Leandro,17,50,10,1.0
+community_health,Alameda,29,0,10,0.5
+community_health,Alameda,29,5,10,0.8
+community_health,Alameda,29,10,10,1.0
+community_health,Alameda,29,25,10,1.0
+community_health,Alameda,29,50,10,1.0
+community_health,Berkeley,55,0,10,0.1
+community_health,Berkeley,55,5,10,0.9
+community_health,Berkeley,55,10,10,1.0
+community_health,Berkeley,55,25,10,0.9
+community_health,Berkeley,55,50,10,0.7
+community_health,Castro Valley,15,0,10,1.0
+community_health,Castro Valley,15,5,10,1.0
+community_health,Castro Valley,15,10,10,1.0
+community_health,Castro Valley,15,25,10,0.9
+community_health,Castro Valley,15,50,10,0.9
+community_health,Emeryville,28,0,10,0.5
+community_health,Emeryville,28,5,10,0.9
+community_health,Emeryville,28,10,10,1.0
+community_health,Emeryville,28,25,10,1.0
+community_health,Emeryville,28,50,10,1.0
+community_health,Hayward,34,0,10,0.7
+community_health,Hayward,34,5,10,1.0
+community_health,Hayward,34,10,10,1.0
+community_health,Hayward,34,25,10,1.0
+community_health,Hayward,34,50,10,1.0
+community_health,Oakland,134,0,10,0.1
+community_health,Oakland,134,5,10,0.9
+community_health,Oakland,134,10,10,1.0
+community_health,Oakland,134,25,10,0.9
+community_health,Oakland,134,50,10,0.8
+community_health,Richmond,16,0,10,1.0
+community_health,Richmond,16,5,10,1.0
+community_health,Richmond,16,10,10,1.0
+community_health,Richmond,16,25,10,1.0
+community_health,Richmond,16,50,10,1.0
+community_health,San Leandro,23,0,10,0.7
+community_health,San Leandro,23,5,10,1.0
+community_health,San Leandro,23,10,10,1.0
+community_health,San Leandro,23,25,10,0.9
+community_health,San Leandro,23,50,10,0.9
+employment_services,Hayward,24,0,10,0.6
+employment_services,Hayward,24,5,10,0.9
+employment_services,Hayward,24,10,10,1.0
+employment_services,Hayward,24,25,10,1.0
+employment_services,Hayward,24,50,10,1.0
+employment_services,Oakland,22,0,10,1.0
+employment_services,Oakland,22,5,10,1.0
+employment_services,Oakland,22,10,10,1.0
+employment_services,Oakland,22,25,10,1.0
+employment_services,Oakland,22,50,10,1.0
+food_assistance,Oakland,24,0,10,0.8
+food_assistance,Oakland,24,5,10,1.0
+food_assistance,Oakland,24,10,10,1.0
+food_assistance,Oakland,24,25,10,0.9
+food_assistance,Oakland,24,50,10,0.9
+government_services,Alameda,11,0,10,0.9
+government_services,Alameda,11,5,10,0.9
+government_services,Alameda,11,10,10,1.0
+government_services,Alameda,11,25,10,1.0
+government_services,Alameda,11,50,10,0.9
+government_services,Berkeley,20,0,10,0.9
+government_services,Berkeley,20,5,10,1.0
+government_services,Berkeley,20,10,10,1.0
+government_services,Berkeley,20,25,10,1.0
+government_services,Berkeley,20,50,10,1.0
+government_services,Hayward,36,0,10,0.4
+government_services,Hayward,36,5,10,1.0
+government_services,Hayward,36,10,10,1.0
+government_services,Hayward,36,25,10,1.0
+government_services,Hayward,36,50,10,1.0
+government_services,Oakland,97,0,10,0.0
+government_services,Oakland,97,5,10,0.8
+government_services,Oakland,97,10,10,1.0
+government_services,Oakland,97,25,10,0.9
+government_services,Oakland,97,50,10,0.9
+government_services,Richmond,35,0,10,0.3
+government_services,Richmond,35,5,10,1.0
+government_services,Richmond,35,10,10,1.0
+government_services,Richmond,35,25,10,1.0
+government_services,Richmond,35,50,10,0.9
+government_services,San Leandro,19,0,10,0.9
+government_services,San Leandro,19,5,10,1.0
+government_services,San Leandro,19,10,10,1.0
+government_services,San Leandro,19,25,10,1.0
+government_services,San Leandro,19,50,10,1.0
+public_library,Oakland,18,0,10,0.9
+public_library,Oakland,18,5,10,1.0
+public_library,Oakland,18,10,10,1.0
+public_library,Oakland,18,25,10,1.0
+public_library,Oakland,18,50,10,1.0
+social_services,Alameda,30,0,10,0.5
+social_services,Alameda,30,5,10,1.0
+social_services,Alameda,30,10,10,1.0
+social_services,Alameda,30,25,10,1.0
+social_services,Alameda,30,50,10,0.9
+social_services,Berkeley,130,0,10,0.1
+social_services,Berkeley,130,5,10,1.0
+social_services,Berkeley,130,10,10,1.0
+social_services,Berkeley,130,25,10,0.7
+social_services,Berkeley,130,50,10,0.6
+social_services,Emeryville,12,0,10,1.0
+social_services,Emeryville,12,5,10,1.0
+social_services,Emeryville,12,10,10,1.0
+social_services,Emeryville,12,25,10,1.0
+social_services,Emeryville,12,50,10,1.0
+social_services,Hayward,46,0,10,0.4
+social_services,Hayward,46,5,10,1.0
+social_services,Hayward,46,10,10,1.0
+social_services,Hayward,46,25,10,0.8
+social_services,Hayward,46,50,10,0.8
+social_services,Oakland,353,0,10,0.1
+social_services,Oakland,353,5,10,0.8
+social_services,Oakland,353,10,10,1.0
+social_services,Oakland,353,25,10,0.7
+social_services,Oakland,353,50,10,0.7
+social_services,Richmond,56,0,10,0.3
+social_services,Richmond,56,5,10,1.0
+social_services,Richmond,56,10,10,1.0
+social_services,Richmond,56,25,10,1.0
+social_services,Richmond,56,50,10,0.8
+social_services,San Leandro,39,0,10,0.5
+social_services,San Leandro,39,5,10,0.9
+social_services,San Leandro,39,10,10,1.0
+social_services,San Leandro,39,25,10,0.9
+social_services,San Leandro,39,50,10,0.9
+transit,Alameda,56,0,10,0.6
+transit,Alameda,56,5,10,1.0
+transit,Alameda,56,10,10,1.0
+transit,Alameda,56,25,10,1.0
+transit,Alameda,56,50,10,1.0
+transit,Albany,14,0,10,1.0
+transit,Albany,14,5,10,1.0
+transit,Albany,14,10,10,1.0
+transit,Albany,14,25,10,1.0
+transit,Albany,14,50,10,1.0
+transit,Berkeley,116,0,10,0.3
+transit,Berkeley,116,5,10,1.0
+transit,Berkeley,116,10,10,1.0
+transit,Berkeley,116,25,10,1.0
+transit,Berkeley,116,50,10,1.0
+transit,Castro Valley,14,0,10,1.0
+transit,Castro Valley,14,5,10,1.0
+transit,Castro Valley,14,10,10,1.0
+transit,Castro Valley,14,25,10,1.0
+transit,Castro Valley,14,50,10,1.0
+transit,El Cerrito,21,0,10,1.0
+transit,El Cerrito,21,5,10,1.0
+transit,El Cerrito,21,10,10,1.0
+transit,El Cerrito,21,25,10,1.0
+transit,El Cerrito,21,50,10,1.0
+transit,Emeryville,28,0,10,0.7
+transit,Emeryville,28,5,10,0.9
+transit,Emeryville,28,10,10,1.0
+transit,Emeryville,28,25,10,1.0
+transit,Emeryville,28,50,10,1.0
+transit,Hayward,92,0,10,0.3
+transit,Hayward,92,5,10,1.0
+transit,Hayward,92,10,10,1.0
+transit,Hayward,92,25,10,1.0
+transit,Hayward,92,50,10,1.0
+transit,Oakland,505,0,10,0.1
+transit,Oakland,505,5,10,1.0
+transit,Oakland,505,10,10,1.0
+transit,Oakland,505,25,10,0.8
+transit,Oakland,505,50,10,0.7
+transit,Richmond,111,0,10,0.2
+transit,Richmond,111,5,10,1.0
+transit,Richmond,111,10,10,1.0
+transit,Richmond,111,25,10,1.0
+transit,Richmond,111,50,10,1.0
+transit,San Leandro,73,0,10,0.8
+transit,San Leandro,73,5,10,1.0
+transit,San Leandro,73,10,10,1.0
+transit,San Leandro,73,25,10,1.0
+transit,San Leandro,73,50,10,1.0
+transit,San Lorenzo,19,0,10,1.0
+transit,San Lorenzo,19,5,10,1.0
+transit,San Lorenzo,19,10,10,1.0
+transit,San Lorenzo,19,25,10,1.0
+transit,San Lorenzo,19,50,10,1.0

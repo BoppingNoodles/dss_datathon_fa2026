@@ -1,0 +1,17 @@
+[
+  {"_fixture": "Fictional profile A: wants housing first, warehouse experience, GED",
+   "age": 34, "location": "Oakland", "priority_need": "housing",
+   "experience": {"skills": ["warehouse", "forklift"], "text": "Kitchen and warehouse work during incarceration", "years": 3},
+   "education": {"level": "high_school_or_ged", "credentials": ["ServSafe Food Handler"]}},
+  {"_fixture": "Fictional profile B: food first, ZIP only, skipped everything optional",
+   "location": "94612", "priority_need": "food"},
+  {"_fixture": "Fictional profile C: health care, age 21",
+   "age": 21, "location": "Berkeley", "priority_need": "health_care", "service_sort": "nearest"},
+  {"_fixture": "Fictional profile D: transportation in Hayward, no experience yet",
+   "age": 52, "location": "Hayward, CA", "priority_need": "transportation",
+   "experience": {"no_experience_yet": true}, "education": {"level": "not_sure"}},
+  {"_fixture": "Fictional profile E: work first, outside coverage area",
+   "age": 29, "location": "Fresno", "priority_need": "work"},
+  {"_fixture": "Fictional profile F: community support",
+   "location": "Richmond", "priority_need": "community_support"}
+]

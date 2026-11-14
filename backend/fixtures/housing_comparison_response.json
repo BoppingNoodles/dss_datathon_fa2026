@@ -1,0 +1,13 @@
+{
+  "annual_gross_min": 41600.0,
+  "annual_gross_max": 49920.0,
+  "monthly_rent": 1650.0,
+  "rent_burden_min": 0.3966,
+  "rent_burden_max": 0.476,
+  "status": "ok",
+  "assumptions": [
+    "Assumed 40 hours/week x 52 weeks/year (not stated in the posting)."
+  ],
+  "formula": "rent_burden = 12 * monthly_rent / annual_gross_pay",
+  "caveat": "Scenario only: uses advertised gross pay, not your income. Excludes taxes, deposits, utilities, and other costs, and does not mean a landlord would approve an application."
+}

@@ -1,0 +1,7 @@
+{
+  "pay_min": 20,
+  "pay_max": 24,
+  "pay_period": "hour",
+  "hours_per_week": null,
+  "monthly_rent": 1650
+}

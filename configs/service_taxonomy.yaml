@@ -1,0 +1,121 @@
+# Reviewed service taxonomy: Places `category` + `all_categories` -> service family -> need.
+#
+# Patterns are case-insensitive regular expressions matched with word boundaries against each
+# category tag. Places categories are keyword-selected and can be off-topic (Places README),
+# so `exclude` patterns veto a match ("animal shelter" is not housing support).
+#
+# `assistance: true`  -> a candidate public/community support family. Still NOT verified as
+#                        free, public, or reentry-friendly until service_verification.csv says so.
+# `assistance: false` -> an ordinary essential service (grocery store, bank, pharmacy). Shown in
+#                        its own group and never described as free assistance.
+#
+# Order matters: when a place matches several families, the first listed family is primary.
+# The exact tags must be spot-checked against the raw export (reports/taxonomy_spot_check.csv).
+
+families:
+  food_assistance:
+    label: Food banks, pantries, and community meals
+    needs: [food]
+    assistance: true
+    include: ['food bank', 'food pantry', 'soup kitchen', 'community meal', 'meal delivery', 'free meal', 'food assistance']
+    exclude: ['pet food', 'animal']
+
+  housing_assistance:
+    label: Shelters and housing assistance
+    needs: [housing]
+    assistance: true
+    include: ['homeless shelter', 'shelter', 'housing authority', 'housing assistance', 'transitional housing', 'public housing', 'housing development', 'halfway house', 'supportive housing']
+    exclude: ['animal', 'pet', 'bus shelter', 'storm shelter']
+
+  employment_services:
+    label: Job training and employment services
+    needs: [work]
+    assistance: true
+    include: ['employment agency', 'employment center', 'job training', 'career counseling', 'vocational', 'workforce', 'career center', 'apprenticeship']
+    exclude: []
+
+  community_health:
+    label: Clinics and community health centers
+    needs: [health_care]
+    assistance: true
+    include: ['community health center', 'community health centre', 'free clinic', 'medical clinic', 'health center', 'public health', 'family planning', 'urgent care']
+    exclude: ['veterinar', 'animal', 'cosmetic', 'medical spa', 'aesthetic']
+
+  behavioral_health:
+    label: Mental health and recovery support
+    needs: [health_care, community_support]
+    assistance: true
+    include: ['mental health', 'addiction treatment', 'drug addiction', 'alcoholism treatment', 'rehabilitation center', 'counseling', 'recovery', 'psychiatric', 'crisis']
+    exclude: ['physical therapy', 'auto', 'animal']
+
+  social_services:
+    label: Social services and community organizations
+    # Generic "Non-profit organization" tags are too broad to imply housing or job help.
+    needs: [community_support]
+    assistance: true
+    include: ['social services', 'social service', 'non-profit organization', 'nonprofit', 'charity', 'community center', 'reentry', 'parole', 'probation', 'veterans', 'youth organization', 'senior center']
+    exclude: []
+
+  legal_aid:
+    label: Legal aid
+    needs: [community_support, housing]
+    assistance: true
+    include: ['legal aid', 'legal services', 'public defender', 'tenant']
+    exclude: []
+
+  government_services:
+    label: Government offices (ID, benefits, records)
+    needs: [community_support, work]
+    assistance: true
+    include: ['department of motor vehicles', 'dmv', 'social security office', 'social security administration', 'government office', 'city government', 'county government', 'public assistance', 'welfare', 'department of social services']
+    exclude: ['attorney', 'lawyer']
+
+  transit:
+    label: Public transit
+    needs: [transportation]
+    assistance: true
+    include: ['transit station', 'transit depot', 'transport hub', 'bus station', 'bus stop', 'train station', 'subway station', 'light rail', 'ferry terminal', 'transportation service']
+    exclude: ['taxi', 'limousine', 'moving', 'school']
+
+  public_library:
+    label: Public libraries (internet, job search help)
+    needs: [work, community_support]
+    assistance: true
+    include: ['public library', 'library']
+    exclude: ['law library']
+
+  medical_providers:
+    label: Doctors, dentists, therapists, and hospitals (cost and insurance unknown)
+    needs: [health_care]
+    assistance: false
+    include: ['doctor', 'physician', 'internist', 'pediatrician', 'dentist', 'dental clinic', 'hospital', 'medical center', 'psychologist', 'psychotherapist', 'psychiatrist', 'counselor', 'optometrist']
+    exclude: ['veterinar', 'animal', 'cosmetic', 'attorney']
+
+  grocery:
+    label: Grocery stores (essential, not free assistance)
+    needs: [food]
+    assistance: false
+    include: ['grocery store', 'supermarket', 'grocery']
+    exclude: []
+
+  pharmacy:
+    label: Pharmacies (essential, not free assistance)
+    needs: [health_care]
+    assistance: false
+    include: ['pharmacy', 'drug store', 'drugstore']
+    exclude: ['animal', 'veterinar']
+
+  banking:
+    label: Banks and credit unions (essential, not free assistance)
+    needs: [work, community_support]
+    assistance: false
+    include: ['bank', 'credit union', 'check cashing']
+    exclude: ['food bank', 'blood bank', 'sperm bank']
+
+need_labels:
+  work: Work
+  housing: Housing
+  food: Food
+  health_care: Health care
+  transportation: Transportation
+  community_support: Community support

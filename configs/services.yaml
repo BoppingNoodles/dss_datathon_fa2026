@@ -1,0 +1,36 @@
+# Service discovery settings (Phoenix.md sections 5-6). Every number here is a documented
+# product assumption, not a measured optimum. Change values here, never inline in code,
+# and record any change in docs/service_ranking.md.
+
+target_area:
+  # Oakland plus nearby East Bay cities. Expand only if the feasibility gate shows sparse
+  # coverage, and document the expansion in docs/data_decisions.md.
+  cities:
+    - Oakland
+    - Berkeley
+    - Emeryville
+    - Alameda
+    - Piedmont
+    - Albany
+    - El Cerrito
+    - Richmond
+    - San Leandro
+    - Hayward
+    - San Lorenzo
+    - Castro Valley
+
+ranking:
+  highly_rated_min_rating: 4.0      # design threshold for the "Highly rated" group
+  highly_rated_min_reviews: 10      # uses Places overall reviews_count, never sampled reviews
+  prior_weight_m: 10                # m in (n*r + m*C) / (n + m)
+  min_rated_for_family_prior: 10    # families with fewer rated places use the all-family mean as C
+  close_score_tolerance: 0.02       # scores this close are treated as tied; distance breaks the tie
+  min_highly_rated_before_note: 3   # below this, say so explicitly (threshold is NOT relaxed)
+  max_items_per_group: 10
+  search_radius_miles: 10           # straight-line radius from the area reference point
+  sensitivity_prior_weights: [0, 5, 10, 25, 50]
+
+urgent_needs: [housing, food]       # verified support is always surfaced for these, regardless of rating
+
+# Minimum records needed before a city/ZIP centroid is derived from Places coordinates.
+reference_point_min_records: 5

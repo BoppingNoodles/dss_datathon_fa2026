@@ -1,0 +1,34 @@
+# Independent data audit (Phoenix.md section 8). Person 4 samples records from every source,
+# records original -> transformed values, then fills reviewer / finding / correction by hand.
+#
+# Places / Reviews / geographic pairings are produced by Person 4's pipeline.
+# Jobs / housing point at Person 1's cleaned outputs; update the paths and column names once
+# those files exist. Missing files produce a single "pending" row rather than being skipped.
+
+seed: 20261114
+samples:
+  services: 20
+  reviews: 20
+  geo_pairs: 10
+  jobs: 20
+  housing: 20
+
+external:
+  jobs:
+    path: data/interim/jobs_clean.parquet
+    key: jobid
+    checks:
+      - {check: salary_units, original: salary_text, transformed: [pay_min, pay_max, pay_period]}
+      - {check: duplicate_group, original: job_title, transformed: [duplicate_group]}
+      - {check: city_normalization, original: location, transformed: [city]}
+  housing:
+    path: data/interim/zillow_rentals_clean.parquet
+    key: zpid
+    checks:
+      - {check: rent_units, original: price, transformed: [monthly_rent, rent_basis]}
+      - {check: home_status, original: homeStatus, transformed: [is_rental]}
+      - {check: zip_assignment, original: zipcode, transformed: [area_id]}
+  housing_public_output:
+    # The published aggregate must not contain any of these columns.
+    path: data/processed/real/housing_areas.parquet
+    forbidden_columns: [zpid, address, streetAddress, latitude, longitude, lat, lon, url]

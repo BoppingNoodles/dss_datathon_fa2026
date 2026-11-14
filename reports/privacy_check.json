@@ -1,0 +1,36 @@
+{
+  "source": "real",
+  "passed": true,
+  "results": [
+    {
+      "profile": "Fictional profile A: wants housing first, warehouse experience, GED",
+      "status": 200,
+      "problems": []
+    },
+    {
+      "profile": "Fictional profile B: food first, ZIP only, skipped everything optional",
+      "status": 200,
+      "problems": []
+    },
+    {
+      "profile": "Fictional profile C: health care, age 21",
+      "status": 200,
+      "problems": []
+    },
+    {
+      "profile": "Fictional profile D: transportation in Hayward, no experience yet",
+      "status": 200,
+      "problems": []
+    },
+    {
+      "profile": "Fictional profile E: work first, outside coverage area",
+      "status": 200,
+      "problems": []
+    },
+    {
+      "profile": "Fictional profile F: community support",
+      "status": 200,
+      "problems": []
+    }
+  ]
+}

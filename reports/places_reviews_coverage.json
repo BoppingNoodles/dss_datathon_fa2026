@@ -1,0 +1,199 @@
+{
+  "source": "real",
+  "places": {
+    "file": "data/raw/places/google_maps.csv",
+    "sha256": "47cdc7f87edf37ed6b61b6e0fcb0d4472cc03e9a2b9cd3b2eb1c7cb5774e597b",
+    "rows_read": 147429,
+    "unique_place_ids_full_export": 147429,
+    "target_cities": [
+      "alameda",
+      "albany",
+      "berkeley",
+      "castro valley",
+      "el cerrito",
+      "emeryville",
+      "hayward",
+      "oakland",
+      "piedmont",
+      "richmond",
+      "san leandro",
+      "san lorenzo"
+    ],
+    "target_rows_after_dedupe": 22502,
+    "target_duplicate_rows_removed": 0,
+    "target_by_city": {
+      "Oakland": 9433,
+      "Berkeley": 3905,
+      "Hayward": 2124,
+      "San Leandro": 1496,
+      "Richmond": 1396,
+      "Alameda": 1279,
+      "Castro Valley": 890,
+      "Emeryville": 662,
+      "Albany": 538,
+      "El Cerrito": 463,
+      "San Lorenzo": 185,
+      "Piedmont": 131
+    },
+    "target_fill_rates": {
+      "rating_usable": 0.393,
+      "hours_listed": 0.3012,
+      "phone": 0.7245,
+      "website": 0.4265,
+      "zipcode_parsed": 0.9899,
+      "coordinates": 1.0
+    },
+    "target_rating_issues": {
+      "unrated_zero_placeholder": 13645,
+      "rating_without_reviews": 14
+    },
+    "target_closure": {
+      "permanently_closed_true": 1679,
+      "permanently_closed_unknown": 0,
+      "temporarily_closed_true": 455,
+      "temporarily_closed_unknown": 15
+    },
+    "fields_absent_or_unmapped": [
+      "business_status",
+      "city",
+      "zipcode"
+    ]
+  },
+  "reviews": {
+    "file": "data/raw/reviews/google_maps_reviews.csv",
+    "sha256": "1787435e1efbaddd88256efe38d481cec2b442e754bbe3d6b9e9e03d7a8674d0",
+    "rows_read": 213536,
+    "unique_place_ids_in_reviews": 6108,
+    "row_match_rate_full_places": 0.014,
+    "target_rows_after_dedupe": 513,
+    "duplicate_review_id_rows": 0,
+    "duplicate_content_rows": 0,
+    "target_places_with_sampled_reviews": 18,
+    "target_place_coverage_rate": 0.0008,
+    "date_min": "2024-01-02T20:31:23.957000+00:00",
+    "date_max": "2025-04-30T18:04:45.422000+00:00"
+  },
+  "service_index": {
+    "source": "real",
+    "candidates": 17588,
+    "by_family": {
+      "medical_providers": 8071,
+      "transit": 4783,
+      "social_services": 1202,
+      "community_health": 909,
+      "behavioral_health": 697,
+      "grocery": 631,
+      "government_services": 507,
+      "pharmacy": 250,
+      "banking": 241,
+      "employment_services": 161,
+      "food_assistance": 73,
+      "public_library": 44,
+      "housing_assistance": 16,
+      "legal_aid": 3
+    },
+    "rated_by_family": {
+      "medical_providers": 2141,
+      "transit": 1114,
+      "social_services": 742,
+      "grocery": 550,
+      "community_health": 399,
+      "behavioral_health": 318,
+      "government_services": 248,
+      "banking": 215,
+      "pharmacy": 183,
+      "employment_services": 83,
+      "food_assistance": 44,
+      "public_library": 42,
+      "housing_assistance": 13,
+      "legal_aid": 3
+    },
+    "with_sampled_reviews": 14,
+    "verification_status": {
+      "unverified": 17588
+    },
+    "verification_rows_not_matching_a_candidate": [],
+    "published_snippets": 0,
+    "reference_points": {
+      "zip": 44,
+      "city": 12
+    }
+  },
+  "rating_priors": {
+    "prior_weight_m": 10.0,
+    "global_mean": 4.1568662838392125,
+    "min_rated_for_family_prior": 10,
+    "families": {
+      "banking": {
+        "family_mean": 3.3674,
+        "rated_candidates": 215,
+        "C_used": 3.3674
+      },
+      "behavioral_health": {
+        "family_mean": 4.2692,
+        "rated_candidates": 318,
+        "C_used": 4.2692
+      },
+      "community_health": {
+        "family_mean": 4.0165,
+        "rated_candidates": 399,
+        "C_used": 4.0165
+      },
+      "employment_services": {
+        "family_mean": 3.8614,
+        "rated_candidates": 83,
+        "C_used": 3.8614
+      },
+      "food_assistance": {
+        "family_mean": 4.0955,
+        "rated_candidates": 44,
+        "C_used": 4.0955
+      },
+      "government_services": {
+        "family_mean": 3.6093,
+        "rated_candidates": 248,
+        "C_used": 3.6093
+      },
+      "grocery": {
+        "family_mean": 4.2627,
+        "rated_candidates": 550,
+        "C_used": 4.2627
+      },
+      "housing_assistance": {
+        "family_mean": 3.8846,
+        "rated_candidates": 13,
+        "C_used": 3.8846
+      },
+      "legal_aid": {
+        "family_mean": 4.3667,
+        "rated_candidates": 3,
+        "C_used": 4.1568662838392125
+      },
+      "medical_providers": {
+        "family_mean": 4.2871,
+        "rated_candidates": 2141,
+        "C_used": 4.2871
+      },
+      "pharmacy": {
+        "family_mean": 3.5295,
+        "rated_candidates": 183,
+        "C_used": 3.5295
+      },
+      "public_library": {
+        "family_mean": 4.5929,
+        "rated_candidates": 42,
+        "C_used": 4.5929
+      },
+      "social_services": {
+        "family_mean": 4.3652,
+        "rated_candidates": 742,
+        "C_used": 4.3652
+      },
+      "transit": {
+        "family_mean": 4.1217,
+        "rated_candidates": 1114,
+        "C_used": 4.1217
+      }
+    }
+  }
+}

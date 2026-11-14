@@ -1,0 +1,67 @@
+# Raw-file field map for Person 4's sources (Places, Reviews).
+#
+# The READMEs document these fields, but the Indeed README explicitly warns that actual
+# column names can differ from the documentation, so treat every entry marked CONFIRM as a
+# hypothesis until `uv run python -m src.data.inspect_headers` has been run on the real
+# exports. Record the confirmed mapping in docs/data_decisions.md.
+#
+# A logical field mapped to `null` (or to a column missing from the file) is loaded as all
+# missing and reported in reports/places_reviews_coverage.json. It is never filled in.
+
+sources:
+  real:
+    places_file: data/raw/places/google_maps.csv
+    reviews_file: data/raw/reviews/google_maps_reviews.csv
+    verification_file: data/resources/service_verification.csv
+    snippets_file: data/resources/review_snippets.csv
+  synthetic:
+    places_file: data/synthetic/places.csv
+    reviews_file: data/synthetic/reviews.csv
+    verification_file: data/synthetic/service_verification.csv
+    snippets_file: data/synthetic/review_snippets.csv
+
+places:
+  required: [place_id, name, category, lat, lon]
+  # Confirmed against the real google_maps.csv header on 2026-11-14 (41 columns).
+  # There is no city/ZIP column: both are parsed from `address`.
+  # rating == 0 together with reviews_count == 0 means "no rating", not a zero-star rating.
+  # top_reviews / reviews_snippets / people_also_search carry reviewer data and are never read.
+  columns:
+    place_id: place_id
+    name: name
+    category: category
+    all_categories: all_categories
+    address: address
+    lat: lat
+    lon: lon
+    rating: rating
+    reviews_count: reviews_count
+    city: null
+    zipcode: null
+    phone: phone_number
+    website: open_website
+    maps_url: url
+    hours: open_hours
+    permanently_closed: permanently_closed
+    temporarily_closed: temporarily_closed
+    business_status: null
+
+reviews:
+  required: [place_id, review_rating]
+  # Confirmed against the real google_maps_reviews.csv header on 2026-11-14 (28 columns).
+  # Only the columns mapped here are read (usecols). Reviewer identity columns
+  # (reviewer_name, reviewer_url, profile_pic_url, reviews_by_reviewer, photos_by_reviewer,
+  # local_guide), the owner's response (which often addresses reviewers by name), photos,
+  # and review URLs are never loaded.
+  columns:
+    place_id: place_id
+    review_id: review_id
+    review: review
+    review_rating: review_rating
+    review_date: review_date
+    place_rating: place_general_rating
+    place_reviews_count: overall_place_riviews   # sic: misspelled in the source export
+  # Guard: a mapped source column containing any of these fragments aborts the run.
+  never_read_fragments: [reviewer, profile, avatar, photo, response_of_owner, url]
+
+chunksize: 100000

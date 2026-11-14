@@ -1,0 +1,535 @@
+{
+  "open_tab": "housing",
+  "jobs": {
+    "status": "not_integrated",
+    "sort": "highest_pay",
+    "groups": [],
+    "notes": [
+      "Job matching is not connected yet."
+    ]
+  },
+  "housing_areas": {
+    "status": "not_integrated",
+    "areas": [],
+    "notes": [
+      "Neighborhood rental summaries are not connected yet."
+    ]
+  },
+  "services": {
+    "status": "ok",
+    "priority_need": "housing",
+    "need_label": "Housing",
+    "sort": "highly_rated",
+    "reference_point": {
+      "label": "center of Oakland",
+      "precision": "city_center",
+      "lat": 37.803,
+      "lon": -122.271
+    },
+    "search_area": "within 10 miles (straight line) of the center of Oakland",
+    "families_considered": [
+      "housing_assistance",
+      "legal_aid"
+    ],
+    "ranking_settings": {
+      "highly_rated_min_rating": 4.0,
+      "highly_rated_min_reviews": 10,
+      "prior_weight_m": 10,
+      "formula": "(n*r + m*C)/(n+m); C = mean overall rating of the service family",
+      "tie_break": "scores within 0.02 are tied; nearer first"
+    },
+    "groups": [
+      {
+        "key": "verified_support",
+        "label": "Verified public and community support",
+        "note": null,
+        "total": 1,
+        "items": [
+          {
+            "place_id": "SYN0007",
+            "name": "Oakland Family Shelter 1 (synthetic)",
+            "need": "housing",
+            "family": "housing_assistance",
+            "family_label": "Shelters and housing assistance",
+            "group": "verified_support",
+            "verification": {
+              "status": "verified_public_community",
+              "provider_type": "public",
+              "official_url": "https://example.org/SYN0007",
+              "checked_on": "2026-11-14",
+              "cost_eligibility_notes": null,
+              "service_area": "Alameda County"
+            },
+            "eligibility": {
+              "age_status": "outside_published_age_criterion",
+              "note": "Published age criterion: Young adults 18-24. Your answer is outside it; confirm with the provider."
+            },
+            "rating": {
+              "overall_rating": 4.9,
+              "overall_review_count": 45,
+              "ranking_score": 4.7586,
+              "family_mean_rating": 4.12,
+              "prior_weight_m": 10.0,
+              "source": "Google Maps Places overall rating and review count"
+            },
+            "review_evidence": {
+              "sampled_review_count": 4,
+              "sampled_text_count": 3,
+              "date_min": "2025-01-15",
+              "date_max": "2025-04-15",
+              "star_distribution": {
+                "1": 0,
+                "2": 0,
+                "3": 1,
+                "4": 1,
+                "5": 1
+              },
+              "snippets": [],
+              "note": "Random sample of reviews; separate from the overall rating above."
+            },
+            "distance": {
+              "miles": 1.2,
+              "reference_point": "center of Oakland",
+              "measure": "approximate straight-line distance from the area center, not travel time"
+            },
+            "availability": {
+              "permanently_closed": false,
+              "temporarily_closed": false,
+              "hours_text": "Mon 9 am\u20135 pm; Tue 9 am\u20135 pm",
+              "note": "No closure flag in the dataset does not confirm the place is open now."
+            },
+            "contact": {
+              "address": "107 Fixture Ave, Oakland, CA 94612, United States",
+              "city": "Oakland",
+              "zipcode": "94612",
+              "phone": "+1 555-0107",
+              "website": "https://example.org/SYN0007",
+              "maps_url": "https://example.org/maps/SYN0007"
+            },
+            "source": {
+              "dataset": "Google Maps Places",
+              "snapshot_date": null,
+              "note": "Google Maps Places export provided for the 8th Annual Datathon for Social Good. Collection date not documented; ratings and closure flags may be out of date."
+            },
+            "confirm_prompt": "Call or check the provider's website to confirm current hours, services, cost, and eligibility."
+          }
+        ]
+      },
+      {
+        "key": "highly_rated",
+        "label": "Highly rated nearby",
+        "note": null,
+        "total": 2,
+        "items": [
+          {
+            "place_id": "SYN0008",
+            "name": "Oakland Family Shelter 2 (synthetic)",
+            "need": "housing",
+            "family": "housing_assistance",
+            "family_label": "Shelters and housing assistance",
+            "group": "highly_rated",
+            "verification": {
+              "status": "unverified",
+              "provider_type": null,
+              "official_url": null,
+              "checked_on": null,
+              "cost_eligibility_notes": null,
+              "service_area": null
+            },
+            "eligibility": {
+              "age_status": "eligibility_needs_confirmation",
+              "note": "Eligibility needs confirmation with the provider."
+            },
+            "rating": {
+              "overall_rating": 4.2,
+              "overall_review_count": 45,
+              "ranking_score": 4.1859,
+              "family_mean_rating": 4.12,
+              "prior_weight_m": 10.0,
+              "source": "Google Maps Places overall rating and review count"
+            },
+            "review_evidence": {
+              "sampled_review_count": 4,
+              "sampled_text_count": 3,
+              "date_min": "2025-01-15",
+              "date_max": "2025-04-15",
+              "star_distribution": {
+                "1": 0,
+                "2": 0,
+                "3": 1,
+                "4": 1,
+                "5": 1
+              },
+              "snippets": [],
+              "note": "Random sample of reviews; separate from the overall rating above."
+            },
+            "distance": {
+              "miles": 0.3,
+              "reference_point": "center of Oakland",
+              "measure": "approximate straight-line distance from the area center, not travel time"
+            },
+            "availability": {
+              "permanently_closed": false,
+              "temporarily_closed": false,
+              "hours_text": "Hours not listed",
+              "note": "No closure flag in the dataset does not confirm the place is open now."
+            },
+            "contact": {
+              "address": "108 Fixture Ave, Oakland, CA 94612, United States",
+              "city": "Oakland",
+              "zipcode": "94612",
+              "phone": "+1 555-0108",
+              "website": "https://example.org/SYN0008",
+              "maps_url": "https://example.org/maps/SYN0008"
+            },
+            "source": {
+              "dataset": "Google Maps Places",
+              "snapshot_date": null,
+              "note": "Google Maps Places export provided for the 8th Annual Datathon for Social Good. Collection date not documented; ratings and closure flags may be out of date."
+            },
+            "confirm_prompt": "Call or check the provider's website to confirm current hours, services, cost, and eligibility."
+          },
+          {
+            "place_id": "SYN0037",
+            "name": "Berkeley Family Shelter 1 (synthetic)",
+            "need": "housing",
+            "family": "housing_assistance",
+            "family_label": "Shelters and housing assistance",
+            "group": "highly_rated",
+            "verification": {
+              "status": "unverified",
+              "provider_type": null,
+              "official_url": null,
+              "checked_on": null,
+              "cost_eligibility_notes": null,
+              "service_area": null
+            },
+            "eligibility": {
+              "age_status": "eligibility_needs_confirmation",
+              "note": "Eligibility needs confirmation with the provider."
+            },
+            "rating": {
+              "overall_rating": 4.1,
+              "overall_review_count": 150,
+              "ranking_score": 4.1014,
+              "family_mean_rating": 4.12,
+              "prior_weight_m": 10.0,
+              "source": "Google Maps Places overall rating and review count"
+            },
+            "review_evidence": {
+              "sampled_review_count": 0,
+              "sampled_text_count": 0,
+              "date_min": null,
+              "date_max": null,
+              "star_distribution": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              },
+              "snippets": [],
+              "note": "Random sample of reviews; separate from the overall rating above."
+            },
+            "distance": {
+              "miles": 4.5,
+              "reference_point": "center of Oakland",
+              "measure": "approximate straight-line distance from the area center, not travel time"
+            },
+            "availability": {
+              "permanently_closed": false,
+              "temporarily_closed": false,
+              "hours_text": "Mon 9 am\u20135 pm; Tue 9 am\u20135 pm",
+              "note": "No closure flag in the dataset does not confirm the place is open now."
+            },
+            "contact": {
+              "address": "137 Fixture Ave, Berkeley, CA 94704, United States",
+              "city": "Berkeley",
+              "zipcode": "94704",
+              "phone": "+1 555-0137",
+              "website": "https://example.org/SYN0037",
+              "maps_url": "https://example.org/maps/SYN0037"
+            },
+            "source": {
+              "dataset": "Google Maps Places",
+              "snapshot_date": null,
+              "note": "Google Maps Places export provided for the 8th Annual Datathon for Social Good. Collection date not documented; ratings and closure flags may be out of date."
+            },
+            "confirm_prompt": "Call or check the provider's website to confirm current hours, services, cost, and eligibility."
+          }
+        ]
+      },
+      {
+        "key": "other_rated",
+        "label": "Other nearby options with ratings",
+        "note": null,
+        "total": 1,
+        "items": [
+          {
+            "place_id": "SYN0038",
+            "name": "Berkeley Family Shelter 2 (synthetic)",
+            "need": "housing",
+            "family": "housing_assistance",
+            "family_label": "Shelters and housing assistance",
+            "group": "other_rated",
+            "verification": {
+              "status": "unverified",
+              "provider_type": null,
+              "official_url": null,
+              "checked_on": null,
+              "cost_eligibility_notes": null,
+              "service_area": null
+            },
+            "eligibility": {
+              "age_status": "eligibility_needs_confirmation",
+              "note": "Eligibility needs confirmation with the provider."
+            },
+            "rating": {
+              "overall_rating": 3.5,
+              "overall_review_count": 12,
+              "ranking_score": 3.7828,
+              "family_mean_rating": 4.12,
+              "prior_weight_m": 10.0,
+              "source": "Google Maps Places overall rating and review count"
+            },
+            "review_evidence": {
+              "sampled_review_count": 0,
+              "sampled_text_count": 0,
+              "date_min": null,
+              "date_max": null,
+              "star_distribution": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              },
+              "snippets": [],
+              "note": "Random sample of reviews; separate from the overall rating above."
+            },
+            "distance": {
+              "miles": 4.0,
+              "reference_point": "center of Oakland",
+              "measure": "approximate straight-line distance from the area center, not travel time"
+            },
+            "availability": {
+              "permanently_closed": false,
+              "temporarily_closed": false,
+              "hours_text": "Hours not listed",
+              "note": "No closure flag in the dataset does not confirm the place is open now."
+            },
+            "contact": {
+              "address": "138 Fixture Ave, Berkeley, CA 94704, United States",
+              "city": "Berkeley",
+              "zipcode": "94704",
+              "phone": "+1 555-0138",
+              "website": "https://example.org/SYN0038",
+              "maps_url": "https://example.org/maps/SYN0038"
+            },
+            "source": {
+              "dataset": "Google Maps Places",
+              "snapshot_date": null,
+              "note": "Google Maps Places export provided for the 8th Annual Datathon for Social Good. Collection date not documented; ratings and closure flags may be out of date."
+            },
+            "confirm_prompt": "Call or check the provider's website to confirm current hours, services, cost, and eligibility."
+          }
+        ]
+      },
+      {
+        "key": "limited_review_evidence",
+        "label": "Limited review evidence",
+        "note": "Few or no Google ratings. This is not a judgment of quality.",
+        "total": 2,
+        "items": [
+          {
+            "place_id": "SYN0009",
+            "name": "Oakland Family Shelter 3 (synthetic)",
+            "need": "housing",
+            "family": "housing_assistance",
+            "family_label": "Shelters and housing assistance",
+            "group": "limited_review_evidence",
+            "verification": {
+              "status": "unverified",
+              "provider_type": null,
+              "official_url": null,
+              "checked_on": null,
+              "cost_eligibility_notes": null,
+              "service_area": null
+            },
+            "eligibility": {
+              "age_status": "eligibility_needs_confirmation",
+              "note": "Eligibility needs confirmation with the provider."
+            },
+            "rating": {
+              "overall_rating": null,
+              "overall_review_count": 0,
+              "ranking_score": null,
+              "family_mean_rating": 4.12,
+              "prior_weight_m": 10.0,
+              "source": "Google Maps Places overall rating and review count"
+            },
+            "review_evidence": {
+              "sampled_review_count": 4,
+              "sampled_text_count": 3,
+              "date_min": "2025-01-15",
+              "date_max": "2025-04-15",
+              "star_distribution": {
+                "1": 0,
+                "2": 0,
+                "3": 1,
+                "4": 1,
+                "5": 1
+              },
+              "snippets": [],
+              "note": "Random sample of reviews; separate from the overall rating above."
+            },
+            "distance": {
+              "miles": 1.4,
+              "reference_point": "center of Oakland",
+              "measure": "approximate straight-line distance from the area center, not travel time"
+            },
+            "availability": {
+              "permanently_closed": false,
+              "temporarily_closed": false,
+              "hours_text": "Hours not listed",
+              "note": "No closure flag in the dataset does not confirm the place is open now."
+            },
+            "contact": {
+              "address": "109 Fixture Ave, Oakland, CA 94612, United States",
+              "city": "Oakland",
+              "zipcode": "94612",
+              "phone": null,
+              "website": null,
+              "maps_url": "https://example.org/maps/SYN0009"
+            },
+            "source": {
+              "dataset": "Google Maps Places",
+              "snapshot_date": null,
+              "note": "Google Maps Places export provided for the 8th Annual Datathon for Social Good. Collection date not documented; ratings and closure flags may be out of date."
+            },
+            "confirm_prompt": "Call or check the provider's website to confirm current hours, services, cost, and eligibility."
+          },
+          {
+            "place_id": "SYN0039",
+            "name": "Berkeley Family Shelter 3 (synthetic)",
+            "need": "housing",
+            "family": "housing_assistance",
+            "family_label": "Shelters and housing assistance",
+            "group": "limited_review_evidence",
+            "verification": {
+              "status": "unverified",
+              "provider_type": null,
+              "official_url": null,
+              "checked_on": null,
+              "cost_eligibility_notes": null,
+              "service_area": null
+            },
+            "eligibility": {
+              "age_status": "eligibility_needs_confirmation",
+              "note": "Eligibility needs confirmation with the provider."
+            },
+            "rating": {
+              "overall_rating": null,
+              "overall_review_count": 0,
+              "ranking_score": null,
+              "family_mean_rating": 4.12,
+              "prior_weight_m": 10.0,
+              "source": "Google Maps Places overall rating and review count"
+            },
+            "review_evidence": {
+              "sampled_review_count": 0,
+              "sampled_text_count": 0,
+              "date_min": null,
+              "date_max": null,
+              "star_distribution": {
+                "1": 0,
+                "2": 0,
+                "3": 0,
+                "4": 0,
+                "5": 0
+              },
+              "snippets": [],
+              "note": "Random sample of reviews; separate from the overall rating above."
+            },
+            "distance": {
+              "miles": 4.7,
+              "reference_point": "center of Oakland",
+              "measure": "approximate straight-line distance from the area center, not travel time"
+            },
+            "availability": {
+              "permanently_closed": false,
+              "temporarily_closed": false,
+              "hours_text": "Hours not listed",
+              "note": "No closure flag in the dataset does not confirm the place is open now."
+            },
+            "contact": {
+              "address": "139 Fixture Ave, Berkeley, CA 94704, United States",
+              "city": "Berkeley",
+              "zipcode": "94704",
+              "phone": null,
+              "website": null,
+              "maps_url": "https://example.org/maps/SYN0039"
+            },
+            "source": {
+              "dataset": "Google Maps Places",
+              "snapshot_date": null,
+              "note": "Google Maps Places export provided for the 8th Annual Datathon for Social Good. Collection date not documented; ratings and closure flags may be out of date."
+            },
+            "confirm_prompt": "Call or check the provider's website to confirm current hours, services, cost, and eligibility."
+          }
+        ]
+      }
+    ],
+    "notes": [
+      "Only 2 place(s) within 10 miles (straight line) of the center of Oakland meet the highly rated threshold (rating 4.0+ with 10+ reviews). The threshold was not lowered; other nearby options are shown separately."
+    ]
+  },
+  "data_coverage": {
+    "mode": "synthetic",
+    "sources": {
+      "places": {
+        "rows_in_target": 90,
+        "rows_read": 91
+      },
+      "reviews": {
+        "rows_in_target": 48,
+        "place_coverage_rate": 0.1333
+      },
+      "jobs": {
+        "status": "not_integrated"
+      },
+      "housing": {
+        "status": "not_integrated"
+      }
+    },
+    "notes": [
+      "SYNTHETIC FIXTURE DATA: fictional places for development only.",
+      "Service candidates: 81 places in 12 East Bay cities.",
+      "Sampled reviews are available for 12 of 90 places; most ratings come from Google's overall rating only.",
+      "Verified public/community providers: 2."
+    ]
+  },
+  "next_steps": [
+    {
+      "id": "explore_rent",
+      "text": "Compare rent ranges in nearby ZIP codes.",
+      "tab": "housing"
+    },
+    {
+      "id": "contact_provider",
+      "text": "Call one service provider to confirm hours, cost, and what to bring.",
+      "tab": "services"
+    },
+    {
+      "id": "check_eligibility",
+      "text": "Check published eligibility rules before you visit.",
+      "tab": "services"
+    },
+    {
+      "id": "browse_jobs",
+      "text": "Browse jobs that match your experience.",
+      "tab": "jobs"
+    }
+  ],
+  "disclaimer": "Phoenix shows information from datasets that may be out of date. It does not guarantee a job, housing approval, or service eligibility. Always confirm details with the employer, landlord, or provider."
+}

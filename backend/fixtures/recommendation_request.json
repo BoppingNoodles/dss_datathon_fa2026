@@ -1,0 +1,19 @@
+{
+  "age": 34,
+  "location": "Oakland",
+  "priority_need": "housing",
+  "experience": {
+    "skills": [
+      "warehouse",
+      "forklift"
+    ],
+    "text": "Kitchen and warehouse work during incarceration",
+    "years": 3
+  },
+  "education": {
+    "level": "high_school_or_ged",
+    "credentials": [
+      "ServSafe Food Handler"
+    ]
+  }
+}
