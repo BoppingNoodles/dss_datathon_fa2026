@@ -13,6 +13,8 @@ export interface RecommendationRequest {
   education: { level: string | null; credentials: string[] };
   service_sort: ServiceSort;
   job_sort: JobSort;
+  selected_job_id?: string | null;
+  selected_interim_job_id?: string | null;
 }
 
 export interface ServiceCard {
@@ -95,6 +97,61 @@ export interface JobCard {
   pay: Pay;
   location: { text: string | null; city: string | null; precision: string; distance_miles: number | null; reference_point: string | null };
   rank_explanation: string;
+  selectable?: boolean;
+  is_selected?: boolean;
+  credential_summary?: string | null;
+}
+
+export type PayComparisonJob = Pick<JobCard, "job_id" | "title" | "pay">;
+
+export interface PlanLink {
+  label: string;
+  url: string;
+  role: "job_posting" | "official_requirements" | "provider_finder" | "funding_support";
+}
+
+export interface InterimJob {
+  job_id: string;
+  title: string;
+  company: string;
+  pay: {
+    minimum: number | null;
+    maximum: number | null;
+    period: Pay["period"] | "unknown";
+    raw: string | null;
+    notes: string[];
+  };
+  credential_summary: string;
+  confirmation_needed: string[];
+  source_url: string | null;
+  is_selected: boolean;
+}
+
+export interface ThirtyDayPlan {
+  target_job_id: string;
+  target_job_title: string;
+  selected_interim_job_id: string | null;
+  credential_paths: {
+    credential: string;
+    requirement_kind: "required" | "preferred" | "alternative" | "uncertain";
+    user_status: "reported_held" | "not_confirmed";
+    job_evidence: string;
+    evidence_source: string;
+    completion_within_30_days: "not_guaranteed";
+    links: PlanLink[];
+  }[];
+  interim_jobs: InterimJob[];
+  steps: {
+    step_id: string;
+    day_start: number;
+    day_end: number;
+    title: string;
+    action: string;
+    track: "job_confirmation" | "credential" | "interim_work" | "application" | "experience";
+    depends_on: string[];
+    links: PlanLink[];
+  }[];
+  notes: string[];
 }
 
 export interface JobsSection {
@@ -133,6 +190,8 @@ export interface RecommendationResponse {
   data_coverage: { mode: "real" | "synthetic"; notes: string[] };
   next_steps: { id: string; text: string; tab: Tab }[];
   disclaimer: string;
+  selected_job_id: string | null;
+  thirty_day_plan: ThirtyDayPlan | null;
 }
 
 export interface HousingComparisonRequest {

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { compareHousing, money } from "@/lib/api";
-import type { HousingArea, HousingComparisonResponse, HousingSection, JobCard, Pay } from "@/lib/types";
-import { payText } from "./JobsTab";
+import type { HousingArea, HousingComparisonResponse, HousingSection, PayComparisonJob, Pay } from "@/lib/types";
+import { payText } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -60,7 +60,7 @@ function AreaCard({ a, onUse }: { a: HousingArea; onUse: (rent: number) => void 
   );
 }
 
-function RentCalculator({ job, rent, setRent }: { job: JobCard | null; rent: string; setRent: (v: string) => void }) {
+function RentCalculator({ job, rent, setRent }: { job: PayComparisonJob | null; rent: string; setRent: (v: string) => void }) {
   const [payMin, setPayMin] = useState("");
   const [payMax, setPayMax] = useState("");
   const [period, setPeriod] = useState<NonNullable<Pay["period"]>>("hour");
@@ -168,7 +168,7 @@ function RentCalculator({ job, rent, setRent }: { job: JobCard | null; rent: str
   );
 }
 
-export default function HousingTab({ data, job }: { data: HousingSection; job: JobCard | null }) {
+export default function HousingTab({ data, job }: { data: HousingSection; job: PayComparisonJob | null }) {
   const [rent, setRent] = useState("");
   return (
     <div className="space-y-4">

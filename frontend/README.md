@@ -17,6 +17,10 @@ npm run dev                   # http://localhost:3000
 - Light and dark mode: the toggle is in the top right. The page follows the device setting until someone picks one, and the choice is remembered in the browser. Add `&theme=dark` or `&theme=light` to a link to force one. Colors are defined once in `app/globals.css` as shadcn theme tokens (`--primary`, `--card`, `--muted` and so on), with a light set and a `.dark` set.
 - If the API is unreachable, the form offers sample results from `lib/sample-response.json`. That file is a copy of `backend/fixtures/recommendation_response.synthetic.json` (made-up places); refresh it with `make fixtures` and copy it again.
 
+In Jobs, choose **Choose as target job** to load a 30-day preparation plan, including jobs with credential gaps. Pick an optional job under **Work while preparing**, expand plan steps for actions and source links, and check off progress. Selection and progress survive tab and sort changes; choosing a different target or submitting new onboarding answers resets them. Refreshing clears the page's selections and progress.
+
+**Compare interim pay with rent** opens the existing housing calculator with the interim job's pay. Hours and earnings remain a scenario to confirm. Plan selection uses the API; the offline sample does not generate a plan.
+
 shadcn components live in `components/ui/` and are generated code: button, card, badge, tabs, input, label, checkbox, toggle-group, alert and native-select. Add more with `npx shadcn@latest add <name>`. Shared Phoenix pieces built on them (status badge, notes, empty state, sort toggle) are in `components/shared.tsx`.
 
 | File | What |
@@ -24,7 +28,8 @@ shadcn components live in `components/ui/` and are generated code: button, card,
 | `app/page.tsx` | Page state, tabs, next steps, error and sample-data handling |
 | `components/OnboardingForm.tsx` | The five questions (only location and need are required) |
 | `components/ServicesTab.tsx` | Service groups and cards: verification, rating, star breakdown, sampled reviews |
-| `components/JobsTab.tsx` | Job cards per the API contract; shows "not connected yet" until job matching lands |
+| `components/JobsTab.tsx` | Job cards, target-job selection, sorting, and pay comparison |
+| `components/JobPlan.tsx` | Target credentials, optional interim work, and source-linked 30-day checklist |
 | `components/HousingTab.tsx` | Area rent cards and the pay-versus-rent calculator (`/housing-comparison`) |
 | `components/ThemeToggle.tsx` | Light/dark switch |
-| `lib/types.ts`, `lib/api.ts` | Types mirroring `backend/app/schemas.py`, and the API client |
+| `lib/types.ts`, `lib/api.ts`, `lib/jobs.ts` | API types/client and shared job-pay formatting |

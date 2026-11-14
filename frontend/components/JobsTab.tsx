@@ -1,7 +1,7 @@
 "use client";
 
-import { money } from "@/lib/api";
-import type { JobCard, JobSort, JobsSection, Pay } from "@/lib/types";
+import { payText } from "@/lib/jobs";
+import type { JobCard, JobSort, JobsSection } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge, EmptyState, Notes, SortToggle } from "./shared";
@@ -18,16 +18,10 @@ const REQ_LABEL: Record<string, string> = {
   certification_required: "License or certificate",
 };
 
-export function payText(p: Pay): string {
-  if (p.raw_text) return p.raw_text;
-  if (p.min == null && p.max == null) return "Pay not listed";
-  const digits = p.period === "hour" ? 2 : 0;
-  const lo = money(p.min ?? p.max, digits);
-  const hi = money(p.max ?? p.min, digits);
-  return `${lo === hi ? lo : `${lo}–${hi}`}${p.period ? ` per ${p.period}` : " (pay period not stated)"}`;
-}
-
-function JobItem({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void }) {
+function JobItem({ j, selected, loading, onSelect, onCompare }: {
+  j: JobCard; selected: boolean; loading: boolean;
+  onSelect: (j: JobCard) => void; onCompare: (j: JobCard) => void;
+}) {
   const tier = TIER[j.suitability_tier];
   const hasPay = j.pay.period != null && (j.pay.min != null || j.pay.max != null);
   const ruleBased = j.requirements.some((r) => r.source === "rule_extraction");
@@ -82,8 +76,14 @@ function JobItem({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void
       </details>
 
       <div className="mt-3 flex flex-wrap gap-2 text-sm font-medium">
+        <Button type="button" variant={selected ? "secondary" : "default"} size="lg"
+          disabled={loading || j.selectable === false} aria-pressed={selected}
+          aria-label={`${selected ? "Selected target" : "Choose target"}: ${j.title}`}
+          onClick={() => onSelect(j)}>
+          {selected ? "Selected target job" : "Choose as target job"}
+        </Button>
         {j.url && (
-          <Button asChild size="lg">
+          <Button asChild variant="outline" size="lg">
             <a href={j.url} target="_blank" rel="noopener noreferrer">View original posting</a>
           </Button>
         )}
@@ -98,8 +98,9 @@ function JobItem({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void
   );
 }
 
-export default function JobsTab({ data, loading, onSort, onCompare }: {
+export default function JobsTab({ data, loading, selectedJobId, onSelect, onSort, onCompare }: {
   data: JobsSection; loading: boolean; onSort: (s: JobSort) => void; onCompare: (j: JobCard) => void;
+  selectedJobId: string | null; onSelect: (j: JobCard) => void;
 }) {
   if (data.status === "not_integrated")
     return (
@@ -109,6 +110,9 @@ export default function JobsTab({ data, loading, onSort, onCompare }: {
     );
   return (
     <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Choose a target job to build your 30-day plan. You can choose one with requirements you still need to work toward.
+      </p>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">A listing doesn&apos;t guarantee the job is still open. Age is never used to rank jobs.</p>
         <SortToggle
@@ -129,7 +133,8 @@ export default function JobsTab({ data, loading, onSort, onCompare }: {
               </span>
             </h3>
             <ul className="grid gap-3 lg:grid-cols-2">
-              {g.items.map((j) => <JobItem key={j.job_id} j={j} onCompare={onCompare} />)}
+              {g.items.map((j) => <JobItem key={j.job_id} j={j} selected={j.job_id === selectedJobId}
+                loading={loading} onSelect={onSelect} onCompare={onCompare} />)}
             </ul>
           </section>
         ))
