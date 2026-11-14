@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import HousingTab from "@/components/HousingTab";
+import JobPlan from "@/components/JobPlan";
 import JobsTab from "@/components/JobsTab";
 import OnboardingForm from "@/components/OnboardingForm";
 import ServicesTab from "@/components/ServicesTab";
@@ -12,8 +13,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getRecommendations } from "@/lib/api";
+import { interimPay } from "@/lib/jobs";
 import sample from "@/lib/sample-response.json";
-import type { JobCard, Need, RecommendationRequest, RecommendationResponse, Tab } from "@/lib/types";
+import type { InterimJob, JobCard, Need, PayComparisonJob, RecommendationRequest, RecommendationResponse, Tab } from "@/lib/types";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "jobs", label: "Jobs" },
@@ -35,17 +37,21 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ message: string; unreachable: boolean } | null>(null);
   const [editing, setEditing] = useState(true);
-  const [job, setJob] = useState<JobCard | null>(null);
+  const [job, setJob] = useState<PayComparisonJob | null>(null);
   const [isSample, setIsSample] = useState(false);
   const [done, setDone] = useState<string[]>([]);
+  const [planDone, setPlanDone] = useState<string[]>([]);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const requestVersion = useRef(0);
 
-  async function load(req: RecommendationRequest, keepTab = false) {
+  async function load(req: RecommendationRequest, keepTab = false): Promise<RecommendationResponse | null> {
+    const version = ++requestVersion.current;
     setLoading(true);
     setError(null);
-    setRequest(req);
     try {
       const res = await getRecommendations(req);
+      if (version !== requestVersion.current) return null;
+      setRequest(req);
       setData(res);
       setIsSample(false);
       setEditing(false);
@@ -53,17 +59,74 @@ export default function Home() {
         setTab(res.open_tab);
         setJob(null);
         setDone([]);
-        requestAnimationFrame(() => resultsRef.current?.focus({ preventScroll: true }));
+        setPlanDone([]);
+        requestAnimationFrame(() => {
+          resultsRef.current?.focus({ preventScroll: true });
+          resultsRef.current?.scrollIntoView({ block: "start" });
+        });
       }
+      return res;
     } catch (err) {
+      if (version !== requestVersion.current) return null;
       const unreachable = err instanceof TypeError;
       setError({
         unreachable,
         message: unreachable ? "Can't reach the Phoenix server. Check that it's running, then try again." : (err as Error).message,
       });
+      return null;
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
+  }
+
+  function focusPlan() {
+    requestAnimationFrame(() => {
+      const plan = document.getElementById("job-plan");
+      plan?.focus({ preventScroll: true });
+      plan?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  async function selectTarget(target: JobCard) {
+    if (!request || isSample || loading) return;
+    if (data?.selected_job_id === target.job_id) {
+      focusPlan();
+      return;
+    }
+    const res = await load({ ...request, selected_job_id: target.job_id, selected_interim_job_id: null }, true);
+    if (res) {
+      setPlanDone([]);
+      setJob(null);
+      focusPlan();
+    }
+  }
+
+  async function selectInterim(id: string | null) {
+    if (!request?.selected_job_id || isSample || loading) return;
+    const res = await load({ ...request, selected_interim_job_id: id }, true);
+    if (res) {
+      const interim = res.thirty_day_plan?.interim_jobs.find((option) => option.job_id === id);
+      setJob(interim ? { job_id: interim.job_id, title: interim.title, pay: interimPay(interim) } : null);
+    }
+  }
+
+  async function clearTarget() {
+    if (!request || isSample || loading) return;
+    const res = await load({ ...request, selected_job_id: null, selected_interim_job_id: null }, true);
+    if (res) {
+      setPlanDone([]);
+      setJob(null);
+      requestAnimationFrame(() => {
+        resultsRef.current?.focus({ preventScroll: true });
+        resultsRef.current?.scrollIntoView({ block: "start" });
+      });
+    }
+  }
+
+  function compareInterim(interim: InterimJob) {
+    setJob({ job_id: interim.job_id, title: interim.title, pay: interimPay(interim) });
+    setTab("housing");
+    requestAnimationFrame(() => resultsRef.current?.scrollIntoView({ block: "start" }));
   }
 
   // Deep link for demos: /?location=Oakland&need=food
@@ -90,6 +153,9 @@ export default function Home() {
     setIsSample(true);
     setEditing(false);
     setError(null);
+    setJob(null);
+    setPlanDone([]);
+    setDone([]);
   }
 
   const showResults = data && !editing;
@@ -105,7 +171,7 @@ export default function Home() {
         </p>
         <div className="flex items-center gap-2">
           {showResults && (
-            <Button type="button" variant="outline" size="lg" onClick={() => setEditing(true)}>
+            <Button type="button" variant="outline" size="lg" disabled={loading} onClick={() => setEditing(true)}>
               Change my answers
             </Button>
           )}
@@ -146,13 +212,14 @@ export default function Home() {
             <Alert role="status" className="mb-4 border-transparent bg-warn-soft px-4 py-3">
               <AlertTitle className="text-base text-warn">
                 {isSample ? "Sample results are fictional and for testing only."
-                  : "Service results are fictional and for testing only."}
+                  : "These jobs, housing summaries, and services are fictional and for testing only."}
               </AlertTitle>
             </Alert>
           )}
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Your results{request && !isSample ? ` for ${request.location}` : ""}
           </h1>
+          {loading && <p role="status" className="mt-2 text-sm text-muted-foreground">Updating your results and plan…</p>}
 
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-4 gap-4">
             <TabsList variant="line" aria-label="Results" className="h-auto w-full justify-start gap-2 border-b border-border p-0 group-data-horizontal/tabs:h-auto">
@@ -174,7 +241,16 @@ export default function Home() {
             )}
             <div aria-busy={loading} className={`text-base ${loading ? "opacity-60" : ""}`}>
               <TabsContent value="jobs" className="text-base">
+                {data.thirty_day_plan && (
+                  <JobPlan key={data.thirty_day_plan.target_job_id} plan={data.thirty_day_plan}
+                    loading={loading || isSample} completed={planDone}
+                    onSelectInterim={selectInterim} onClear={clearTarget} onCompareInterim={compareInterim}
+                    onToggleStep={(id, checked) => setPlanDone((current) => checked
+                      ? current.includes(id) ? current : [...current, id]
+                      : current.filter((step) => step !== id))} />
+                )}
                 <JobsTab data={data.jobs} loading={loading || isSample}
+                  selectedJobId={data.selected_job_id ?? null} onSelect={selectTarget}
                   onSort={(s) => request && load({ ...request, job_sort: s }, true)}
                   onCompare={(j) => { setJob(j); setTab("housing"); }} />
               </TabsContent>
