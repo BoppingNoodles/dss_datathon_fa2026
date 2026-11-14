@@ -166,8 +166,9 @@ export default function Home() {
         <p className="flex items-center gap-2.5 text-3xl font-bold tracking-tight sm:text-4xl">
           {/* Decorative: the name next to it is the accessible label. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/phoenix-logo.png" alt="" width={342} height={701} className="h-16 w-auto sm:h-20" />
-          <span className="text-brand-text">Phoenix</span>
+          {/* Stretched ~1.6x wider than the source image's 342x701 shape. */}
+          <img src="/phoenix-logo.png" alt="" width={342} height={701} className="h-16 w-16 object-fill sm:h-20 sm:w-20" />
+          <span className="phoenix-wordmark">Phoenix</span>
         </p>
         <div className="flex items-center gap-2">
           {showResults && (
