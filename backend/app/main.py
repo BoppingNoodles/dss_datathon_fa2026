@@ -10,7 +10,7 @@ Endpoints:
 PHOENIX_SOURCE selects data/processed/<real|synthetic>/. Default: real if built, else synthetic.
 
 Jobs and housing use separate data adapters (docs/api_contract.md):
-    src.recommend.jobs.rank_jobs(request: dict, sort: str, *, area_city: str | None) -> JobsSection
+    src.recommend.jobs.rank_jobs(request: dict, sort: str, *, source: str, area_city: str | None) -> JobsSection
     src.recommend.housing.housing_areas(location: str, services: pd.DataFrame) -> dict matching HousingSection
 """
 
@@ -89,7 +89,7 @@ def jobs_section(req: RecommendationRequest, refs: pd.DataFrame) -> dict:
         cities = refs.loc[(refs["area_type"] == "zip") & (refs["area_key"] == key), "city_for_zip"].dropna()
         if not cities.empty:
             city = str(cities.iloc[0])
-    return rank_jobs(req.model_dump(), req.job_sort, area_city=city)
+    return rank_jobs(req.model_dump(), req.job_sort, area_city=city, source=data_source())
 
 
 def housing_section(req: RecommendationRequest, candidates: pd.DataFrame) -> dict:
@@ -97,7 +97,22 @@ def housing_section(req: RecommendationRequest, candidates: pd.DataFrame) -> dic
     if fn is None:
         return {"status": "not_integrated", "areas": [],
                 "notes": ["Neighborhood rental summaries are not connected yet."]}
-    return fn(req.location, candidates)
+    return fn(req.location, candidates, source=data_source())
+
+
+def selection_section(req: RecommendationRequest) -> dict:
+    if req.selected_job_id is None:
+        return {}
+    fn = _optional("src.recommend.jobs", "selected_job_plan")
+    if fn is None:
+        raise HTTPException(status_code=503, detail="Job selection is not connected yet.")
+    from src.recommend.person1_data import Person1DataUnavailable
+    try:
+        return fn(req.model_dump(), source=data_source())
+    except Person1DataUnavailable as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
 
 
 def next_steps(need: str) -> list[dict]:
@@ -129,15 +144,17 @@ def coverage(source: str, stats: dict, jobs: dict, housing: dict) -> dict:
         f"{i.get('verification_status', {}).get('verified_public_community', 0)}.",
     ]
     if source == "synthetic":
-        notes.insert(0, "SYNTHETIC SERVICE DATA: fictional places for development only.")
+        notes.insert(0, "SYNTHETIC FIXTURE DATA: fictional places for development only.")
+    person1_coverage = _optional("src.recommend.person1_data", "coverage_summary")
+    extra = person1_coverage(source) if person1_coverage is not None else {}
     return {
         "mode": source,
         "sources": {
             "places": {"rows_in_target": p.get("target_rows_after_dedupe"), "rows_read": p.get("rows_read")},
             "reviews": {"rows_in_target": r.get("target_rows_after_dedupe"),
                         "place_coverage_rate": r.get("target_place_coverage_rate")},
-            "jobs": {"status": jobs["status"], "source": "Indeed snapshot" if jobs["status"] == "ok" else None},
-            "housing": {"status": housing["status"]},
+            "jobs": {"status": jobs["status"], "source": ("Indeed snapshot" if source == "real" else "synthetic fixture") if jobs["status"] == "ok" else None, **extra.get("jobs", {})},
+            "housing": {"status": housing["status"], **extra.get("housing", {})},
         },
         "notes": notes,
     }
@@ -175,6 +192,7 @@ def recommendations(req: RecommendationRequest) -> dict:
                              age=req.age, sort=req.service_sort)
     jobs = jobs_section(req, d["refs"])
     housing = housing_section(req, d["candidates"])
+    selection = selection_section(req)
     return {
         "open_tab": OPEN_TAB.get(req.priority_need, "services"),
         "jobs": jobs,
@@ -183,6 +201,7 @@ def recommendations(req: RecommendationRequest) -> dict:
         "data_coverage": coverage(source, d["stats"], jobs, housing),
         "next_steps": next_steps(req.priority_need),
         "disclaimer": DISCLAIMER,
+        **selection,
     }
 
 

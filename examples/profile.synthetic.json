@@ -1,0 +1,14 @@
+{
+  "age": 35,
+  "location": "Oakland, CA",
+  "priority_need": "work",
+  "experience": {"skills": ["warehouse", "inventory"], "years": 2},
+  "education": {"level": "high_school", "certifications": []},
+  "reference_point": {
+    "latitude": 37.8,
+    "longitude": -122.27,
+    "precision": "city_center",
+    "label": "Synthetic Oakland area reference point"
+  },
+  "sort": "recommended"
+}

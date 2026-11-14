@@ -4,7 +4,7 @@ import pytest
 
 from src.audit.privacy_check import scan
 from src.common import ROOT
-from src.recommend import jobs
+from src.recommend import jobs, oakland_jobs
 from src.recommend.housing_math import compare
 
 PROFILES = [{k: v for k, v in p.items() if not k.startswith("_")}
@@ -53,8 +53,20 @@ def test_jobs_and_housing_not_invented_before_integration(client):
 
 
 def test_oakland_jobs_contract_and_sorts(client, monkeypatch, tmp_path):
+    from backend.app import main
+    from src.recommend.person1_data import Person1DataUnavailable
+
+    # Isolate the real-mode Oakland fallback with fictional data. Synthetic
+    # requests must never load the real export when normalized inputs are absent.
+    def unavailable(source):
+        raise Person1DataUnavailable("Normalized input intentionally absent in this test")
+
+    synthetic_data = main.load_data("synthetic")
+    monkeypatch.setenv("PHOENIX_SOURCE", "real")
+    monkeypatch.setattr(main, "load_data", lambda source: synthetic_data)
+    monkeypatch.setattr(jobs, "load_person1", unavailable)
     path = tmp_path / "oakland_jobs.json"
-    monkeypatch.setattr(jobs, "JOBS_PATH", path)
+    monkeypatch.setattr(oakland_jobs, "JOBS_PATH", path)
     row = {
         "title": "Warehouse associate", "employer": "Example employer", "city": "Oakland", "state": "CA",
         "source_url": "https://www.indeed.com/viewjob?jk=example", "salary_text": "$20 - $24 an hour",

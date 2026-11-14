@@ -9,8 +9,8 @@ Phoenix helps people returning from incarceration find relevant **jobs**, **neig
 | Workstream | Owner | Status |
 | --- | --- | --- |
 | Places/Reviews cleaning, service taxonomy, rating ranker, API, audits | Person 4 | Implemented and run on the real exports (this README) |
-| Indeed/Zillow cleaning, job ranking, housing summaries | Person 1 (Max) | Plugs into the API via [docs/api_contract.md](docs/api_contract.md) |
-| Requirement classifier, evaluation, subgroup analysis | Person 2 | Not yet in repo |
+| Indeed/Zillow cleaning, job ranking, housing summaries, selected-job/interim preparation plan | Person 1 (Max) | Integrated through the API adapters; [run instructions](docs/person1_integration.md) |
+| Requirement classifier, evaluation, subgroup analysis | Person 2 | Annotation, split, and pilot validation scripts included; final trained model and evaluation pending |
 | Frontend and demo | Person 3 | MVP in [frontend/](frontend/): form, three tabs, service cards, rent calculator |
 
 ## Setup
@@ -68,9 +68,11 @@ Check headers before trusting the field map: `uv run python -m src.data.inspect_
 ## Reproduce (Places/Reviews → services → audits)
 
 ```bash
-make all SOURCE=real        # ~7 s: clean Places, clean+aggregate Reviews, build index, audits, tests
+make all SOURCE=real        # clean services, export prepared Indeed/Zillow, run audits and tests
 make api SOURCE=real        # http://localhost:8000/docs
 ```
+
+The local integration includes Person 1's normalized real inputs under ignored `data/processed/real/`. For a fresh checkout, prepare the Indeed/Zillow inputs using [docs/person1_integration.md](docs/person1_integration.md) before `make all SOURCE=real`. `make services SOURCE=real` remains available for the service pipeline on its own. `make fixtures` now includes fictional jobs/housing as well as fictional services; synthetic mode never falls back to real records.
 
 Individual steps (each writes to `data/processed/real/` or `reports/`):
 
@@ -106,6 +108,8 @@ No downloads? `make fixtures` builds a clearly labeled **synthetic** dataset and
 | `POST /housing-comparison` | Selected job pay + area rent → hypothetical rent-burden range |
 
 Schemas: [backend/app/schemas.py](backend/app/schemas.py). Contract and integration hooks: [docs/api_contract.md](docs/api_contract.md).
+
+Optional `selected_job_id` and `selected_interim_job_id` fields on `/recommendations` produce a source-linked 30-day preparation plan and explicitly labeled income/rent scenarios. Missing credentials do not disable target-job selection. Interim options still need employer and schedule confirmation, and certification/hiring within 30 days is not guaranteed. The response keeps the existing grouped jobs, housing, and service sections.
 
 ## Layout
 
@@ -175,10 +179,13 @@ Run `python src/data/export_jobs.py` from the repository root. It reads
 Pass a local CSV path as the first argument to use a different copy and use
 `--output` to choose a different output path. The generated data is Git-ignored.
 
-To see these listings in the app, start the API and frontend using the local
-demo steps above, enter `Oakland`, and select `Work`. Synthetic service fixtures
-can be used for this run. The Jobs tab reads the local Indeed export through
-`POST /recommendations` and shows dataset posting dates and source links.
+With normalized Person 1 inputs installed, real mode uses the full local job
+matcher and housing summaries. If those inputs are absent, `make api SOURCE=real`
+retains the Oakland export as a jobs-only fallback; enter `Oakland` and select
+`Work`. Synthetic mode uses fictional jobs, housing, and services together.
+The Jobs tab reads through `POST /recommendations` and shows dataset posting
+dates and source links. Export-only installations need the normalized Person 1
+inputs before they can generate a selected-job preparation plan.
 
 Load the top-level `jobs` array directly. Listings are ordered newest first,
 with missing dates last and ties ordered by job ID. Use `job_id` as the card key.

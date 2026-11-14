@@ -1,0 +1,55 @@
+{
+  "data_mode": "sample",
+  "scope_cities": [],
+  "sources": [
+    {
+      "file": "indeed_sample.csv",
+      "sha256": "d1e2a555bf1d8faac3965eacb6e845fdb4a0f24c4a2b9eb72574651523abeea1",
+      "bytes": 14317115,
+      "kind": "jobs",
+      "counts": {
+        "input_rows": 1000,
+        "marked_expired_in_input": 937,
+        "outside_or_unresolved_geography": 840,
+        "candidate_rows_stored_or_updated": 156,
+        "duplicate_rows": 4
+      },
+      "candidate_pay_states": {
+        "advertised:year": 42,
+        "missing:unknown": 23,
+        "advertised:hour": 90,
+        "ambiguous:unknown": 3,
+        "advertised:month": 2
+      },
+      "posted_date_min": "2025-08-01T00:38:23.052000+00:00",
+      "posted_date_max": "2026-07-31T15:45:40.852000+00:00"
+    },
+    {
+      "file": "zillow_sample.csv",
+      "sha256": "53ffd7640000fae2982059b32ea77d8f023df1ca232fdc1daac62ec82b370096",
+      "bytes": 41485292,
+      "kind": "rentals",
+      "counts": {
+        "input_rows": 1000,
+        "for_rent_in_input": 22,
+        "outside_or_unresolved_geography": 803,
+        "not_for_rent": 193,
+        "candidate_rows_stored_or_updated": 4
+      },
+      "candidate_pay_states": {},
+      "posted_date_min": null,
+      "posted_date_max": null
+    }
+  ],
+  "notes": [
+    "Counts reflect only the provided input files, not the README population.",
+    "Not marked expired in a snapshot is not confirmation of a live vacancy.",
+    "No requirement model or scraper is run by this pipeline."
+  ],
+  "retained": {
+    "jobs": 156,
+    "rentals": 4,
+    "jobs_not_marked_expired": 8,
+    "jobs_unknown_expiry": 0
+  }
+}

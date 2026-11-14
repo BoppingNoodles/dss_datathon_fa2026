@@ -15,14 +15,14 @@ samples:
 
 external:
   jobs:
-    path: data/interim/jobs_clean.parquet
+    path: data/processed/{source}/jobs_clean.parquet
     key: jobid
     checks:
       - {check: salary_units, original: salary_text, transformed: [pay_min, pay_max, pay_period]}
       - {check: duplicate_group, original: job_title, transformed: [duplicate_group]}
       - {check: city_normalization, original: location, transformed: [city]}
   housing:
-    path: data/interim/zillow_rentals_clean.parquet
+    path: data/processed/{source}/zillow_rentals_clean.parquet
     key: zpid
     checks:
       - {check: rent_units, original: price, transformed: [monthly_rent, rent_basis]}
@@ -30,5 +30,5 @@ external:
       - {check: zip_assignment, original: zipcode, transformed: [area_id]}
   housing_public_output:
     # The published aggregate must not contain any of these columns.
-    path: data/processed/real/housing_areas.parquet
+    path: data/processed/{source}/housing_areas.parquet
     forbidden_columns: [zpid, address, streetAddress, latitude, longitude, lat, lon, url]

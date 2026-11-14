@@ -1,0 +1,23 @@
+{
+  "age": 34,
+  "location": "Oakland",
+  "priority_need": "work",
+  "experience": {
+    "skills": [
+      "warehouse",
+      "forklift"
+    ],
+    "text": "Kitchen and warehouse work during incarceration",
+    "years": 3
+  },
+  "education": {
+    "level": "high_school_or_ged",
+    "credentials": [
+      "ServSafe Food Handler"
+    ]
+  },
+  "selected_job_id": "example-b",
+  "selected_interim_job_id": "example-a",
+  "scenario_hours_per_week": 40,
+  "scenario_weeks_per_year": 52
+}

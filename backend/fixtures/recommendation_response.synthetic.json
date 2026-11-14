@@ -1,18 +1,240 @@
 {
   "open_tab": "housing",
   "jobs": {
-    "status": "not_integrated",
+    "status": "ok",
     "sort": "highest_pay",
-    "groups": [],
+    "groups": [
+      {
+        "key": "strong_match:USD/hour",
+        "label": "Strong matches \u00b7 USD/hour",
+        "total": 2,
+        "items": [
+          {
+            "job_id": "example-b",
+            "title": "Warehouse Associate",
+            "employer": "Fictional Warehouse B",
+            "posted_date": null,
+            "url": "https://example.com/jobs/b",
+            "suitability_tier": "strong_match",
+            "requirements": [
+              {
+                "label": "education_required",
+                "status": "required",
+                "evidence": "High school diploma required.",
+                "source": "rule_extraction",
+                "model_score": null,
+                "value": "high_school",
+                "requirement_kind": "required"
+              }
+            ],
+            "matches": [
+              "warehouse"
+            ],
+            "gaps": [],
+            "unknowns": [],
+            "pay": {
+              "min": 40.0,
+              "max": 40.0,
+              "period": "hour",
+              "currency": "USD",
+              "raw_text": "$40 an hour",
+              "hours_per_week": null,
+              "hours_basis": "unknown",
+              "hourly_equivalent_min": 40.0,
+              "hourly_equivalent_max": 40.0,
+              "conversion_note": null
+            },
+            "location": {
+              "text": "Oakland, CA (synthetic)",
+              "city": "Oakland",
+              "precision": "worksite",
+              "source": "synthetic fixture",
+              "distance_miles": 2.269,
+              "reference_point": "center of Oakland"
+            },
+            "rank_explanation": "Suitability group: strong match; this is not a hiring or eligibility guarantee. Experience terms overlap: warehouse. Lower advertised pay endpoint: 40 USD/hour; pay compared only within this basis. Comparable pay first within suitability groups; verified distance breaks pay ties.",
+            "source": {
+              "dataset": "Indeed provided export",
+              "mode": "synthetic",
+              "file": null,
+              "posting_status": "not_marked_expired_in_snapshot",
+              "pay_basis": "USD/hour",
+              "pay_source": "advertised"
+            },
+            "selectable": true,
+            "is_selected": false,
+            "credential_summary": "No required certification identified in available structured/hinted requirements; confirm the full posting with the employer."
+          },
+          {
+            "job_id": "example-a",
+            "title": "Warehouse Associate",
+            "employer": "Fictional Warehouse A",
+            "posted_date": null,
+            "url": "https://example.com/jobs/a",
+            "suitability_tier": "strong_match",
+            "requirements": [
+              {
+                "label": "education_required",
+                "status": "required",
+                "evidence": "High school diploma required.",
+                "source": "rule_extraction",
+                "model_score": null,
+                "value": "high_school",
+                "requirement_kind": "required"
+              }
+            ],
+            "matches": [
+              "warehouse"
+            ],
+            "gaps": [],
+            "unknowns": [],
+            "pay": {
+              "min": 20.0,
+              "max": 20.0,
+              "period": "hour",
+              "currency": "USD",
+              "raw_text": "$20 an hour",
+              "hours_per_week": null,
+              "hours_basis": "unknown",
+              "hourly_equivalent_min": 20.0,
+              "hourly_equivalent_max": 20.0,
+              "conversion_note": null
+            },
+            "location": {
+              "text": "Oakland, CA (synthetic)",
+              "city": "Oakland",
+              "precision": "worksite",
+              "source": "synthetic fixture",
+              "distance_miles": 1.769,
+              "reference_point": "center of Oakland"
+            },
+            "rank_explanation": "Suitability group: strong match; this is not a hiring or eligibility guarantee. Experience terms overlap: warehouse. Lower advertised pay endpoint: 20 USD/hour; pay compared only within this basis. Comparable pay first within suitability groups; verified distance breaks pay ties.",
+            "source": {
+              "dataset": "Indeed provided export",
+              "mode": "synthetic",
+              "file": null,
+              "posting_status": "not_marked_expired_in_snapshot",
+              "pay_basis": "USD/hour",
+              "pay_source": "advertised"
+            },
+            "selectable": true,
+            "is_selected": false,
+            "credential_summary": "No required certification identified in available structured/hinted requirements; confirm the full posting with the employer."
+          }
+        ]
+      },
+      {
+        "key": "possible_match:pay_needs_confirmation",
+        "label": "Possible matches \u2014 confirm requirements \u00b7 pay_needs_confirmation",
+        "total": 1,
+        "items": [
+          {
+            "job_id": "example-missing-pay",
+            "title": "Warehouse Associate",
+            "employer": "Fictional Warehouse C",
+            "posted_date": null,
+            "url": "https://example.com/jobs/c",
+            "suitability_tier": "possible_match",
+            "requirements": [],
+            "matches": [
+              "warehouse"
+            ],
+            "gaps": [],
+            "unknowns": [
+              "Exact worksite distance is unknown; city compatibility only.",
+              "Posting availability is unknown.",
+              "Structured requirements not supplied; confirm qualifications in the original posting."
+            ],
+            "pay": {
+              "min": null,
+              "max": null,
+              "period": null,
+              "currency": null,
+              "raw_text": null,
+              "hours_per_week": null,
+              "hours_basis": "unknown",
+              "hourly_equivalent_min": null,
+              "hourly_equivalent_max": null,
+              "conversion_note": null
+            },
+            "location": {
+              "text": "Oakland, CA (synthetic)",
+              "city": "Oakland",
+              "precision": "city",
+              "source": "Indeed city text; precise worksite coordinates not supplied",
+              "distance_miles": null,
+              "reference_point": null
+            },
+            "rank_explanation": "Suitability group: possible match; this is not a hiring or eligibility guarantee. Experience terms overlap: warehouse. Pay not listed or needs confirmation; no zero-pay assumption. Comparable pay first within suitability groups; verified distance breaks pay ties.",
+            "source": {
+              "dataset": "Indeed provided export",
+              "mode": "synthetic",
+              "file": null,
+              "posting_status": "unknown",
+              "pay_basis": "pay_needs_confirmation",
+              "pay_source": "missing"
+            },
+            "selectable": true,
+            "is_selected": false,
+            "credential_summary": "No required certification identified in available structured/hinted requirements; confirm the full posting with the employer."
+          }
+        ]
+      }
+    ],
     "notes": [
-      "Job matching is not connected yet."
+      "Snapshot records: confirm current availability and all qualifications before applying.",
+      "Pay is compared only within the same suitability and pay-period group; age does not rank jobs.",
+      "Credentials may need preparation; every displayed job remains selectable."
     ]
   },
   "housing_areas": {
-    "status": "not_integrated",
-    "areas": [],
+    "status": "ok",
+    "areas": [
+      {
+        "area_id": "oakland:city",
+        "area_type": "city",
+        "label": "Oakland",
+        "usable_rental_records": 6,
+        "suppressed": false,
+        "median_monthly_rent": 1450.0,
+        "rent_p25": 1325.0,
+        "rent_p75": 1575.0,
+        "rent_basis": "listed_rent",
+        "bedrooms": {
+          "unknown": 6
+        },
+        "property_types": {
+          "unknown": 6
+        },
+        "nearby_services": [],
+        "source_note": "Rental snapshot, not confirmed current availability. City and ZIP summaries overlap; do not add their listing counts."
+      },
+      {
+        "area_id": "oakland:94612",
+        "area_type": "zip",
+        "label": "Oakland 94612",
+        "usable_rental_records": 6,
+        "suppressed": false,
+        "median_monthly_rent": 1450.0,
+        "rent_p25": 1325.0,
+        "rent_p75": 1575.0,
+        "rent_basis": "listed_rent",
+        "bedrooms": {
+          "unknown": 6
+        },
+        "property_types": {
+          "unknown": 6
+        },
+        "nearby_services": [],
+        "source_note": "Rental snapshot, not confirmed current availability. City and ZIP summaries overlap; do not add their listing counts."
+      }
+    ],
     "notes": [
-      "Neighborhood rental summaries are not connected yet."
+      "Zillow rental snapshots; current availability and screening are unverified.",
+      "City and ZIP populations overlap; do not add their record counts.",
+      "Rents combine bedroom/property types; inspect the distributions before comparing housing options.",
+      "Service access is an aggregate over internal properties, not a count at a single user address or a travel time.",
+      "0 groups suppressed below five distinct properties."
     ]
   },
   "services": {
@@ -502,10 +724,16 @@
         "place_coverage_rate": 0.1333
       },
       "jobs": {
-        "status": "not_integrated"
+        "status": "ok",
+        "source": "synthetic fixture",
+        "rows_read": 0,
+        "retained_records": 3,
+        "not_marked_expired": 2
       },
       "housing": {
-        "status": "not_integrated"
+        "status": "ok",
+        "rows_read": 0,
+        "retained_rental_candidates": 6
       }
     },
     "notes": [
@@ -537,5 +765,10 @@
       "tab": "jobs"
     }
   ],
-  "disclaimer": "Phoenix shows information from datasets that may be out of date. It does not guarantee a job, housing approval, or service eligibility. Always confirm details with the employer, landlord, or provider."
+  "disclaimer": "Phoenix shows information from datasets that may be out of date. It does not guarantee a job, housing approval, or service eligibility. Always confirm details with the employer, landlord, or provider.",
+  "selected_job_id": null,
+  "thirty_day_plan": null,
+  "housing_comparisons": [],
+  "housing_income_job_id": null,
+  "housing_income_stage": "not_selected"
 }

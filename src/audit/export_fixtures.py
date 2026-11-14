@@ -22,12 +22,21 @@ def main() -> None:
     profiles = json.loads((fx / "profiles.json").read_text())
     req = {k: v for k, v in profiles[0].items() if not k.startswith("_")}
     (fx / "recommendation_request.json").write_text(json.dumps(req, indent=2) + "\n")
-    resp = client.post("/recommendations", json=req).json()
+    response = client.post("/recommendations", json=req)
+    response.raise_for_status()
+    resp = response.json()
     (fx / "recommendation_response.synthetic.json").write_text(json.dumps(resp, indent=2) + "\n")
     hc = {"pay_min": 20, "pay_max": 24, "pay_period": "hour", "hours_per_week": None, "monthly_rent": 1650}
     (fx / "housing_comparison_request.json").write_text(json.dumps(hc, indent=2) + "\n")
     (fx / "housing_comparison_response.json").write_text(
         json.dumps(client.post("/housing-comparison", json=hc).json(), indent=2) + "\n")
+    selection = {**req, "priority_need":"work", "selected_job_id":"example-b",
+                 "selected_interim_job_id":"example-a", "scenario_hours_per_week":40,
+                 "scenario_weeks_per_year":52}
+    selected = client.post("/recommendations", json=selection)
+    selected.raise_for_status()
+    (fx / "job_selection_request.synthetic.json").write_text(json.dumps(selection, indent=2) + "\n")
+    (fx / "job_selection_response.synthetic.json").write_text(json.dumps(selected.json(), indent=2) + "\n")
     print("wrote fixtures to", fx)
 
 

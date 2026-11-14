@@ -99,7 +99,8 @@ def geo_rows(cand: pd.DataFrame, refs: pd.DataFrame, n: int, seed: int) -> list[
     return rows
 
 
-def external_rows(name: str, spec: dict, n: int, seed: int) -> list[dict]:
+def external_rows(name: str, spec: dict, n: int, seed: int, source: str = "real") -> list[dict]:
+    spec = {**spec, "path":spec["path"].format(source=source)}
     path = resolve(spec["path"])
     if not path.exists():
         return [_row(name, "-", "-", "pending", None, None, f"{spec['path']} not produced yet (Person 1)")]
@@ -115,7 +116,8 @@ def external_rows(name: str, spec: dict, n: int, seed: int) -> list[dict]:
     return rows
 
 
-def housing_privacy_rows(spec: dict) -> list[dict]:
+def housing_privacy_rows(spec: dict, source: str = "real") -> list[dict]:
+    spec = {**spec, "path":spec["path"].format(source=source)}
     path = resolve(spec["path"])
     if not path.exists():
         return [_row("housing_public_output", "-", "-", "address_suppression", None, None,
@@ -137,9 +139,9 @@ def run(source: str) -> pd.DataFrame:
 
     rows = (service_rows(cand, n["services"], seed) + review_rows(reviews, places, n["reviews"], seed)
             + geo_rows(cand, refs, n["geo_pairs"], seed)
-            + external_rows("jobs", cfg["external"]["jobs"], n["jobs"], seed)
-            + external_rows("housing", cfg["external"]["housing"], n["housing"], seed)
-            + housing_privacy_rows(cfg["external"]["housing_public_output"]))
+            + external_rows("jobs", cfg["external"]["jobs"], n["jobs"], seed, source)
+            + external_rows("housing", cfg["external"]["housing"], n["housing"], seed, source)
+            + housing_privacy_rows(cfg["external"]["housing_public_output"], source))
     out = pd.DataFrame(rows).reindex(columns=COLUMNS)
     out.insert(1, "source", source)
 

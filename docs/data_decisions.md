@@ -100,3 +100,7 @@ Age is used only from `min_age`, `max_age` and `age_criteria_text` copied from t
 ## Area reference points
 
 City and ZIP centers are the **median coordinate of Places records** in that city or ZIP, and require at least 5 records. The result is 12 city centers and 44 ZIP centers. Distances are straight-line miles from that area center, never from the user's home, and are labeled as such. An unresolvable ZIP falls back to its most common city, and otherwise to matching by city or ZIP without distances.
+
+## Person 1 integration
+
+The Indeed/Zillow decisions, source checksums, dated-snapshot limitations, and job-selection/interim-work rules are in [person1_data_decisions.md](person1_data_decisions.md). Local full inputs and API adapters are documented in [person1_integration.md](person1_integration.md). This appendix preserves the Places/Reviews decisions above.

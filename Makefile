@@ -3,7 +3,7 @@
 SOURCE ?= real
 PY := uv run python
 
-.PHONY: web requirements install synthetic places reviews index services audits test api fixtures all clean-processed
+.PHONY: web requirements install synthetic places reviews index services person1 audits test api fixtures all clean-processed
 
 install:
 	uv sync --group dev --frozen
@@ -23,14 +23,17 @@ index: reviews
 services: index
 	$(PY) -m src.audit.coverage_report --source $(SOURCE)
 
-audits: services
+person1: services
+	$(PY) -m src.recommend.prepare_person1 --source $(SOURCE)
+
+audits: person1
 	$(PY) -m src.audit.data_audit --source $(SOURCE)
 	$(PY) -m src.audit.service_ranking_audit --source $(SOURCE)
 	$(PY) -m src.audit.worklists --source $(SOURCE)
 	$(PY) -m src.audit.privacy_check --source $(SOURCE)
 
 fixtures:
-	$(MAKE) synthetic && $(MAKE) services SOURCE=synthetic && $(PY) -m src.audit.export_fixtures
+	$(MAKE) synthetic && $(MAKE) person1 SOURCE=synthetic && $(PY) -m src.audit.export_fixtures
 
 test:
 	uv run pytest -q

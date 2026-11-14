@@ -10,7 +10,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from src.phoenix.models import ThirtyDayPlan
 
 Need = Literal["work", "housing", "food", "health_care", "transportation", "community_support"]
 EducationLevel = Literal[
@@ -47,6 +49,16 @@ class RecommendationRequest(Strict):
     education: Education = Field(default_factory=Education)
     service_sort: Literal["highly_rated", "nearest"] = "highly_rated"
     job_sort: Literal["highest_pay", "nearest"] = "highest_pay"
+    selected_job_id: str | None = Field(None, min_length=1)
+    selected_interim_job_id: str | None = Field(None, min_length=1)
+    scenario_hours_per_week: float | None = Field(None, gt=0, le=80)
+    scenario_weeks_per_year: float | None = Field(None, gt=0, le=53)
+
+    @model_validator(mode="after")
+    def interim_requires_target(self):
+        if self.selected_interim_job_id and not self.selected_job_id:
+            raise ValueError("Select a target job before selecting interim work")
+        return self
 
 
 # ----------------------------------------------------------------------------- jobs (Person 1/2 fill)
@@ -58,6 +70,8 @@ class RequirementEvidence(Strict):
     evidence: str | None = None
     source: Literal["model_prediction", "rule_extraction", "manual"] | None = None
     model_score: float | None = None
+    value: str | float | None = None
+    requirement_kind: Literal["required", "preferred", "alternative", "uncertain"] | None = None
 
 
 class Pay(Strict):
@@ -97,6 +111,9 @@ class JobCard(Strict):
     location: JobLocation
     rank_explanation: str
     source: dict = Field(default_factory=dict)
+    selectable: bool = True
+    is_selected: bool = False
+    credential_summary: str | None = None
 
 
 class JobGroup(Strict):
@@ -121,6 +138,10 @@ class NearbyServiceSummary(Strict):
     family_label: str
     count_within_1_mile: int | None = None
     nearest_miles: float | None = None
+    median_count_within_1_mile: float | None = None
+    share_of_properties_with_service: float | None = None
+    properties_with_coordinates: int | None = None
+    measurement: str | None = None
 
 
 class HousingArea(Strict):
@@ -280,6 +301,11 @@ class RecommendationResponse(Strict):
     data_coverage: DataCoverage
     next_steps: list[NextStep]
     disclaimer: str
+    selected_job_id: str | None = None
+    thirty_day_plan: ThirtyDayPlan | None = None
+    housing_comparisons: list[dict] = Field(default_factory=list)
+    housing_income_job_id: str | None = None
+    housing_income_stage: Literal["not_selected", "target_job_scenario", "interim_job_scenario"] = "not_selected"
 
 
 # ----------------------------------------------------------------------------- housing comparison

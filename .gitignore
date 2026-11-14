@@ -18,3 +18,9 @@ reports/*_synthetic.*
 # Local Indeed annotations, splits, and job exports.
 /data/indeed_splits/
 /data/jobs/
+
+# Person 1 private/local outputs and SQLite intermediates.
+reports/local/
+*.sqlite
+*.sqlite3
+*.egg-info/
