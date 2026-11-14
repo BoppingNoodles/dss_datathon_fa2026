@@ -3,7 +3,7 @@
 SOURCE ?= real
 PY := uv run python
 
-.PHONY: web install synthetic places reviews index services audits test api fixtures all clean-processed
+.PHONY: web requirements install synthetic places reviews index services audits test api fixtures all clean-processed
 
 install:
 	uv sync --group dev --frozen
@@ -37,6 +37,11 @@ test:
 
 api:
 	PHOENIX_SOURCE=$(SOURCE) uv run uvicorn backend.app.main:app --reload --port 8000
+
+requirements:
+	uv lock
+	uv export --frozen --no-dev --no-hashes --no-emit-project -o requirements.txt -q
+	uv export --frozen --only-group dev --no-hashes --no-emit-project -o requirements-dev.txt -q
 
 web:
 	cd frontend && npm install && npm run dev

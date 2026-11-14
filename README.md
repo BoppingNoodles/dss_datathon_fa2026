@@ -15,10 +15,41 @@ Phoenix helps people returning from incarceration find relevant **jobs**, **neig
 
 ## Setup
 
-Requires [uv](https://docs.astral.sh/uv/). Python 3.12 is pinned in `.python-version`; dependencies are locked in `uv.lock`.
+You need **Python 3.12** for the backend and data pipeline, and **Node.js 20 or newer** for the frontend.
+
+**With pip:**
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate            # Windows: .venv\Scripts\activate
+pip install -r requirements.txt      # pipeline + API
+pip install -r requirements-dev.txt  # tests (pytest, httpx)
+```
+
+**With [uv](https://docs.astral.sh/uv/)** (what the Makefile uses):
 
 ```bash
 uv sync --group dev --frozen
+```
+
+Both install the same pinned versions. `requirements.txt` and `requirements-dev.txt` are exported from `uv.lock`; after changing dependencies in `pyproject.toml`, regenerate them with `make requirements`.
+
+With pip, the `make` targets won't work unless uv is installed. Run the modules directly from the activated environment, for example:
+
+```bash
+python -m src.data.places --source real
+python -m src.data.reviews --source real
+python -m src.recommend.build_index --source real
+PHOENIX_SOURCE=real uvicorn backend.app.main:app --port 8000
+pytest -q
+```
+
+**Frontend:**
+
+```bash
+cd frontend
+npm install
+npm run dev                          # http://localhost:3000
 ```
 
 ## Raw data
