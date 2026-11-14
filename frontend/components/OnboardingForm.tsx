@@ -104,7 +104,7 @@ export default function OnboardingForm({ initial, loading, onSubmit }: {
         <p className="mt-2 text-sm text-muted">
           Phoenix covers Oakland and nearby East Bay cities. No street address needed.
         </p>
-        {tried && !locationOk && <p className="mt-1 text-sm font-medium text-brand-dark">Enter a city or ZIP code.</p>}
+        {tried && !locationOk && <p className="mt-1 text-sm font-medium text-brand-text">Enter a city or ZIP code.</p>}
       </Question>
 
       <Question n={2} title="What do you need help with first?">
@@ -122,7 +122,7 @@ export default function OnboardingForm({ initial, loading, onSubmit }: {
             </button>
           ))}
         </div>
-        {tried && !need && <p className="mt-2 text-sm font-medium text-brand-dark">Choose one to start.</p>}
+        {tried && !need && <p className="mt-2 text-sm font-medium text-brand-text">Choose one to start.</p>}
       </Question>
 
       <Question n={3} title="How old are you?" optional>
@@ -134,7 +134,7 @@ export default function OnboardingForm({ initial, loading, onSubmit }: {
         <p className="mt-2 text-sm text-muted">
           Only used to check age rules that a service has published. Leave blank to skip.
         </p>
-        {!ageOk && <p className="mt-1 text-sm font-medium text-brand-dark">Enter an age from 14 to 110, or leave it blank.</p>}
+        {!ageOk && <p className="mt-1 text-sm font-medium text-brand-text">Enter an age from 14 to 110, or leave it blank.</p>}
       </Question>
 
       <Question n={4} title="What work have you done or skills have you learned?" optional>

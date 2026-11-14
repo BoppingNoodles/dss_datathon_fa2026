@@ -81,3 +81,8 @@ def test_privacy_scanner_catches_violations():
            "housing_areas": {"areas": [{"zpid": "1", "address": "1 Main St"}]}}
     problems = scan(bad)
     assert any("contributor_url" in p for p in problems) and any("zpid" in p for p in problems)
+
+
+def test_root_points_to_docs_and_app(client):
+    j = client.get("/").json()
+    assert j["docs"] == "/docs" and "localhost:3000" in j["app"]

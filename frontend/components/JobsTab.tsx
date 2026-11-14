@@ -53,7 +53,7 @@ function Card({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void })
       {j.pay.conversion_note && <p className="mt-1 text-sm text-muted">{j.pay.conversion_note}</p>}
 
       <details className="mt-3 text-sm">
-        <summary className="cursor-pointer font-medium text-brand-dark">Requirements and how you match</summary>
+        <summary className="cursor-pointer font-medium text-brand-text">Requirements and how you match</summary>
         <div className="mt-2 space-y-2">
           {j.matches.length > 0 && <p><span className="font-medium text-ok">Matches: </span>{j.matches.join("; ")}</p>}
           {j.gaps.length > 0 && <p><span className="font-medium text-warn">Possible gaps: </span>{j.gaps.join("; ")}</p>}

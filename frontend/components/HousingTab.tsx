@@ -122,7 +122,7 @@ function RentCalculator({ job, rent, setRent }: { job: JobCard | null; rent: str
         </button>
       </form>
 
-      {error && <p className="mt-3 text-sm font-medium text-brand-dark">{error}</p>}
+      {error && <p className="mt-3 text-sm font-medium text-brand-text">{error}</p>}
       {result && (
         <div className="mt-4 rounded-lg bg-paper p-4" aria-live="polite">
           {result.status === "ok" && result.rent_burden_min != null && result.rent_burden_max != null ? (

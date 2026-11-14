@@ -1,30 +1,96 @@
 @import "tailwindcss";
 
+/* Color tokens. Light is the default; dark applies when the visitor picks it with the
+   toggle (data-theme="dark") or, if they haven't chosen, when their device prefers dark. */
+:root {
+  color-scheme: light;
+  --ink: #1c2530;
+  --muted: #5b6673;
+  --line: #dfe3e8;
+  --paper: #f7f5f1;
+  --card: #ffffff;
+  --brand: #b4441a;
+  --brand-dark: #8f3412;
+  --brand-text: #8f3412;
+  --brand-soft: #fbeee6;
+  --ok: #1f6f4a;
+  --ok-soft: #e6f3ec;
+  --warn: #8a5a00;
+  --warn-soft: #fdf3d8;
+  --info: #23527c;
+  --info-soft: #e8f0f8;
+  --star: #f59e0b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ink: #e9ecef;
+    --muted: #a5afba;
+    --line: #353d47;
+    --paper: #13171c;
+    --card: #1c222a;
+    --brand: #c9541f;
+    --brand-dark: #a8431a;
+    --brand-text: #f2a07a;
+    --brand-soft: #3a2218;
+    --ok: #74d3a0;
+    --ok-soft: #15301f;
+    --warn: #f0c466;
+    --warn-soft: #382c0f;
+    --info: #a3c8ec;
+    --info-soft: #172838;
+    --star: #fbbf24;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e9ecef;
+  --muted: #a5afba;
+  --line: #353d47;
+  --paper: #13171c;
+  --card: #1c222a;
+  --brand: #c9541f;
+  --brand-dark: #a8431a;
+  --brand-text: #f2a07a;
+  --brand-soft: #3a2218;
+  --ok: #74d3a0;
+  --ok-soft: #15301f;
+  --warn: #f0c466;
+  --warn-soft: #382c0f;
+  --info: #a3c8ec;
+  --info-soft: #172838;
+  --star: #fbbf24;
+}
+
 @theme inline {
-  --color-ink: #1c2530;
-  --color-muted: #5b6673;
-  --color-line: #dfe3e8;
-  --color-paper: #f7f5f1;
-  --color-card: #ffffff;
-  --color-brand: #b4441a;
-  --color-brand-dark: #8f3412;
-  --color-brand-soft: #fbeee6;
-  --color-ok: #1f6f4a;
-  --color-ok-soft: #e6f3ec;
-  --color-warn: #8a5a00;
-  --color-warn-soft: #fdf3d8;
-  --color-info-soft: #e8f0f8;
-  --color-info: #23527c;
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-text: var(--brand-text);
+  --color-brand-soft: var(--brand-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-star: var(--star);
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
 }
 
 body {
-  background: var(--color-paper);
-  color: var(--color-ink);
+  background: var(--paper);
+  color: var(--ink);
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-brand);
+  outline: 3px solid var(--brand-text);
   outline-offset: 2px;
 }
 

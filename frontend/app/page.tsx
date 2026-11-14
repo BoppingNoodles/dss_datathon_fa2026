@@ -5,6 +5,7 @@ import HousingTab from "@/components/HousingTab";
 import JobsTab from "@/components/JobsTab";
 import OnboardingForm from "@/components/OnboardingForm";
 import ServicesTab from "@/components/ServicesTab";
+import ThemeToggle from "@/components/ThemeToggle";
 import { getRecommendations } from "@/lib/api";
 import sample from "@/lib/sample-response.json";
 import type { JobCard, Need, RecommendationRequest, RecommendationResponse, Tab } from "@/lib/types";
@@ -92,14 +93,17 @@ export default function Home() {
     <div className="mx-auto w-full max-w-5xl px-4 pb-16 sm:px-6">
       <header className="flex items-center justify-between py-5">
         <p className="text-2xl font-bold tracking-tight">
-          <span className="text-brand">Phoenix</span>
+          <span className="text-brand-text">Phoenix</span>
         </p>
-        {showResults && (
-          <button type="button" onClick={() => setEditing(true)}
-            className="rounded-lg border border-line bg-card px-3 py-1.5 text-sm font-medium hover:border-brand">
-            Change my answers
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {showResults && (
+            <button type="button" onClick={() => setEditing(true)}
+              className="rounded-lg border border-line bg-card px-3 py-1.5 text-sm font-medium hover:border-brand">
+              Change my answers
+            </button>
+          )}
+          <ThemeToggle />
+        </div>
       </header>
 
       {!showResults && (
@@ -110,7 +114,7 @@ export default function Home() {
           </p>
           {error && (
             <div role="alert" className="mb-4 rounded-lg border border-brand/40 bg-brand-soft px-4 py-3">
-              <p className="font-medium text-brand-dark">{error.message}</p>
+              <p className="font-medium text-brand-text">{error.message}</p>
               {error.unreachable && (
                 <button type="button" onClick={showSample} className="mt-2 text-sm font-semibold underline">
                   Look at sample results instead (made-up places)
@@ -146,7 +150,7 @@ export default function Home() {
                   key={t.key} role="tab" id={`tab-${t.key}`} aria-selected={tab === t.key} aria-controls={`panel-${t.key}`}
                   onClick={() => setTab(t.key)}
                   className={`-mb-px rounded-t-lg border-b-2 px-4 py-2.5 text-base font-semibold sm:px-6 ${
-                    tab === t.key ? "border-brand text-brand-dark" : "border-transparent text-muted hover:text-ink"
+                    tab === t.key ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink"
                   }`}
                 >
                   {t.label}
@@ -158,7 +162,7 @@ export default function Home() {
 
           <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} aria-busy={loading}
             className={`pt-4 ${loading ? "opacity-60" : ""}`}>
-            {error && <p role="alert" className="mb-3 rounded-lg bg-brand-soft px-4 py-3 font-medium text-brand-dark">{error.message}</p>}
+            {error && <p role="alert" className="mb-3 rounded-lg bg-brand-soft px-4 py-3 font-medium text-brand-text">{error.message}</p>}
             {tab === "jobs" && (
               <JobsTab data={data.jobs} loading={loading || isSample}
                 onSort={(s) => request && load({ ...request, job_sort: s }, true)}
@@ -183,7 +187,7 @@ export default function Home() {
                     <label htmlFor={`step-${s.id}`} className={done.includes(s.id) ? "text-muted line-through" : ""}>
                       {s.text}{" "}
                       <button type="button" onClick={() => { setTab(s.tab); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                        className="text-sm font-medium text-brand-dark underline">
+                        className="text-sm font-medium text-brand-text underline">
                         Go to {TABS.find((t) => t.key === s.tab)?.label}
                       </button>
                     </label>

@@ -5,7 +5,7 @@ export function Badge({ tone, children }: { tone: "ok" | "warn" | "neutral" | "b
     ok: "bg-ok-soft text-ok",
     warn: "bg-warn-soft text-warn",
     neutral: "bg-paper text-muted border border-line",
-    brand: "bg-brand-soft text-brand-dark",
+    brand: "bg-brand-soft text-brand-text",
   }[tone];
   return <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${cls}`}>{children}</span>;
 }
@@ -37,7 +37,7 @@ export function SortToggle<T extends string>({ label, value, options, onChange, 
         <button
           key={o.value} type="button" disabled={disabled} aria-pressed={value === o.value}
           onClick={() => value !== o.value && onChange(o.value)}
-          className={`rounded-md px-3 py-1.5 font-medium ${value === o.value ? "bg-ink text-white" : "text-muted hover:text-ink"}`}
+          className={`rounded-md px-3 py-1.5 font-medium ${value === o.value ? "bg-ink text-paper" : "text-muted hover:text-ink"}`}
         >
           {o.label}
         </button>

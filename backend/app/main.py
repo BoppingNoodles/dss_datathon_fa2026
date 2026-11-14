@@ -141,6 +141,17 @@ def coverage(source: str, stats: dict, jobs: dict, housing: dict) -> dict:
     }
 
 
+@app.get("/", include_in_schema=False)
+def root() -> dict:
+    """This is the data API, not the website. Point people at the right addresses."""
+    return {
+        "name": "Phoenix API",
+        "app": "The website runs separately: cd frontend && npm run dev, then open http://localhost:3000",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 @app.get("/health")
 def health() -> dict:
     source = data_source()

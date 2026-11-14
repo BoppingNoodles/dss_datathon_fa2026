@@ -14,6 +14,7 @@ npm run dev                   # http://localhost:3000
 
 - The API address comes from `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`).
 - Demo deep link, which skips the form: `http://localhost:3000/?location=Oakland&need=food&age=34`
+- Light and dark mode: the toggle is in the top right. The page follows the device setting until someone picks one, and the choice is remembered in the browser. Add `&theme=dark` or `&theme=light` to a link to force one. Colors are defined once as tokens in `app/globals.css`.
 - If the API is unreachable, the form offers sample results from `lib/sample-response.json`. That file is a copy of `backend/fixtures/recommendation_response.synthetic.json` (made-up places); refresh it with `make fixtures` and copy it again.
 
 | File | What |
@@ -23,4 +24,5 @@ npm run dev                   # http://localhost:3000
 | `components/ServicesTab.tsx` | Service groups and cards: verification, rating, star breakdown, sampled reviews |
 | `components/JobsTab.tsx` | Job cards per the API contract; shows "not connected yet" until job matching lands |
 | `components/HousingTab.tsx` | Area rent cards and the pay-versus-rent calculator (`/housing-comparison`) |
+| `components/ThemeToggle.tsx` | Light/dark switch |
 | `lib/types.ts`, `lib/api.ts` | Types mirroring `backend/app/schemas.py`, and the API client |

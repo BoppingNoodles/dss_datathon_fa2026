@@ -8,7 +8,7 @@ function Stars({ rating }: { rating: number }) {
   return (
     <span className="relative inline-block text-lg leading-none" aria-hidden>
       <span className="text-line">★★★★★</span>
-      <span className="absolute inset-0 overflow-hidden whitespace-nowrap text-amber-500" style={{ width: `${pct}%` }}>
+      <span className="absolute inset-0 overflow-hidden whitespace-nowrap text-star" style={{ width: `${pct}%` }}>
         ★★★★★
       </span>
     </span>
@@ -28,7 +28,7 @@ function StarBars({ dist, label }: { dist: Record<string, number>; label: string
             <div key={s} className="flex items-center gap-2 text-xs text-muted">
               <span className="w-10 shrink-0">{s} star</span>
               <span className="h-2 flex-1 overflow-hidden rounded bg-line">
-                <span className="block h-full rounded bg-amber-500" style={{ width: `${(n / total) * 100}%` }} />
+                <span className="block h-full rounded bg-star" style={{ width: `${(n / total) * 100}%` }} />
               </span>
               <span className="w-8 shrink-0 text-right tabular-nums">{n}</span>
             </div>
@@ -107,7 +107,7 @@ function Card({ c }: { c: ServiceCard }) {
       </div>
 
       <details className="mt-3 text-sm">
-        <summary className="cursor-pointer font-medium text-brand-dark">Hours, address, and reviews</summary>
+        <summary className="cursor-pointer font-medium text-brand-text">Hours, address, and reviews</summary>
         <div className="mt-2 space-y-3">
           <p><span className="font-medium">Hours: </span>{c.availability.hours_text}</p>
           {c.contact.address && <p><span className="font-medium">Address: </span>{c.contact.address}</p>}
