@@ -108,7 +108,7 @@ Store `job_id`, description, three labels, per-label evidence spans, annotator, 
 
 ### Training, comparison, and leakage controls
 
-1. Deduplicate/group templates, then freeze roughly 60% train, 20% validation, 20% test with a recorded seed and posting-ID manifest. Keep duplicate groups and all chunks from a posting in one partition. Record employer overlap as a remaining risk.
+1. Freeze 70% train, 15% validation, and 15% test with a recorded seed. Keep duplicate groups and all chunks from a posting in one partition. Use five group-isolated folds within train, then use validation to check candidate changes. Keep test sealed until the final evaluation. Record employer overlap and near-duplicate templates as remaining risks.
 2. Inspect class/subgroup support before freezing. Aim for at least 15 test postings per subgroup and both positive/negative examples for each trainable label; if data is insufficient, collect more labels or narrow the task before evaluating. Disclose sparse test labels and small subgroup uncertainty.
 3. Train a per-label constant majority sanity baseline and a TF-IDF + one-vs-rest logistic regression baseline, fitting vocabulary and classifiers on training data only.
 4. Encode descriptions using [MiniLM](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2), then fit one-vs-rest logistic regression on the training embeddings/labels. Training the classifier is the supervised learning step; generating frozen embeddings alone is not enough.

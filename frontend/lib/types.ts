@@ -88,7 +88,7 @@ export interface JobCard {
   posted_date: string | null;
   url: string | null;
   suitability_tier: "strong_match" | "possible_match" | "known_gaps";
-  requirements: { label: string; status: string; evidence: string | null }[];
+  requirements: { label: string; status: string; evidence: string | null; source?: string | null }[];
   matches: string[];
   gaps: string[];
   unknowns: string[];

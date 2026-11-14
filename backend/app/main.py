@@ -9,10 +9,9 @@ Endpoints:
 
 PHOENIX_SOURCE selects data/processed/<real|synthetic>/. Default: real if built, else synthetic.
 
-Jobs and housing come from Person 1's modules through two adapter hooks (docs/api_contract.md):
-    src.recommend.jobs.rank_jobs(request: dict, sort: str) -> dict matching JobsSection
+Jobs and housing use separate data adapters (docs/api_contract.md):
+    src.recommend.jobs.rank_jobs(request: dict, sort: str, *, area_city: str | None) -> JobsSection
     src.recommend.housing.housing_areas(location: str, services: pd.DataFrame) -> dict matching HousingSection
-Until those modules exist, the tabs return status "not_integrated" instead of invented data.
 """
 
 from __future__ import annotations
@@ -33,8 +32,9 @@ from backend.app.schemas import (
     RecommendationRequest,
     RecommendationResponse,
 )
-from src.common import ROOT
+from src.common import ROOT, normalize_location_input
 from src.recommend import housing_math
+from src.recommend.jobs import rank_jobs
 from src.recommend.services import rank_services
 
 OPEN_TAB = {"work": "jobs", "housing": "housing"}
@@ -82,12 +82,14 @@ def _optional(module: str, attr: str):
         return None
 
 
-def jobs_section(req: RecommendationRequest) -> dict:
-    fn = _optional("src.recommend.jobs", "rank_jobs")
-    if fn is None:
-        return {"status": "not_integrated", "sort": req.job_sort, "groups": [],
-                "notes": ["Job matching is not connected yet."]}
-    return fn(req.model_dump(), req.job_sort)
+def jobs_section(req: RecommendationRequest, refs: pd.DataFrame) -> dict:
+    kind, key = normalize_location_input(req.location)
+    city = None
+    if kind == "zip":
+        cities = refs.loc[(refs["area_type"] == "zip") & (refs["area_key"] == key), "city_for_zip"].dropna()
+        if not cities.empty:
+            city = str(cities.iloc[0])
+    return rank_jobs(req.model_dump(), req.job_sort, area_city=city)
 
 
 def housing_section(req: RecommendationRequest, candidates: pd.DataFrame) -> dict:
@@ -127,14 +129,14 @@ def coverage(source: str, stats: dict, jobs: dict, housing: dict) -> dict:
         f"{i.get('verification_status', {}).get('verified_public_community', 0)}.",
     ]
     if source == "synthetic":
-        notes.insert(0, "SYNTHETIC FIXTURE DATA: fictional places for development only.")
+        notes.insert(0, "SYNTHETIC SERVICE DATA: fictional places for development only.")
     return {
         "mode": source,
         "sources": {
             "places": {"rows_in_target": p.get("target_rows_after_dedupe"), "rows_read": p.get("rows_read")},
             "reviews": {"rows_in_target": r.get("target_rows_after_dedupe"),
                         "place_coverage_rate": r.get("target_place_coverage_rate")},
-            "jobs": {"status": jobs["status"]},
+            "jobs": {"status": jobs["status"], "source": "Indeed snapshot" if jobs["status"] == "ok" else None},
             "housing": {"status": housing["status"]},
         },
         "notes": notes,
@@ -171,7 +173,7 @@ def recommendations(req: RecommendationRequest) -> dict:
         raise HTTPException(status_code=503, detail=str(e)) from e
     services = rank_services(d["candidates"], d["refs"], need=req.priority_need, location=req.location,
                              age=req.age, sort=req.service_sort)
-    jobs = jobs_section(req)
+    jobs = jobs_section(req, d["refs"])
     housing = housing_section(req, d["candidates"])
     return {
         "open_tab": OPEN_TAB.get(req.priority_need, "services"),

@@ -19,7 +19,8 @@ const REQ_LABEL: Record<string, string> = {
 };
 
 export function payText(p: Pay): string {
-  if (p.min == null && p.max == null) return p.raw_text ?? "Pay not listed";
+  if (p.raw_text) return p.raw_text;
+  if (p.min == null && p.max == null) return "Pay not listed";
   const digits = p.period === "hour" ? 2 : 0;
   const lo = money(p.min ?? p.max, digits);
   const hi = money(p.max ?? p.min, digits);
@@ -28,7 +29,8 @@ export function payText(p: Pay): string {
 
 function JobItem({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void }) {
   const tier = TIER[j.suitability_tier];
-  const hasPay = j.pay.min != null || j.pay.max != null;
+  const hasPay = j.pay.period != null && (j.pay.min != null || j.pay.max != null);
+  const ruleBased = j.requirements.some((r) => r.source === "rule_extraction");
   return (
     <li>
       <Card className="h-full gap-0 p-4 text-base">
@@ -43,7 +45,7 @@ function JobItem({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <Badge tone={tier.tone}>{tier.label}</Badge>
+        <Badge tone={tier.tone}>{ruleBased ? "Confirm fit" : tier.label}</Badge>
         {j.posted_date && <span className="text-sm text-muted-foreground">Posted {j.posted_date}</span>}
         <span className="text-sm text-muted-foreground">
           {j.location.distance_miles != null
@@ -56,7 +58,7 @@ function JobItem({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void
       {j.pay.conversion_note && <p className="mt-1 text-sm text-muted-foreground">{j.pay.conversion_note}</p>}
 
       <details className="mt-3 text-sm">
-        <summary className="cursor-pointer font-medium text-brand-text">Requirements and how you match</summary>
+        <summary className="cursor-pointer font-medium text-brand-text">{ruleBased ? "Requirements from the posting" : "Requirements and how you match"}</summary>
         <div className="mt-2 space-y-2">
           {j.matches.length > 0 && <p><span className="font-medium text-ok">Matches: </span>{j.matches.join("; ")}</p>}
           {j.gaps.length > 0 && <p><span className="font-medium text-warn">Possible gaps: </span>{j.gaps.join("; ")}</p>}
@@ -65,14 +67,16 @@ function JobItem({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void
             <div key={r.label} className="rounded-lg bg-muted p-3">
               <p className="font-medium">
                 {REQ_LABEL[r.label] ?? r.label}:{" "}
-                {r.status === "required" ? "required" : r.status === "preferred" ? "preferred, not required"
-                  : r.status === "not_found" ? "none found in the posting" : "unclear"}
+                {r.status === "required" ? (ruleBased ? "requirement detected" : "required")
+                  : r.status === "preferred" ? "preferred, not required"
+                  : r.status === "not_found" ? "not detected in the posting" : "unknown"}
               </p>
               {r.evidence && <p className="mt-1 text-muted-foreground">From the posting: &ldquo;{r.evidence}&rdquo;</p>}
             </div>
           ))}
           <p className="text-muted-foreground">
-            Requirements are read from the posting by a model and can be wrong. Check the original posting.
+            {ruleBased ? "Requirement flags come from an automated text scan. Check the original posting."
+              : "Requirements are read from the posting by a model and can be wrong. Check the original posting."}
           </p>
         </div>
       </details>
@@ -99,8 +103,8 @@ export default function JobsTab({ data, loading, onSort, onCompare }: {
 }) {
   if (data.status === "not_integrated")
     return (
-      <EmptyState title="Job matching isn't connected yet">
-        This tab will list jobs that fit your experience, with pay and requirements from each posting.
+      <EmptyState title="Jobs are unavailable">
+        {data.notes.join(" ")}
       </EmptyState>
     );
   return (
@@ -114,7 +118,7 @@ export default function JobsTab({ data, loading, onSort, onCompare }: {
       </div>
       <Notes notes={data.notes} />
       {data.groups.every((g) => g.items.length === 0) ? (
-        <EmptyState title="No matching jobs found here">Try a nearby city or add more skills to your answers.</EmptyState>
+        <EmptyState title="No job listings found for this location" />
       ) : (
         data.groups.filter((g) => g.items.length > 0).map((g) => (
           <section key={g.key}>

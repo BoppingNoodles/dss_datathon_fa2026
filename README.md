@@ -121,3 +121,115 @@ docs/           data_decisions.md, service_ranking.md, api_contract.md, reproduc
 reports/        generated coverage, audit, and ranking outputs
 slides/         deck outline and assembly checklist
 ```
+
+## Indeed annotation suggestions
+
+The labeler defaults to the team's shared Drive folder and looks for `indeed_job_listings.csv`.
+Drive input requires `python -m pip install "google-auth[requests]"` and Google
+Application Default Credentials with the `drive.readonly` scope. The account
+must have access to the folder and permission to download the CSV. The local
+script uses those credentials independently of the connected Codex account.
+
+To process a small sample from Drive and write the result locally, run:
+
+```powershell
+python src/data/scrape_indeed.py indeed_sample_labeled.csv --limit 20
+```
+
+Pass a folder URL as the first argument to use a different Drive folder, or
+pass a downloaded CSV path to run locally with the Python standard library:
+
+```powershell
+python src/data/scrape_indeed.py indeed_job_listings.csv indeed_labeled.csv
+```
+
+## Indeed splits and pilot validation
+
+```powershell
+python src/data/split_indeed.py "$env:USERPROFILE/Downloads/indeed_job_listings.csv" data/indeed_splits --seed 42
+python -m pip install scikit-learn==1.6.1
+python src/data/validate_indeed.py data/indeed_splits data/indeed_splits/pilot_annotations.csv
+```
+
+The split command preserves all source columns and rows. Groups linked by
+posting ID, normalized title/company/location, or identical normalized
+description stay together. The one-based `train_row` in `train_folds.csv`
+identifies each data row in `train.csv`. Each CV iteration fits TF-IDF and the
+classifier on four training folds and scores the remaining training fold.
+`validation.csv` is used for development decisions. Reserve `test.csv` for the
+final run after locking the model and rules. The generated directory is local
+and Git-ignored.
+
+The local pilot annotations contain 25 training and 10 validation postings
+reviewed by Codex. The annotation columns are `split`, one-based `row`, `jobid`,
+`education_required`, `experience_required`, and `certification_required`.
+Use `1` or `0` for observed labels and `?` for unresolved requirements. Replace
+the pilot annotations with a larger independently reviewed sample for the final
+evaluation. The pilot deliberately used shorter descriptions to make review
+tractable, and its validation examples informed the rule changes.
+
+## Oakland Jobs data handoff
+
+Run `python src/data/export_jobs.py` from the repository root. It reads
+`indeed_job_listings.csv` from Downloads and writes `data/jobs/oakland_jobs.json`.
+Pass a local CSV path as the first argument to use a different copy and use
+`--output` to choose a different output path. The generated data is Git-ignored.
+
+To see these listings in the app, start the API and frontend using the local
+demo steps above, enter `Oakland`, and select `Work`. Synthetic service fixtures
+can be used for this run. The Jobs tab reads the local Indeed export through
+`POST /recommendations` and shows dataset posting dates and source links.
+
+Load the top-level `jobs` array directly. Listings are ordered newest first,
+with missing dates last and ties ordered by job ID. Use `job_id` as the card key.
+Show `salary_text` as advertised. `annual_pay_low` and `annual_pay_high` are
+numeric gross USD per year or `null` for unavailable bounds. Apply the hourly
+assumptions in `metadata` when describing an estimated annual equivalent.
+`posted_date` is `YYYY-MM-DD` or `null`. Missing employer, URL, and salary text
+are also `null`. Link to `source_url` when present so users can verify availability.
+
+Each requirement contains `status` and `evidence`. Display `detected` as
+**Detected**, `not_detected` as **Not detected in the posting**, and `unknown`
+as **Unknown**. Render the evidence as plain text when present.
+
+Synthetic example:
+
+```json
+{
+  "metadata": {
+    "source": "Indeed dataset export",
+    "availability_verified": false,
+    "hourly_pay_assumptions": {"hours_per_week": 40, "weeks_per_year": 52},
+    "counts": {
+      "source_rows": 1,
+      "oakland_rows": 1,
+      "expired_rows": 0,
+      "incomplete_rows": 0,
+      "eligible_rows": 1,
+      "duplicates_removed": 0,
+      "exported_rows": 1,
+      "with_annual_pay": 1
+    },
+    "review_counts": {"education_required": 0, "experience_required": 1, "certification_required": 0}
+  },
+  "jobs": [
+    {
+      "job_id": "example-1",
+      "title": "Warehouse Associate",
+      "employer": "Example Employer",
+      "city": "Oakland",
+      "state": "CA",
+      "posted_date": "2026-11-01",
+      "source_url": null,
+      "salary_text": "$25 an hour",
+      "annual_pay_low": 52000,
+      "annual_pay_high": 52000,
+      "requirements": {
+        "education_required": {"status": "detected", "evidence": "High school diploma required."},
+        "experience_required": {"status": "unknown", "evidence": "Warehouse experience."},
+        "certification_required": {"status": "not_detected", "evidence": null}
+      }
+    }
+  ]
+}
+```

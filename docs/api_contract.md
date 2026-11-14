@@ -44,13 +44,15 @@ Frontend states to handle:
 - `eligibility.age_status = "eligibility_needs_confirmation"`
 - `review_evidence.sampled_review_count = 0` (the common case)
 
-## Integration hooks for Person 1
+## Jobs and Housing integrations
 
-The API imports these functions if they exist. Until then, the tabs return `status: "not_integrated"` with no invented rows.
+The Jobs adapter loads `data/jobs/oakland_jobs.json`. It accepts Oakland city searches and ZIPs mapped to Oakland by the current area reference table. It groups listings by advertised hourly pay, annual pay, or pay to confirm. Highest pay sorts by the lower bound within each comparable group. Nearest uses newest-first ordering while worksite distances are unavailable. Up to 12 listings are returned per group. All cards ask users to confirm fit while personalized qualification matching is pending.
+
+The Jobs data can be real while the Services data uses synthetic fixtures. `data_coverage.sources.jobs.source` identifies when listings come from the Indeed snapshot. Housing returns `not_integrated` until its adapter is available.
 
 ```python
 # src/recommend/jobs.py
-def rank_jobs(request: dict, sort: str) -> dict:   # must validate as schemas.JobsSection
+def rank_jobs(request: dict, sort: str, *, area_city: str | None = None) -> dict:
     ...
 
 # src/recommend/housing.py

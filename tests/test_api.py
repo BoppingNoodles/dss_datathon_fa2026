@@ -4,6 +4,7 @@ import pytest
 
 from src.audit.privacy_check import scan
 from src.common import ROOT
+from src.recommend import jobs
 from src.recommend.housing_math import compare
 
 PROFILES = [{k: v for k, v in p.items() if not k.startswith("_")}
@@ -49,6 +50,42 @@ def test_jobs_and_housing_not_invented_before_integration(client):
         assert j["jobs"]["groups"] == []
     if j["housing_areas"]["status"] == "not_integrated":
         assert j["housing_areas"]["areas"] == []
+
+
+def test_oakland_jobs_contract_and_sorts(client, monkeypatch, tmp_path):
+    path = tmp_path / "oakland_jobs.json"
+    monkeypatch.setattr(jobs, "JOBS_PATH", path)
+    row = {
+        "title": "Warehouse associate", "employer": "Example employer", "city": "Oakland", "state": "CA",
+        "source_url": "https://www.indeed.com/viewjob?jk=example", "salary_text": "$20 - $24 an hour",
+        "annual_pay_low": 41600, "annual_pay_high": 49920,
+        "requirements": {"experience_required": {"status": "unknown", "evidence": "Warehouse experience."}},
+    }
+    path.write_text(json.dumps({
+        "metadata": {"hourly_pay_assumptions": {"hours_per_week": 40, "weeks_per_year": 52}},
+        "jobs": [
+            dict(row, job_id="newer", posted_date="2026-08-01"),
+            dict(row, job_id="higher", posted_date="2026-07-01", salary_text="$25 an hour",
+                 annual_pay_low=52000, annual_pay_high=52000),
+        ],
+    }), encoding="utf-8")
+
+    def section(location, sort="highest_pay"):
+        response = client.post("/recommendations", json={"location": location, "priority_need": "work", "job_sort": sort})
+        assert response.status_code == 200, response.text
+        return response.json()["jobs"]
+
+    cards = section("94612")["groups"][0]["items"]
+    assert [card["job_id"] for card in cards] == ["higher", "newer"]
+    assert (cards[1]["pay"]["min"], cards[1]["pay"]["max"], cards[1]["pay"]["period"]) == (20, 24, "hour")
+    assert cards[1]["requirements"][0]["status"] == "unknown"
+    assert cards[1]["requirements"][0]["evidence"] == "Warehouse experience."
+    assert cards[1]["url"] == row["source_url"]
+    assert cards[1]["location"]["distance_miles"] is None
+    assert section("Oakland", "nearest")["groups"][0]["items"][0]["job_id"] == "newer"
+    assert section("Berkeley")["status"] == "no_results"
+    path.unlink()
+    assert section("Oakland")["status"] == "not_integrated"
 
 
 def test_rent_burden_example_from_plan():

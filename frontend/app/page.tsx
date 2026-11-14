@@ -141,7 +141,10 @@ export default function Home() {
         <main ref={resultsRef} tabIndex={-1} className="outline-none">
           {(isSample || data.data_coverage.mode === "synthetic") && (
             <Alert role="status" className="mb-4 border-transparent bg-warn-soft px-4 py-3">
-              <AlertTitle className="text-base text-warn">Sample data: these places are made up for testing. Don&apos;t rely on them.</AlertTitle>
+              <AlertTitle className="text-base text-warn">
+                {isSample ? "Sample results are fictional and for testing only."
+                  : "Service results are fictional and for testing only."}
+              </AlertTitle>
             </Alert>
           )}
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
