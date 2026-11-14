@@ -174,6 +174,9 @@ tractable, and its validation examples informed the rule changes.
 
 ### Train the NLP classifier
 
+See the [ML evaluation report](reports/evaluation.md) for held-out scores,
+job-family results, and limitations.
+
 From the repository root, generate a training review CSV with 225 postings:
 
 ```powershell
