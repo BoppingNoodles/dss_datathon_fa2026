@@ -11,13 +11,13 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { Need, RecommendationRequest } from "@/lib/types";
 
-const NEEDS: { value: Need; label: string; hint: string }[] = [
-  { value: "work", label: "Work", hint: "Jobs and job help" },
-  { value: "housing", label: "Housing", hint: "Shelter and rent" },
-  { value: "food", label: "Food", hint: "Pantries and meals" },
-  { value: "health_care", label: "Health care", hint: "Clinics and recovery" },
-  { value: "transportation", label: "Transportation", hint: "Transit nearby" },
-  { value: "community_support", label: "Community support", hint: "ID, legal, services" },
+const NEEDS: { value: Need; label: string }[] = [
+  { value: "work", label: "Work" },
+  { value: "housing", label: "Housing" },
+  { value: "food", label: "Food" },
+  { value: "health_care", label: "Health care" },
+  { value: "transportation", label: "Transportation" },
+  { value: "community_support", label: "Community support" },
 ];
 
 const SKILLS = [
@@ -38,7 +38,6 @@ const EDUCATION = [
 
 // shadcn's default controls are compact; this form uses larger touch targets.
 const field = "h-11 bg-card text-base md:text-base";
-const hint = "text-sm text-muted-foreground";
 const problem = "text-sm font-medium text-destructive";
 
 function Question({ n, title, optional, children }: {
@@ -112,7 +111,6 @@ export default function OnboardingForm({ initial, loading, onSubmit }: {
           placeholder="City or ZIP code, like Oakland or 94612"
           onChange={(e) => setLocation(e.target.value)} aria-invalid={tried && !locationOk}
         />
-        <p className={hint}>Phoenix covers Oakland and nearby East Bay cities. No street address needed.</p>
         {tried && !locationOk && <p className={problem}>Enter a city or ZIP code.</p>}
       </Question>
 
@@ -125,10 +123,9 @@ export default function OnboardingForm({ initial, loading, onSubmit }: {
           {NEEDS.map((o) => (
             <ToggleGroupItem
               key={o.value} value={o.value}
-              className="h-auto w-full flex-col items-start gap-0 bg-card px-3 py-3 text-left whitespace-normal data-[state=on]:border-primary data-[state=on]:bg-accent"
+              className="h-auto min-h-12 w-full bg-card px-3 py-3 whitespace-normal data-[state=on]:border-primary data-[state=on]:bg-accent"
             >
               <span className="text-base font-semibold text-foreground">{o.label}</span>
-              <span className="text-sm font-normal text-muted-foreground">{o.hint}</span>
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
@@ -141,12 +138,10 @@ export default function OnboardingForm({ initial, loading, onSubmit }: {
           id="age" className={`${field} max-w-36`} inputMode="numeric" value={age} placeholder="Age"
           onChange={(e) => setAge(e.target.value.replace(/[^\d]/g, ""))} aria-invalid={!ageOk}
         />
-        <p className={hint}>Only used to check age rules that a service has published. Leave blank to skip.</p>
         {!ageOk && <p className={problem}>Enter an age from 14 to 110, or leave it blank.</p>}
       </Question>
 
       <Question n={4} title="What work have you done or skills have you learned?" optional>
-        <p className={hint}>Include work or training completed while incarcerated.</p>
         <ToggleGroup
           type="multiple" variant="outline" spacing={2} aria-label="Skills and work areas" disabled={noExp}
           value={skills} onValueChange={setSkills} className="w-full flex-wrap"
