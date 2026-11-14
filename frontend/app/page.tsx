@@ -6,6 +6,11 @@ import JobsTab from "@/components/JobsTab";
 import OnboardingForm from "@/components/OnboardingForm";
 import ServicesTab from "@/components/ServicesTab";
 import ThemeToggle from "@/components/ThemeToggle";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getRecommendations } from "@/lib/api";
 import sample from "@/lib/sample-response.json";
 import type { JobCard, Need, RecommendationRequest, RecommendationResponse, Tab } from "@/lib/types";
@@ -97,10 +102,9 @@ export default function Home() {
         </p>
         <div className="flex items-center gap-2">
           {showResults && (
-            <button type="button" onClick={() => setEditing(true)}
-              className="rounded-lg border border-line bg-card px-3 py-1.5 text-sm font-medium hover:border-brand">
+            <Button type="button" variant="outline" size="lg" onClick={() => setEditing(true)}>
               Change my answers
-            </button>
+            </Button>
           )}
           <ThemeToggle />
         </div>
@@ -109,24 +113,26 @@ export default function Home() {
       {!showResults && (
         <main className="mx-auto max-w-2xl">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Find work, housing, and support near you</h1>
-          <p className="mt-2 mb-6 text-lg text-muted">
+          <p className="mt-2 mb-6 text-lg text-muted-foreground">
             Answer five quick questions. Only the first two are required.
           </p>
           {error && (
-            <div role="alert" className="mb-4 rounded-lg border border-brand/40 bg-brand-soft px-4 py-3">
-              <p className="font-medium text-brand-text">{error.message}</p>
+            <Alert variant="destructive" className="mb-4 px-4 py-3">
+              <AlertTitle className="text-base">{error.message}</AlertTitle>
               {error.unreachable && (
-                <button type="button" onClick={showSample} className="mt-2 text-sm font-semibold underline">
-                  Look at sample results instead (made-up places)
-                </button>
+                <AlertDescription>
+                  <Button type="button" variant="link" className="h-auto p-0 text-foreground underline" onClick={showSample}>
+                    Look at sample results instead (made-up places)
+                  </Button>
+                </AlertDescription>
               )}
-            </div>
+            </Alert>
           )}
           <OnboardingForm initial={request} loading={loading} onSubmit={(r) => load(r)} />
           {data && (
-            <button type="button" onClick={() => setEditing(false)} className="mt-4 w-full text-center text-sm font-medium underline">
+            <Button type="button" variant="ghost" size="lg" className="mt-3 w-full" onClick={() => setEditing(false)}>
               Back to my results
-            </button>
+            </Button>
           )}
         </main>
       )}
@@ -134,70 +140,76 @@ export default function Home() {
       {showResults && data && (
         <main ref={resultsRef} tabIndex={-1} className="outline-none">
           {(isSample || data.data_coverage.mode === "synthetic") && (
-            <p role="status" className="mb-4 rounded-lg bg-warn-soft px-4 py-3 font-medium text-warn">
-              Sample data: these places are made up for testing. Don&apos;t rely on them.
-            </p>
+            <Alert role="status" className="mb-4 border-transparent bg-warn-soft px-4 py-3">
+              <AlertTitle className="text-base text-warn">Sample data: these places are made up for testing. Don&apos;t rely on them.</AlertTitle>
+            </Alert>
           )}
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Your results{request && !isSample ? ` for ${request.location}` : ""}
           </h1>
 
-          <div role="tablist" aria-label="Results" className="mt-4 flex gap-1 border-b border-line">
-            {TABS.map((t) => {
-              const n = tabCount(data, t.key);
-              return (
-                <button
-                  key={t.key} role="tab" id={`tab-${t.key}`} aria-selected={tab === t.key} aria-controls={`panel-${t.key}`}
-                  onClick={() => setTab(t.key)}
-                  className={`-mb-px rounded-t-lg border-b-2 px-4 py-2.5 text-base font-semibold sm:px-6 ${
-                    tab === t.key ? "border-brand text-brand-text" : "border-transparent text-muted hover:text-ink"
-                  }`}
-                >
-                  {t.label}
-                  {n != null && <span className="ml-1.5 text-sm font-normal text-muted">{n.toLocaleString()}</span>}
-                </button>
-              );
-            })}
-          </div>
-
-          <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} aria-busy={loading}
-            className={`pt-4 ${loading ? "opacity-60" : ""}`}>
-            {error && <p role="alert" className="mb-3 rounded-lg bg-brand-soft px-4 py-3 font-medium text-brand-text">{error.message}</p>}
-            {tab === "jobs" && (
-              <JobsTab data={data.jobs} loading={loading || isSample}
-                onSort={(s) => request && load({ ...request, job_sort: s }, true)}
-                onCompare={(j) => { setJob(j); setTab("housing"); }} />
+          <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-4 gap-4">
+            <TabsList variant="line" aria-label="Results" className="h-auto w-full justify-start gap-2 border-b border-border p-0 group-data-horizontal/tabs:h-auto">
+              {TABS.map((t) => {
+                const n = tabCount(data, t.key);
+                return (
+                  <TabsTrigger key={t.key} value={t.key}
+                    className="h-11 flex-none px-4 text-base font-semibold data-[state=active]:text-brand-text sm:px-6">
+                    {t.label}
+                    {n != null && <span className="text-sm font-normal text-muted-foreground">{n.toLocaleString()}</span>}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+            {error && (
+              <Alert variant="destructive" className="px-4 py-3">
+                <AlertTitle className="text-base">{error.message}</AlertTitle>
+              </Alert>
             )}
-            {tab === "housing" && <HousingTab data={data.housing_areas} job={job} />}
-            {tab === "services" && (
-              <ServicesTab data={data.services} loading={loading || isSample}
-                onSort={(s) => request && load({ ...request, service_sort: s }, true)} />
-            )}
-          </div>
+            <div aria-busy={loading} className={`text-base ${loading ? "opacity-60" : ""}`}>
+              <TabsContent value="jobs" className="text-base">
+                <JobsTab data={data.jobs} loading={loading || isSample}
+                  onSort={(s) => request && load({ ...request, job_sort: s }, true)}
+                  onCompare={(j) => { setJob(j); setTab("housing"); }} />
+              </TabsContent>
+              <TabsContent value="housing" className="text-base">
+                <HousingTab data={data.housing_areas} job={job} />
+              </TabsContent>
+              <TabsContent value="services" className="text-base">
+                <ServicesTab data={data.services} loading={loading || isSample}
+                  onSort={(s) => request && load({ ...request, service_sort: s }, true)} />
+              </TabsContent>
+            </div>
+          </Tabs>
 
           {data.next_steps.length > 0 && (
-            <section className="mt-8 rounded-xl border border-line bg-card p-4 sm:p-5" aria-labelledby="next">
-              <h2 id="next" className="text-lg font-semibold">Next steps</h2>
-              <ul className="mt-2 space-y-2">
-                {data.next_steps.map((s) => (
-                  <li key={s.id} className="flex items-start gap-3">
-                    <input type="checkbox" id={`step-${s.id}`} className="mt-0.5 h-5 w-5 shrink-0 accent-brand"
-                      checked={done.includes(s.id)}
-                      onChange={(e) => setDone(e.target.checked ? [...done, s.id] : done.filter((d) => d !== s.id))} />
-                    <label htmlFor={`step-${s.id}`} className={done.includes(s.id) ? "text-muted line-through" : ""}>
-                      {s.text}{" "}
-                      <button type="button" onClick={() => { setTab(s.tab); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                        className="text-sm font-medium text-brand-text underline">
-                        Go to {TABS.find((t) => t.key === s.tab)?.label}
-                      </button>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <Card role="region" aria-labelledby="next" className="mt-8 text-base">
+              <CardHeader>
+                <CardTitle id="next" className="text-lg">Next steps</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  {data.next_steps.map((s) => (
+                    <li key={s.id} className="flex items-start gap-3">
+                      <Checkbox id={`step-${s.id}`} className="mt-0.5 size-5" checked={done.includes(s.id)}
+                        onCheckedChange={(v) => setDone(v === true ? [...done, s.id] : done.filter((d) => d !== s.id))} />
+                      <div>
+                        <label htmlFor={`step-${s.id}`} className={done.includes(s.id) ? "text-muted-foreground line-through" : ""}>
+                          {s.text}
+                        </label>{" "}
+                        <Button type="button" variant="link" className="h-auto p-0 text-brand-text underline"
+                          onClick={() => { setTab(s.tab); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+                          Go to {TABS.find((t) => t.key === s.tab)?.label}
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
           )}
 
-          <footer className="mt-8 space-y-2 text-sm text-muted">
+          <footer className="mt-8 space-y-2 text-sm text-muted-foreground">
             <p>{data.disclaimer}</p>
             <details>
               <summary className="cursor-pointer font-medium">About this data</summary>

@@ -1,6 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { Need, RecommendationRequest } from "@/lib/types";
 
 const NEEDS: { value: Need; label: string; hint: string }[] = [
@@ -28,23 +36,27 @@ const EDUCATION = [
   { value: "not_sure", label: "Not sure" },
 ];
 
-const input =
-  "w-full rounded-lg border border-line bg-card px-3 py-2.5 text-base placeholder:text-muted/70";
+// shadcn's default controls are compact; this form uses larger touch targets.
+const field = "h-11 bg-card text-base md:text-base";
+const hint = "text-sm text-muted-foreground";
+const problem = "text-sm font-medium text-destructive";
 
 function Question({ n, title, optional, children }: {
   n: number; title: string; optional?: boolean; children: React.ReactNode;
 }) {
   return (
-    <fieldset className="rounded-xl border border-line bg-card p-4 sm:p-5">
-      <legend className="float-left mb-3 w-full text-lg font-semibold">
-        <span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand text-sm text-white">
-          {n}
-        </span>
-        {title}
-        {optional && <span className="ml-2 text-sm font-normal text-muted">Optional</span>}
-      </legend>
-      <div className="clear-both">{children}</div>
-    </fieldset>
+    <Card role="group" aria-labelledby={`q${n}`}>
+      <CardHeader>
+        <CardTitle id={`q${n}`} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-lg">
+          <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm text-primary-foreground">
+            {n}
+          </span>
+          {title}
+          {optional && <span className="text-sm font-normal text-muted-foreground">Optional</span>}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">{children}</CardContent>
+    </Card>
   );
 }
 
@@ -94,106 +106,101 @@ export default function OnboardingForm({ initial, loading, onSubmit }: {
   return (
     <form onSubmit={submit} noValidate className="space-y-4">
       <Question n={1} title="Where will you be living?">
-        <label htmlFor="location" className="sr-only">City or ZIP code</label>
-        <input
-          id="location" className={input} value={location} autoComplete="postal-code"
+        <Label htmlFor="location" className="sr-only">City or ZIP code</Label>
+        <Input
+          id="location" className={field} value={location} autoComplete="postal-code"
           placeholder="City or ZIP code, like Oakland or 94612"
-          onChange={(e) => setLocation(e.target.value)}
-          aria-invalid={tried && !locationOk}
+          onChange={(e) => setLocation(e.target.value)} aria-invalid={tried && !locationOk}
         />
-        <p className="mt-2 text-sm text-muted">
-          Phoenix covers Oakland and nearby East Bay cities. No street address needed.
-        </p>
-        {tried && !locationOk && <p className="mt-1 text-sm font-medium text-brand-text">Enter a city or ZIP code.</p>}
+        <p className={hint}>Phoenix covers Oakland and nearby East Bay cities. No street address needed.</p>
+        {tried && !locationOk && <p className={problem}>Enter a city or ZIP code.</p>}
       </Question>
 
       <Question n={2} title="What do you need help with first?">
-        <div role="radiogroup" aria-label="Immediate need" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <ToggleGroup
+          type="single" variant="outline" spacing={2} aria-label="Immediate need"
+          value={need ?? ""} onValueChange={(v) => v && setNeed(v as Need)}
+          className="grid w-full grid-cols-2 sm:grid-cols-3"
+        >
           {NEEDS.map((o) => (
-            <button
-              type="button" role="radio" aria-checked={need === o.value} key={o.value}
-              onClick={() => setNeed(o.value)}
-              className={`rounded-lg border px-3 py-3 text-left transition-colors ${
-                need === o.value ? "border-brand bg-brand-soft" : "border-line bg-card hover:border-brand/50"
-              }`}
+            <ToggleGroupItem
+              key={o.value} value={o.value}
+              className="h-auto w-full flex-col items-start gap-0 bg-card px-3 py-3 text-left whitespace-normal data-[state=on]:border-primary data-[state=on]:bg-accent"
             >
-              <span className="block font-semibold">{o.label}</span>
-              <span className="block text-sm text-muted">{o.hint}</span>
-            </button>
+              <span className="text-base font-semibold text-foreground">{o.label}</span>
+              <span className="text-sm font-normal text-muted-foreground">{o.hint}</span>
+            </ToggleGroupItem>
           ))}
-        </div>
-        {tried && !need && <p className="mt-2 text-sm font-medium text-brand-text">Choose one to start.</p>}
+        </ToggleGroup>
+        {tried && !need && <p className={problem}>Choose one to start.</p>}
       </Question>
 
       <Question n={3} title="How old are you?" optional>
-        <label htmlFor="age" className="sr-only">Age in years</label>
-        <input
-          id="age" className={`${input} max-w-36`} inputMode="numeric" value={age} placeholder="Age"
+        <Label htmlFor="age" className="sr-only">Age in years</Label>
+        <Input
+          id="age" className={`${field} max-w-36`} inputMode="numeric" value={age} placeholder="Age"
           onChange={(e) => setAge(e.target.value.replace(/[^\d]/g, ""))} aria-invalid={!ageOk}
         />
-        <p className="mt-2 text-sm text-muted">
-          Only used to check age rules that a service has published. Leave blank to skip.
-        </p>
-        {!ageOk && <p className="mt-1 text-sm font-medium text-brand-text">Enter an age from 14 to 110, or leave it blank.</p>}
+        <p className={hint}>Only used to check age rules that a service has published. Leave blank to skip.</p>
+        {!ageOk && <p className={problem}>Enter an age from 14 to 110, or leave it blank.</p>}
       </Question>
 
       <Question n={4} title="What work have you done or skills have you learned?" optional>
-        <p className="mb-3 text-sm text-muted">Include work or training completed while incarcerated.</p>
-        <div className={`flex flex-wrap gap-2 ${noExp ? "opacity-40" : ""}`}>
-          {SKILLS.map((s) => {
-            const on = skills.includes(s);
-            return (
-              <button
-                type="button" key={s} disabled={noExp} aria-pressed={on}
-                onClick={() => setSkills(on ? skills.filter((x) => x !== s) : [...skills, s])}
-                className={`rounded-full border px-3 py-1.5 text-sm ${
-                  on ? "border-brand bg-brand text-white" : "border-line bg-card hover:border-brand/50"
-                }`}
-              >
-                {s}
-              </button>
-            );
-          })}
-        </div>
-        <div className={`mt-3 grid gap-3 sm:grid-cols-[1fr_9rem] ${noExp ? "opacity-40" : ""}`}>
-          <div>
-            <label htmlFor="exp" className="mb-1 block text-sm font-medium">Anything else?</label>
-            <input id="exp" className={input} value={expText} disabled={noExp} maxLength={300}
+        <p className={hint}>Include work or training completed while incarcerated.</p>
+        <ToggleGroup
+          type="multiple" variant="outline" spacing={2} aria-label="Skills and work areas" disabled={noExp}
+          value={skills} onValueChange={setSkills} className="w-full flex-wrap"
+        >
+          {SKILLS.map((s) => (
+            <ToggleGroupItem
+              key={s} value={s}
+              className="h-9 rounded-full bg-card px-3 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+            >
+              {s}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        <div className="grid gap-3 sm:grid-cols-[1fr_11rem]">
+          <div className="space-y-1.5">
+            <Label htmlFor="exp">Anything else?</Label>
+            <Input id="exp" className={field} value={expText} disabled={noExp} maxLength={300}
               placeholder="Like forklift, kitchen prep, welding" onChange={(e) => setExpText(e.target.value)} />
           </div>
-          <div>
-            <label htmlFor="years" className="mb-1 block text-sm font-medium">About how many years?</label>
-            <input id="years" className={input} inputMode="numeric" value={years} disabled={noExp}
+          <div className="space-y-1.5">
+            <Label htmlFor="years">About how many years?</Label>
+            <Input id="years" className={field} inputMode="numeric" value={years} disabled={noExp}
               onChange={(e) => setYears(e.target.value.replace(/[^\d]/g, "").slice(0, 2))} />
           </div>
         </div>
-        <label className="mt-3 flex items-center gap-2">
-          <input type="checkbox" className="h-5 w-5 accent-brand" checked={noExp} onChange={(e) => setNoExp(e.target.checked)} />
-          <span>No experience yet</span>
-        </label>
+        <div className="flex items-center gap-2.5 pt-1">
+          <Checkbox id="noexp" className="size-5" checked={noExp} onCheckedChange={(v) => setNoExp(v === true)} />
+          <Label htmlFor="noexp" className="text-base font-normal">No experience yet</Label>
+        </div>
       </Question>
 
       <Question n={5} title="What education or qualifications do you have?" optional>
-        <label htmlFor="level" className="sr-only">Highest education level</label>
-        <select id="level" className={input} value={level} onChange={(e) => setLevel(e.target.value)}>
-          {EDUCATION.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-        <label htmlFor="creds" className="mt-3 mb-1 block text-sm font-medium">Certificates or licenses</label>
-        <input id="creds" className={input} value={creds} placeholder="Like ServSafe, forklift, CDL"
-          onChange={(e) => setCreds(e.target.value)} />
+        <Label htmlFor="level" className="sr-only">Highest education level</Label>
+        <NativeSelect id="level" className="w-full [&_select]:h-11 [&_select]:bg-card [&_select]:text-base"
+          value={level} onChange={(e) => setLevel(e.target.value)}>
+          {EDUCATION.map((o) => <NativeSelectOption key={o.value} value={o.value}>{o.label}</NativeSelectOption>)}
+        </NativeSelect>
+        <div className="space-y-1.5">
+          <Label htmlFor="creds">Certificates or licenses</Label>
+          <Input id="creds" className={field} value={creds} placeholder="Like ServSafe, forklift, CDL"
+            onChange={(e) => setCreds(e.target.value)} />
+        </div>
       </Question>
 
-      <p className="rounded-lg bg-info-soft px-4 py-3 text-sm text-info">
-        We never ask about convictions, your Social Security number, or your exact address. No account needed, and
-        your answers aren&apos;t saved.
-      </p>
+      <Alert role="note" className="border-transparent bg-info-soft px-4 py-3">
+        <AlertDescription className="text-info">
+          We never ask about convictions, your Social Security number, or your exact address. No account needed, and
+          your answers aren&apos;t saved.
+        </AlertDescription>
+      </Alert>
 
-      <button
-        type="submit" disabled={loading}
-        className="w-full rounded-lg bg-brand px-5 py-3.5 text-lg font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
-      >
+      <Button type="submit" disabled={loading} className="h-13 w-full text-lg font-semibold">
         {loading ? "Finding results…" : "Show my results"}
-      </button>
+      </Button>
     </form>
   );
 }

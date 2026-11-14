@@ -2,7 +2,9 @@
 
 import { money } from "@/lib/api";
 import type { JobCard, JobSort, JobsSection, Pay } from "@/lib/types";
-import { Badge, EmptyState, Notes, SortToggle } from "./ui";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge, EmptyState, Notes, SortToggle } from "./shared";
 
 const TIER = {
   strong_match: { label: "Strong match", tone: "ok" },
@@ -24,15 +26,16 @@ export function payText(p: Pay): string {
   return `${lo === hi ? lo : `${lo}–${hi}`}${p.period ? ` per ${p.period}` : " (pay period not stated)"}`;
 }
 
-function Card({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void }) {
+function JobItem({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void }) {
   const tier = TIER[j.suitability_tier];
   const hasPay = j.pay.min != null || j.pay.max != null;
   return (
-    <li className="rounded-xl border border-line bg-card p-4">
+    <li>
+      <Card className="h-full gap-0 p-4 text-base">
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
         <div className="min-w-0">
           <h4 className="text-lg font-semibold break-words">{j.title}</h4>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-muted-foreground">
             {[j.employer, j.location.city ?? j.location.text].filter(Boolean).join(" · ") || "Employer not listed"}
           </p>
         </div>
@@ -41,8 +44,8 @@ function Card({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void })
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <Badge tone={tier.tone}>{tier.label}</Badge>
-        {j.posted_date && <span className="text-sm text-muted">Posted {j.posted_date}</span>}
-        <span className="text-sm text-muted">
+        {j.posted_date && <span className="text-sm text-muted-foreground">Posted {j.posted_date}</span>}
+        <span className="text-sm text-muted-foreground">
           {j.location.distance_miles != null
             ? `About ${j.location.distance_miles} mi from the ${j.location.reference_point}`
             : "Exact distance unknown"}
@@ -50,7 +53,7 @@ function Card({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void })
       </div>
 
       <p className="mt-2 text-sm">{j.rank_explanation}</p>
-      {j.pay.conversion_note && <p className="mt-1 text-sm text-muted">{j.pay.conversion_note}</p>}
+      {j.pay.conversion_note && <p className="mt-1 text-sm text-muted-foreground">{j.pay.conversion_note}</p>}
 
       <details className="mt-3 text-sm">
         <summary className="cursor-pointer font-medium text-brand-text">Requirements and how you match</summary>
@@ -59,16 +62,16 @@ function Card({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void })
           {j.gaps.length > 0 && <p><span className="font-medium text-warn">Possible gaps: </span>{j.gaps.join("; ")}</p>}
           {j.unknowns.length > 0 && <p><span className="font-medium">To confirm: </span>{j.unknowns.join("; ")}</p>}
           {j.requirements.map((r) => (
-            <div key={r.label} className="rounded-lg bg-paper p-3">
+            <div key={r.label} className="rounded-lg bg-muted p-3">
               <p className="font-medium">
                 {REQ_LABEL[r.label] ?? r.label}:{" "}
                 {r.status === "required" ? "required" : r.status === "preferred" ? "preferred, not required"
                   : r.status === "not_found" ? "none found in the posting" : "unclear"}
               </p>
-              {r.evidence && <p className="mt-1 text-muted">From the posting: &ldquo;{r.evidence}&rdquo;</p>}
+              {r.evidence && <p className="mt-1 text-muted-foreground">From the posting: &ldquo;{r.evidence}&rdquo;</p>}
             </div>
           ))}
-          <p className="text-muted">
+          <p className="text-muted-foreground">
             Requirements are read from the posting by a model and can be wrong. Check the original posting.
           </p>
         </div>
@@ -76,16 +79,17 @@ function Card({ j, onCompare }: { j: JobCard; onCompare: (j: JobCard) => void })
 
       <div className="mt-3 flex flex-wrap gap-2 text-sm font-medium">
         {j.url && (
-          <a className="rounded-lg bg-brand px-3 py-1.5 text-white hover:bg-brand-dark" href={j.url} target="_blank" rel="noopener noreferrer">
-            View original posting
-          </a>
+          <Button asChild size="lg">
+            <a href={j.url} target="_blank" rel="noopener noreferrer">View original posting</a>
+          </Button>
         )}
         {hasPay && (
-          <button type="button" className="rounded-lg border border-line px-3 py-1.5 hover:border-brand" onClick={() => onCompare(j)}>
+          <Button type="button" variant="outline" size="lg" onClick={() => onCompare(j)}>
             Compare this pay with rent
-          </button>
+          </Button>
         )}
       </div>
+      </Card>
     </li>
   );
 }
@@ -102,7 +106,7 @@ export default function JobsTab({ data, loading, onSort, onCompare }: {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted">A listing doesn&apos;t guarantee the job is still open. Age is never used to rank jobs.</p>
+        <p className="text-sm text-muted-foreground">A listing doesn&apos;t guarantee the job is still open. Age is never used to rank jobs.</p>
         <SortToggle
           label="Sort jobs" value={data.sort} disabled={loading} onChange={onSort}
           options={[{ value: "highest_pay", label: "Highest pay" }, { value: "nearest", label: "Nearest" }]}
@@ -116,12 +120,12 @@ export default function JobsTab({ data, loading, onSort, onCompare }: {
           <section key={g.key}>
             <h3 className="mb-2 text-lg font-semibold">
               {g.label}{" "}
-              <span className="text-sm font-normal text-muted">
+              <span className="text-sm font-normal text-muted-foreground">
                 {g.total > g.items.length ? `showing ${g.items.length} of ${g.total}` : g.total}
               </span>
             </h3>
             <ul className="grid gap-3 lg:grid-cols-2">
-              {g.items.map((j) => <Card key={j.job_id} j={j} onCompare={onCompare} />)}
+              {g.items.map((j) => <JobItem key={j.job_id} j={j} onCompare={onCompare} />)}
             </ul>
           </section>
         ))

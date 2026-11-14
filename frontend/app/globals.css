@@ -1,18 +1,35 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-/* Color tokens. Light is the default; dark applies when the visitor picks it with the
-   toggle (data-theme="dark") or, if they haven't chosen, when their device prefers dark. */
+@custom-variant dark (&:is(.dark *));
+
+/* Phoenix theme on shadcn/ui tokens. Light is the default; the `dark` class on <html>
+   (set by the toggle, or from the device setting on first visit) switches every token.
+   The last block of each set are Phoenix additions for status colors and star ratings. */
 :root {
   color-scheme: light;
-  --ink: #1c2530;
-  --muted: #5b6673;
-  --line: #dfe3e8;
-  --paper: #f7f5f1;
+  --radius: 0.625rem;
+  --background: #f7f5f1;
+  --foreground: #1c2530;
   --card: #ffffff;
-  --brand: #b4441a;
-  --brand-dark: #8f3412;
+  --card-foreground: #1c2530;
+  --popover: #ffffff;
+  --popover-foreground: #1c2530;
+  --primary: #b4441a;
+  --primary-foreground: #ffffff;
+  --secondary: #efece6;
+  --secondary-foreground: #1c2530;
+  --muted: #efece6;
+  --muted-foreground: #5b6673;
+  --accent: #fbeee6;
+  --accent-foreground: #8f3412;
+  --destructive: #b3261e;
+  --border: #dfe3e8;
+  --input: #c9d0d8;
+  --ring: #b4441a;
+
   --brand-text: #8f3412;
-  --brand-soft: #fbeee6;
   --ok: #1f6f4a;
   --ok-soft: #e6f3ec;
   --warn: #8a5a00;
@@ -22,39 +39,28 @@
   --star: #f59e0b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --ink: #e9ecef;
-    --muted: #a5afba;
-    --line: #353d47;
-    --paper: #13171c;
-    --card: #1c222a;
-    --brand: #c9541f;
-    --brand-dark: #a8431a;
-    --brand-text: #f2a07a;
-    --brand-soft: #3a2218;
-    --ok: #74d3a0;
-    --ok-soft: #15301f;
-    --warn: #f0c466;
-    --warn-soft: #382c0f;
-    --info: #a3c8ec;
-    --info-soft: #172838;
-    --star: #fbbf24;
-  }
-}
-
-:root[data-theme="dark"] {
+.dark {
   color-scheme: dark;
-  --ink: #e9ecef;
-  --muted: #a5afba;
-  --line: #353d47;
-  --paper: #13171c;
+  --background: #13171c;
+  --foreground: #e9ecef;
   --card: #1c222a;
-  --brand: #c9541f;
-  --brand-dark: #a8431a;
+  --card-foreground: #e9ecef;
+  --popover: #1c222a;
+  --popover-foreground: #e9ecef;
+  --primary: #c9541f;
+  --primary-foreground: #ffffff;
+  --secondary: #262d36;
+  --secondary-foreground: #e9ecef;
+  --muted: #262d36;
+  --muted-foreground: #a5afba;
+  --accent: #3a2218;
+  --accent-foreground: #f2a07a;
+  --destructive: #f28b82;
+  --border: #353d47;
+  --input: #465160;
+  --ring: #f2a07a;
+
   --brand-text: #f2a07a;
-  --brand-soft: #3a2218;
   --ok: #74d3a0;
   --ok-soft: #15301f;
   --warn: #f0c466;
@@ -65,15 +71,27 @@
 }
 
 @theme inline {
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-paper: var(--paper);
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-heading: var(--font-geist-sans), system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
   --color-card: var(--card);
-  --color-brand: var(--brand);
-  --color-brand-dark: var(--brand-dark);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --color-brand-text: var(--brand-text);
-  --color-brand-soft: var(--brand-soft);
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
   --color-warn: var(--warn);
@@ -81,19 +99,33 @@
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
   --color-star: var(--star);
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-body {
-  background: var(--paper);
-  color: var(--ink);
-}
-
-:focus-visible {
-  outline: 3px solid var(--brand-text);
-  outline-offset: 2px;
-}
-
-[tabindex="-1"]:focus-visible {
-  outline: none;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
