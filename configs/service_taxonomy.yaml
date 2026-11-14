@@ -12,6 +12,14 @@
 # Order matters: when a place matches several families, the first listed family is primary.
 # The exact tags must be spot-checked against the raw export (reports/taxonomy_spot_check.csv).
 
+# Places README: category matching was keyword-based, so off-topic places (e.g. "skin care
+# clinic") slipped in. A place with ANY tag matching these is excluded from every family.
+# Matched as whole words. Kept narrow on purpose: "Cosmetic dentist" (189 East Bay places) are
+# ordinary dentists and "Health and beauty shop" tags drugstores, so neither is excluded.
+off_topic: ['skin care clinic', 'medical spa', 'day spa', 'massage spa', 'massage therapist', 'laser hair removal service',
+            'weight loss service', 'beauty salon', 'hair salon', 'nail salon', 'tattoo shop', 'cosmetic surgeon',
+            'aesthetic', 'botox', 'veterinarian', 'animal hospital']
+
 families:
   food_assistance:
     label: Food banks, pantries, and community meals

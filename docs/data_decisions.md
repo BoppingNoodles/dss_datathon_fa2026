@@ -18,6 +18,14 @@ The four sources share one record. Person 4 owns the Places and Reviews sections
 | maps_url | `url` | public Google Maps link to the place, not a reviewer link |
 | city, ZIP | — | **No column exists.** Both are parsed from `address` (`…, City, CA 94612, United States`). |
 
+**Overall star breakdown.** `review_distribution` holds Google's overall 1–5 star counts over all of a place's reviews. Values are kept only when the counts sum exactly to `reviews_count`, which they do for every rated place (39.3% of East Bay places). Cards show this as `rating.overall_star_distribution`, which covers far more places than the 18 with sampled reviews. It is kept separate from the sampled-review breakdown.
+
+**Differences from the Places README.**
+- The README says about 100,000 places; the export has 147,429 rows. All of them are in the README's bounding box and all are US.
+- The README says `open_hours` is about 53% filled. The field is non-empty in every row, but only 30.1% of East Bay places list hours for at least one day.
+- As the README warns, keyword-based category matching let in off-topic places. A whole-word `off_topic` list in the taxonomy removes 22 of them from all service families: massage therapists, weight-loss services, skin-care clinics, medical spas, a cosmetic surgeon and similar. "Cosmetic dentist" (189 places) and "Health and beauty shop" are deliberately *not* excluded: they tag ordinary dentists and drugstores.
+- The bounding box also covers Santa Cruz. Our target is a city list parsed from addresses, so no county spatial join is needed.
+
 Columns that are **never read**: `top_reviews`, `reviews_snippets`, `people_also_search`, `photos_and_videos`, `questions_answers` (they can contain reviewer content).
 
 **Cleaning rules**
@@ -48,9 +56,15 @@ Columns that are **never read**: `top_reviews`, `reviews_snippets`, `people_also
 | Review rows whose `place_id` exists anywhere in Places | 1.4% (2,985 of 213,536) |
 | Review rows for target-area places | 513 (no duplicates found) |
 | Target-area places with ≥1 sampled review | **18 of 22,502** |
-| Service candidates with ≥1 sampled review | 14 of 17,588 |
+| Service candidates with ≥1 sampled review | 13 of 17,567 |
 
-The Reviews export is a national random sample (the first rows are in Indiana). The documented `place_id` join works, but the overlap with Bay Area Places is too small to support review-based features at scale.
+The Reviews README explains part of this: the sample covers **all kinds of businesses** (its category field is about 95% empty), not just essential services. Our audit found three more issues the README does not mention:
+
+- **56% of review rows are outside California.** These are mostly in VA, PA, NY, NJ, OH and IN. The README says the sample was filtered on 72 Bay Area city names, so same-named towns elsewhere also matched (for example Lafayette, IN). The `place_id` join is unaffected.
+- **19.8% of review rows (42,184) have `review_rating = 0`.** The README says ratings run 1–5. We treat 0 as missing.
+- **The East Bay sample is concentrated.** Two places hold 46% of the 513 target rows (137 and 101 reviews). Any per-place summary is labeled as a sample and shown only on that place's own card. Sampled reviews are never pooled across places.
+
+The documented `place_id` join works, but the overlap is too small to support review-based features at scale.
 
 Consequences:
 1. All joins from service candidates to reviews are **left joins**, so a service never disappears for lacking a sampled review.
@@ -72,7 +86,7 @@ Fixes made after spot checks on the real data (2026-11-14):
 
 `reports/taxonomy_spot_check.csv` holds 10 random places per family for a relevance review (y/n). Record the outcome here once it is reviewed.
 
-Candidates by family (active, rated): medical providers 7,732 / 1,999; transit 4,465 / 1,053; social services 1,103 / 690; community health 825 / 347; behavioral health 658 / 299; grocery 515 / 471; government 480 / 237; banking 206 / 186; employment 154 / 77; pharmacy 151 / 115; food assistance 70 / 41; libraries 44 / 42; housing assistance 15 / 13; legal aid 3 / 3.
+Candidates by family (active, rated): medical providers 7,726 / 1,995; transit 4,465 / 1,053; social services 1,103 / 690; community health 816 / 340; behavioral health 655 / 296; grocery 515 / 471; government 480 / 237; banking 206 / 186; employment 154 / 77; pharmacy 150 / 114; food assistance 70 / 41; libraries 44 / 42; housing assistance 15 / 13; legal aid 3 / 3.
 
 ## Verification layer (`data/resources/service_verification.csv`)
 

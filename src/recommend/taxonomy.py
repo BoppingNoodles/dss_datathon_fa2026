@@ -49,11 +49,23 @@ def need_labels() -> dict[str, str]:
     return load_config("service_taxonomy")["need_labels"]
 
 
+@lru_cache(maxsize=1)
+def off_topic_pattern() -> re.Pattern[str] | None:
+    terms = load_config("service_taxonomy").get("off_topic") or []
+    if not terms:
+        return None
+    return re.compile(r"\b(?:" + "|".join(re.escape(t) for t in terms) + r")\b", re.IGNORECASE)
+
+
 def classify(tags: list[str]) -> tuple[list[str], str | None]:
     """Return (matched family keys in taxonomy order, 'family:tag' evidence for the primary match).
 
-    A tag is ignored for a family when it matches that family's exclude pattern.
+    A place with any off-topic tag matches nothing. A tag is ignored for a family when it
+    matches that family's exclude pattern.
     """
+    off = off_topic_pattern()
+    if off is not None and any(off.search(t) for t in tags):
+        return [], None
     matched: list[str] = []
     evidence: str | None = None
     for fam in families():

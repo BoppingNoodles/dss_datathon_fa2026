@@ -84,3 +84,22 @@ def test_pipeline_on_synthetic(synthetic):
     merged = places.set_index("place_id")["reviews_count"].reindex(cand["place_id"]).values
     assert (pd.Series(merged).fillna(-1).values == cand["reviews_count"].fillna(-1).values).all()
     assert cand.loc[cand["rating"].isna(), "ranking_score"].isna().all()
+
+
+def test_overall_star_distribution_must_match_count():
+    from src.data.places import parse_star_distribution
+
+    j = '{"1_star_reviews":1,"2_star_reviews":0,"3_star_reviews":null,"4_star_reviews":2,"5_star_reviews":7}'
+    assert parse_star_distribution(j, 10) == [1, 0, 0, 2, 7]
+    assert parse_star_distribution(j, 11) is None  # disagrees with reviews_count -> not shown
+    assert parse_star_distribution('{"1_star_reviews":null}', 0) is None
+
+
+def test_off_topic_places_excluded_but_dentists_and_drugstores_kept():
+    from src.recommend.taxonomy import classify
+
+    assert classify(["Medical clinic", "Skin care clinic"])[0] == []
+    assert classify(["Massage therapist", "Counseling"])[0] == []
+    assert classify(["Coworking space", "Non-profit organization"])[0] == ["social_services"]
+    assert "medical_providers" in classify(["Dentist", "Cosmetic dentist"])[0]
+    assert "pharmacy" in classify(["Pharmacy", "Health and beauty shop"])[0]

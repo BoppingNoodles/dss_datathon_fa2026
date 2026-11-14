@@ -172,6 +172,8 @@ class RatingInfo(Strict):
     ranking_score: float | None
     family_mean_rating: float | None
     prior_weight_m: float | None
+    overall_star_distribution: dict[str, int] | None = Field(
+        None, description="Google's overall 1-5 star counts (all reviews), distinct from the sampled reviews")
     source: str
 
 

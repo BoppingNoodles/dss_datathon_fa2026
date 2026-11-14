@@ -30,6 +30,7 @@ VERIFICATION_COLUMNS = [
     "age_criteria_text", "cost_eligibility_notes", "service_area", "checked_on", "checked_by", "notes",
 ]
 SNIPPET_COLUMNS = ["place_id", "snippet", "topic", "review_date", "checked_by", "checked_on"]
+MAX_SNIPPET_CHARS = 200
 PROVIDER_TYPES = {"public", "nonprofit_community", "private", "unknown"}
 
 
@@ -73,6 +74,9 @@ def load_snippets(path) -> pd.DataFrame:
     s = pd.read_csv(path, dtype=str).reindex(columns=SNIPPET_COLUMNS)
     # Only manually checked snippets are publishable.
     s = s[s["snippet"].notna() & s["checked_by"].notna() & s["checked_on"].notna()]
+    too_long = s["snippet"].str.len() > MAX_SNIPPET_CHARS
+    if too_long.any():  # Reviews README ethics note: quote short snippets only
+        raise ValueError(f"review_snippets.csv rows over {MAX_SNIPPET_CHARS} chars: {s.loc[too_long, 'place_id'].tolist()}")
     return s
 
 

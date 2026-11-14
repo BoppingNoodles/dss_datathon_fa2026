@@ -135,7 +135,8 @@ def _card(row: pd.Series, age: int | None, ref: ReferencePoint, need: str) -> di
             "ranking_score": none_if_nan(row["ranking_score"]),
             "family_mean_rating": none_if_nan(round(float(row["family_mean_rating"]), 2)),
             "prior_weight_m": none_if_nan(row["prior_weight_m"]),
-            "source": "Google Maps Places overall rating and review count",
+            "overall_star_distribution": _overall_dist(row),
+            "source": "Google Maps Places overall rating, review count, and star breakdown",
         },
         "review_evidence": {
             "sampled_review_count": int(row["sampled_review_count"]),
@@ -169,6 +170,11 @@ def _card(row: pd.Series, age: int | None, ref: ReferencePoint, need: str) -> di
         "source": {"dataset": "Google Maps Places", "snapshot_date": None, "note": SOURCE_NOTE},
         "confirm_prompt": CONFIRM_PROMPT,
     }
+
+
+def _overall_dist(row: pd.Series) -> dict[str, int] | None:
+    vals = [none_if_nan(row.get(f"overall_stars_{s}")) for s in range(1, 6)]
+    return None if any(v is None for v in vals) else {str(s): int(v) for s, v in zip(range(1, 6), vals)}
 
 
 def _iso(v: Any) -> str | None:

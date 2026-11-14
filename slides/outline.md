@@ -26,9 +26,9 @@ Person 4 assembles the deck and checks access. Each owner drafts their own slide
 - Groups: Verified support · Highly rated · Other rated · Limited review evidence · Essential services (not free assistance) · Temporarily closed.
 
 **Slide 6: What the data showed**
-- 147,429 places in the full export; **22,502** in 12 East Bay cities; **17,588** mapped to 15 service families.
+- 147,429 places in the full export; **22,502** in 12 East Bay cities; **17,567** mapped to 15 service families (22 off-topic spa/massage/skin-care places removed).
 - **61% of East Bay places had a "0 stars, 0 reviews" placeholder** (13,645 of 22,502), meaning *unrated*. Reading it as a zero would have buried thousands of places.
-- **The Reviews sample barely overlaps Places**: 1.4% of review rows match any place, and only **18** East Bay places have sampled reviews. Ranking therefore uses Google's overall rating; review evidence appears on very few cards.
+- **The Reviews sample barely overlaps Places**: 1.4% of review rows match any place, and only **18** East Bay places have sampled reviews. Ranking therefore uses Google's overall rating, and cards show Google's overall star breakdown (available for every rated place). Sampled reviews appear on very few cards. Separately, 56% of review rows are outside California and 20% have 0 stars, both contrary to the Reviews README.
 - Sensitivity: ranking by raw stars changes **40%** of the top 10 versus the count-aware score, while m between 5 and 50 changes ≤ 7%.
 - A "highly rated only" view would hide nearly all transit (6 of 4,465 qualify) and most medical providers, so lower-evidence places stay visible and labeled.
 - Housing assistance: only 15 active East Bay candidates. Verification against official pages matters more than ratings here.

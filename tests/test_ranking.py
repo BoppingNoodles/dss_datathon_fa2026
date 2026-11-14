@@ -106,3 +106,13 @@ def test_unknown_location(synthetic):
     out = rank_services(synthetic["candidates"], synthetic["refs"], need="work", location="Fresno")
     assert out["status"] == "no_results"
     assert any("currently covers" in n for n in out["notes"])
+
+
+def test_overlong_snippets_refused(tmp_path):
+    from src.recommend.build_index import load_snippets
+
+    p = tmp_path / "s.csv"
+    pd.DataFrame([{"place_id": "x", "snippet": "a" * 201, "topic": "staff", "review_date": None,
+                   "checked_by": "me", "checked_on": "2026-11-14"}]).to_csv(p, index=False)
+    with pytest.raises(ValueError):
+        load_snippets(p)

@@ -26,7 +26,9 @@ import re
 import pandas as pd
 
 from src.common import REPORTS, processed_dir
-from src.recommend.build_index import VERIFICATION_COLUMNS
+from src.recommend.build_index import MAX_SNIPPET_CHARS, VERIFICATION_COLUMNS
+
+MIN_CHARS = 40
 
 TOPICS = {
     "access": r"\b(wheelchair|accessible|bus|parking|easy to find|appointment|walk[- ]in|id\b|documents?)",
@@ -69,7 +71,8 @@ def verification_worklist(cand: pd.DataFrame, refs: pd.DataFrame, per_family_cit
 
 
 def snippet_candidates(reviews: pd.DataFrame, cand: pd.DataFrame, per_place: int = 3) -> pd.DataFrame:
-    r = reviews[reviews["review_text"].notna()].merge(
+    # Reviews README: some reviews are very short ("Great!"); skip under MIN_CHARS.
+    r = reviews[reviews["review_text"].str.len() >= MIN_CHARS].merge(
         cand[["place_id", "name", "family"]], on="place_id", how="inner")
     rows = []
     for _, x in r.iterrows():
@@ -79,7 +82,8 @@ def snippet_candidates(reviews: pd.DataFrame, cand: pd.DataFrame, per_place: int
                 rows.append({
                     "place_id": x["place_id"], "place_name": x["name"], "family": x["family"], "topic": topic,
                     "review_stars": x["review_rating"], "review_date": pd.Timestamp(x["review_date"]).date() if pd.notna(x["review_date"]) else None,
-                    "candidate_snippet": scrub(text[:400]),
+                    "candidate_snippet": scrub(text[:MAX_SNIPPET_CHARS]),
+                    "truncated": len(text) > MAX_SNIPPET_CHARS,
                     "possible_personal_name": bool(_NAMEISH.search(text)),
                     "approved": "", "checked_by": "", "checked_on": "",
                 })

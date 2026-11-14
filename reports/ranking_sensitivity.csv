@@ -1,24 +1,24 @@
 family,city,rated_candidates,m,baseline_m,top10_overlap_with_baseline
-behavioral_health,Berkeley,68,0,10,0.2
-behavioral_health,Berkeley,68,5,10,0.9
-behavioral_health,Berkeley,68,10,10,1.0
-behavioral_health,Berkeley,68,25,10,0.9
-behavioral_health,Berkeley,68,50,10,0.9
+behavioral_health,Berkeley,67,0,10,0.2
+behavioral_health,Berkeley,67,5,10,0.9
+behavioral_health,Berkeley,67,10,10,1.0
+behavioral_health,Berkeley,67,25,10,1.0
+behavioral_health,Berkeley,67,50,10,1.0
 behavioral_health,Emeryville,10,0,10,1.0
 behavioral_health,Emeryville,10,5,10,1.0
 behavioral_health,Emeryville,10,10,10,1.0
 behavioral_health,Emeryville,10,25,10,1.0
 behavioral_health,Emeryville,10,50,10,1.0
-behavioral_health,Hayward,19,0,10,1.0
-behavioral_health,Hayward,19,5,10,1.0
-behavioral_health,Hayward,19,10,10,1.0
-behavioral_health,Hayward,19,25,10,1.0
-behavioral_health,Hayward,19,50,10,1.0
-behavioral_health,Oakland,151,0,10,0.1
-behavioral_health,Oakland,151,5,10,0.9
-behavioral_health,Oakland,151,10,10,1.0
-behavioral_health,Oakland,151,25,10,0.9
-behavioral_health,Oakland,151,50,10,0.8
+behavioral_health,Hayward,18,0,10,1.0
+behavioral_health,Hayward,18,5,10,1.0
+behavioral_health,Hayward,18,10,10,1.0
+behavioral_health,Hayward,18,25,10,1.0
+behavioral_health,Hayward,18,50,10,1.0
+behavioral_health,Oakland,150,0,10,0.0
+behavioral_health,Oakland,150,5,10,0.9
+behavioral_health,Oakland,150,10,10,1.0
+behavioral_health,Oakland,150,25,10,0.9
+behavioral_health,Oakland,150,50,10,0.8
 behavioral_health,Richmond,11,0,10,1.0
 behavioral_health,Richmond,11,5,10,1.0
 behavioral_health,Richmond,11,10,10,1.0
@@ -37,38 +37,38 @@ community_health,Alameda,29,50,10,1.0
 community_health,Berkeley,55,0,10,0.1
 community_health,Berkeley,55,5,10,0.9
 community_health,Berkeley,55,10,10,1.0
-community_health,Berkeley,55,25,10,0.9
+community_health,Berkeley,55,25,10,0.8
 community_health,Berkeley,55,50,10,0.7
 community_health,Castro Valley,15,0,10,1.0
 community_health,Castro Valley,15,5,10,1.0
 community_health,Castro Valley,15,10,10,1.0
-community_health,Castro Valley,15,25,10,0.9
+community_health,Castro Valley,15,25,10,1.0
 community_health,Castro Valley,15,50,10,0.9
 community_health,Emeryville,28,0,10,0.5
-community_health,Emeryville,28,5,10,0.9
+community_health,Emeryville,28,5,10,1.0
 community_health,Emeryville,28,10,10,1.0
 community_health,Emeryville,28,25,10,1.0
 community_health,Emeryville,28,50,10,1.0
-community_health,Hayward,34,0,10,0.7
-community_health,Hayward,34,5,10,1.0
-community_health,Hayward,34,10,10,1.0
-community_health,Hayward,34,25,10,1.0
-community_health,Hayward,34,50,10,1.0
-community_health,Oakland,134,0,10,0.1
-community_health,Oakland,134,5,10,0.9
-community_health,Oakland,134,10,10,1.0
-community_health,Oakland,134,25,10,0.9
-community_health,Oakland,134,50,10,0.8
+community_health,Hayward,33,0,10,0.8
+community_health,Hayward,33,5,10,1.0
+community_health,Hayward,33,10,10,1.0
+community_health,Hayward,33,25,10,1.0
+community_health,Hayward,33,50,10,1.0
+community_health,Oakland,130,0,10,0.0
+community_health,Oakland,130,5,10,1.0
+community_health,Oakland,130,10,10,1.0
+community_health,Oakland,130,25,10,0.8
+community_health,Oakland,130,50,10,0.7
 community_health,Richmond,16,0,10,1.0
 community_health,Richmond,16,5,10,1.0
 community_health,Richmond,16,10,10,1.0
 community_health,Richmond,16,25,10,1.0
 community_health,Richmond,16,50,10,1.0
-community_health,San Leandro,23,0,10,0.7
-community_health,San Leandro,23,5,10,1.0
-community_health,San Leandro,23,10,10,1.0
-community_health,San Leandro,23,25,10,0.9
-community_health,San Leandro,23,50,10,0.9
+community_health,San Leandro,21,0,10,0.8
+community_health,San Leandro,21,5,10,0.9
+community_health,San Leandro,21,10,10,1.0
+community_health,San Leandro,21,25,10,1.0
+community_health,San Leandro,21,50,10,1.0
 employment_services,Hayward,24,0,10,0.6
 employment_services,Hayward,24,5,10,0.9
 employment_services,Hayward,24,10,10,1.0

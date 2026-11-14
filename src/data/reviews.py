@@ -144,7 +144,7 @@ def run(source: str) -> dict[str, Any]:
         raise KeyError(f"Reviews export lacks required fields {missing_required}; update configs/columns.yaml")
     present = {k: v for k, v in mapping.items() if v in header}
 
-    total = in_places = 0
+    total = in_places = zero_stars = 0
     unique_places_reviewed: set[str] = set()
     kept = []
     for raw in pd.read_csv(path, usecols=list(present.values()), dtype=str,
@@ -153,6 +153,7 @@ def run(source: str) -> dict[str, Any]:
         pid = raw[present["place_id"]].astype(str).str.strip()
         unique_places_reviewed.update(pid)
         in_places += int(pid.isin(all_ids).sum())
+        zero_stars += int(pd.to_numeric(raw[present["review_rating"]], errors="coerce").eq(0).sum())
         sub = raw[pid.isin(target_ids)]
         if len(sub):
             kept.append(clean_chunk(sub, present))
@@ -181,6 +182,9 @@ def run(source: str) -> dict[str, Any]:
         "target_places_with_sampled_reviews": int(len(agg)),
         "target_places_total": len(target_ids),
         "target_place_coverage_rate": round(len(agg) / len(target_ids), 4) if target_ids else None,
+        "rows_with_zero_stars_full_export": zero_stars,
+        "target_top2_places_share_of_rows": round(float(reviews["place_id"].value_counts().head(2).sum() / len(reviews)), 4) if len(reviews) else None,
+        "target_max_rows_single_place": int(reviews["place_id"].value_counts().max()) if len(reviews) else 0,
         "target_places_overall_fields_conflict": int(agg["overall_fields_conflict"].sum()) if len(agg) else 0,
         "date_min": reviews["review_date"].min(),
         "date_max": reviews["review_date"].max(),

@@ -11,10 +11,10 @@ banking,Emeryville,6,5,0,2,0,0,0,0.167,0.0,6,1.0
 banking,Albany,5,4,1,2,0,0,0,0.2,0.0,4,0.8
 banking,Piedmont,3,3,1,1,0,0,0,0.0,0.0,2,0.667
 banking,San Lorenzo,3,3,0,0,0,0,0,0.0,0.0,3,1.0
-behavioral_health,Oakland,314,151,23,281,0,0,3,0.519,0.0,291,0.927
-behavioral_health,Berkeley,177,68,17,157,0,0,5,0.616,0.0,160,0.904
-behavioral_health,Hayward,32,19,4,24,0,0,2,0.406,0.0,28,0.875
+behavioral_health,Oakland,313,150,22,281,0,0,3,0.521,0.0,291,0.93
+behavioral_health,Berkeley,176,67,16,157,0,0,5,0.619,0.0,160,0.909
 behavioral_health,San Leandro,32,17,1,27,0,0,3,0.469,0.0,31,0.969
+behavioral_health,Hayward,31,18,4,24,0,0,2,0.419,0.0,27,0.871
 behavioral_health,Richmond,24,11,2,21,0,0,3,0.542,0.0,22,0.917
 behavioral_health,Emeryville,20,10,1,19,0,0,0,0.5,0.0,19,0.95
 behavioral_health,Alameda,19,6,1,18,0,0,0,0.684,0.0,18,0.947
@@ -22,13 +22,13 @@ behavioral_health,Albany,17,5,1,16,0,0,0,0.706,0.0,16,0.941
 behavioral_health,Castro Valley,16,9,2,14,0,0,1,0.438,0.0,14,0.875
 behavioral_health,El Cerrito,6,3,0,6,0,0,0,0.5,0.0,6,1.0
 behavioral_health,Piedmont,1,0,0,1,0,0,0,1.0,0.0,1,1.0
-community_health,Oakland,320,134,33,260,3,0,13,0.581,0.009,287,0.897
+community_health,Oakland,316,130,29,260,3,0,13,0.589,0.009,287,0.908
 community_health,Berkeley,141,55,18,114,3,0,3,0.61,0.021,123,0.872
 community_health,Emeryville,67,28,10,55,1,0,1,0.582,0.015,57,0.851
-community_health,Hayward,66,34,7,50,1,0,2,0.485,0.015,59,0.894
-community_health,San Leandro,59,23,9,48,0,0,3,0.61,0.0,50,0.847
+community_health,Hayward,65,33,6,50,1,0,2,0.492,0.015,59,0.908
+community_health,San Leandro,57,21,7,48,0,0,3,0.632,0.0,50,0.877
 community_health,Alameda,53,29,8,42,1,0,2,0.453,0.019,45,0.849
-community_health,Castro Valley,47,15,3,40,1,0,1,0.681,0.021,44,0.936
+community_health,Castro Valley,45,15,3,38,1,0,1,0.667,0.022,42,0.933
 community_health,Richmond,34,16,2,27,0,0,1,0.529,0.0,32,0.941
 community_health,Albany,25,9,2,23,1,0,0,0.64,0.04,23,0.92
 community_health,El Cerrito,8,2,0,8,0,0,0,0.75,0.0,8,1.0
@@ -83,11 +83,11 @@ housing_assistance,Hayward,2,2,2,0,0,0,0,0.0,0.0,0,0.0
 housing_assistance,Richmond,2,2,1,0,0,0,0,0.0,0.0,1,0.5
 housing_assistance,San Leandro,1,1,0,0,0,0,0,0.0,0.0,1,1.0
 legal_aid,Oakland,3,3,0,3,0,0,0,0.0,0.0,3,1.0
-medical_providers,Oakland,3373,719,153,3193,1,0,97,0.787,0.0,3220,0.955
-medical_providers,Berkeley,1695,403,90,1589,0,0,42,0.762,0.0,1605,0.947
-medical_providers,Hayward,570,186,59,499,0,0,18,0.674,0.0,511,0.896
+medical_providers,Oakland,3371,718,153,3191,1,0,97,0.787,0.0,3218,0.955
+medical_providers,Berkeley,1693,401,90,1587,0,0,42,0.763,0.0,1603,0.947
+medical_providers,Hayward,569,186,59,498,0,0,17,0.673,0.0,510,0.896
 medical_providers,San Leandro,477,175,60,406,1,0,2,0.633,0.002,417,0.874
-medical_providers,Alameda,371,142,40,324,0,0,11,0.617,0.0,331,0.892
+medical_providers,Alameda,370,141,39,324,0,0,11,0.619,0.0,331,0.895
 medical_providers,Castro Valley,322,131,50,265,0,0,12,0.593,0.0,272,0.845
 medical_providers,Richmond,279,60,13,263,0,0,6,0.785,0.0,266,0.953
 medical_providers,Emeryville,254,40,10,240,0,0,0,0.843,0.0,244,0.961
@@ -96,7 +96,7 @@ medical_providers,El Cerrito,96,39,10,81,0,0,2,0.594,0.0,86,0.896
 medical_providers,Piedmont,24,12,5,19,0,0,0,0.5,0.0,19,0.792
 medical_providers,San Lorenzo,22,14,7,14,0,0,2,0.364,0.0,15,0.682
 pharmacy,Oakland,50,35,10,28,0,0,3,0.3,0.0,40,0.8
-pharmacy,Hayward,28,24,6,12,0,0,0,0.143,0.0,22,0.786
+pharmacy,Hayward,27,23,5,12,0,0,0,0.148,0.0,22,0.815
 pharmacy,San Leandro,18,13,7,7,0,0,2,0.278,0.0,11,0.611
 pharmacy,Berkeley,17,11,2,8,0,0,0,0.353,0.0,15,0.882
 pharmacy,Alameda,13,12,3,3,0,0,0,0.077,0.0,10,0.769

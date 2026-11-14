@@ -59,6 +59,24 @@ def parse_hours(value: Any) -> str | None:
     return "; ".join(parts) or None
 
 
+def parse_star_distribution(value: Any, reviews_count: int | None) -> list[int] | None:
+    """review_distribution JSON -> [n1..n5] overall star counts, only when they sum to reviews_count."""
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        obj = json.loads(value)
+    except json.JSONDecodeError:
+        return None
+    counts = []
+    for s in range(1, 6):
+        v = to_float(obj.get(f"{s}_star_reviews")) if isinstance(obj, dict) else None
+        counts.append(int(v) if v is not None and v >= 0 else 0)
+    total = sum(counts)
+    if total == 0 or reviews_count is None or total != reviews_count:
+        return None
+    return counts
+
+
 def clean_rating(rating_raw: Any, count_raw: Any) -> tuple[float | None, int | None, str | None]:
     """Return (rating, reviews_count, issue). A 0 rating with 0 reviews is 'unrated', not 0 stars."""
     r = to_float(rating_raw)
@@ -97,7 +115,7 @@ def _read_chunks(source: str):
 
 def clean_chunk(raw: pd.DataFrame, present: dict[str, str]) -> pd.DataFrame:
     df = raw.rename(columns={v: k for k, v in present.items()})
-    for col in ("city", "zipcode", "all_categories", "address", "phone", "website", "maps_url",
+    for col in ("city", "zipcode", "all_categories", "address", "phone", "website", "maps_url", "review_distribution",
                 "hours", "permanently_closed", "temporarily_closed", "business_status"):
         if col not in df.columns:
             df[col] = None
@@ -124,6 +142,10 @@ def clean_chunk(raw: pd.DataFrame, present: dict[str, str]) -> pd.DataFrame:
     out["rating"] = pd.array([t[0] for t in triples], dtype="Float64")
     out["reviews_count"] = pd.array([t[1] for t in triples], dtype="Int64")
     out["rating_issue"] = [t[2] for t in triples]
+    dist = [parse_star_distribution(v, t[1]) if t[0] is not None else None
+            for v, t in zip(df["review_distribution"], triples)]
+    for s in range(1, 6):
+        out[f"overall_stars_{s}"] = pd.array([None if d is None else d[s - 1] for d in dist], dtype="Int64")
     out["hours_raw_present"] = df["hours"].notna()
     out["hours_text"] = df["hours"].map(parse_hours)
     out["phone"] = df["phone"].str.strip()
@@ -192,6 +214,7 @@ def run(source: str) -> dict[str, Any]:
         "target_by_city": target["city"].value_counts().to_dict(),
         "target_fill_rates": {
             "rating_usable": frac(target["rating"].notna()),
+            "overall_star_distribution": frac(target["overall_stars_1"].notna()),
             "hours_listed": frac(target["hours_text"].notna()),
             "phone": frac(target["phone"].notna()),
             "website": frac(target["website"].notna()),

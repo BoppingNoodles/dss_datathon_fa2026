@@ -42,6 +42,7 @@ places:
     website: open_website
     maps_url: url
     hours: open_hours
+    review_distribution: review_distribution   # Google's overall 1-5 star counts
     permanently_closed: permanently_closed
     temporarily_closed: temporarily_closed
     business_status: null
