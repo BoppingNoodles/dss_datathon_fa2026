@@ -45,14 +45,12 @@ employment_services,Richmond,5,5,0,4,0,0,0,0.0,0.0,5,1.0
 employment_services,Albany,3,1,0,3,0,0,0,0.667,0.0,3,1.0
 employment_services,El Cerrito,3,2,1,2,0,0,0,0.333,0.0,2,0.667
 employment_services,San Lorenzo,2,2,0,1,0,0,0,0.0,0.0,2,1.0
-food_assistance,Oakland,42,24,4,36,0,0,4,0.429,0.0,38,0.905
-food_assistance,Hayward,10,5,3,6,0,0,0,0.5,0.0,7,0.7
+food_assistance,Oakland,38,20,3,35,0,0,3,0.474,0.0,35,0.921
 food_assistance,Berkeley,7,4,1,6,0,0,1,0.429,0.0,6,0.857
-food_assistance,San Leandro,5,3,2,2,0,0,0,0.4,0.0,3,0.6
+food_assistance,Hayward,7,2,1,6,0,0,0,0.714,0.0,6,0.857
+food_assistance,San Leandro,4,2,1,2,0,0,0,0.5,0.0,3,0.75
 food_assistance,Richmond,3,2,1,2,0,0,0,0.333,0.0,2,0.667
-food_assistance,Castro Valley,1,1,1,0,0,0,0,0.0,0.0,0,0.0
 food_assistance,Emeryville,1,1,1,0,0,0,0,0.0,0.0,0,0.0
-food_assistance,San Lorenzo,1,1,1,0,0,0,0,0.0,0.0,0,0.0
 government_services,Oakland,182,97,16,152,0,0,2,0.467,0.0,166,0.912
 government_services,Richmond,69,35,2,65,0,0,2,0.493,0.0,67,0.971
 government_services,Hayward,68,36,4,59,0,0,0,0.471,0.0,64,0.941
@@ -65,17 +63,17 @@ government_services,Albany,8,3,0,8,0,0,0,0.625,0.0,8,1.0
 government_services,Castro Valley,5,3,1,3,0,0,0,0.4,0.0,4,0.8
 government_services,Piedmont,5,1,0,5,0,0,0,0.8,0.0,5,1.0
 government_services,San Lorenzo,1,1,1,0,0,0,0,0.0,0.0,0,0.0
-grocery,Oakland,235,206,134,71,0,0,10,0.123,0.0,101,0.43
-grocery,Hayward,64,58,43,16,0,0,5,0.094,0.0,21,0.328
+grocery,Oakland,239,210,135,72,0,0,11,0.121,0.0,104,0.435
+grocery,Hayward,67,61,45,16,0,0,5,0.09,0.0,22,0.328
 grocery,Richmond,53,50,38,8,0,0,3,0.057,0.0,15,0.283
 grocery,Berkeley,50,48,33,8,0,0,1,0.04,0.0,17,0.34
-grocery,San Leandro,39,38,29,3,0,0,2,0.026,0.0,10,0.256
+grocery,San Leandro,40,39,30,3,0,0,2,0.025,0.0,10,0.25
 grocery,Alameda,25,25,22,2,0,0,0,0.0,0.0,3,0.12
-grocery,Castro Valley,15,15,12,1,0,0,1,0.0,0.0,3,0.2
+grocery,Castro Valley,16,16,13,1,0,0,1,0.0,0.0,3,0.188
 grocery,El Cerrito,12,12,10,0,0,0,0,0.0,0.0,2,0.167
 grocery,Emeryville,10,8,6,2,0,0,1,0.2,0.0,4,0.4
 grocery,Albany,6,6,4,0,0,0,0,0.0,0.0,2,0.333
-grocery,San Lorenzo,5,4,2,3,0,0,1,0.2,0.0,3,0.6
+grocery,San Lorenzo,6,5,3,3,0,0,1,0.167,0.0,3,0.5
 grocery,Piedmont,1,1,1,0,0,0,0,0.0,0.0,0,0.0
 housing_assistance,Oakland,7,5,0,5,0,0,0,0.286,0.0,7,1.0
 housing_assistance,Berkeley,3,3,2,0,0,0,1,0.0,0.0,1,0.333

@@ -79,11 +79,11 @@ employment_services,Oakland,22,5,10,1.0
 employment_services,Oakland,22,10,10,1.0
 employment_services,Oakland,22,25,10,1.0
 employment_services,Oakland,22,50,10,1.0
-food_assistance,Oakland,24,0,10,0.8
-food_assistance,Oakland,24,5,10,1.0
-food_assistance,Oakland,24,10,10,1.0
-food_assistance,Oakland,24,25,10,0.9
-food_assistance,Oakland,24,50,10,0.9
+food_assistance,Oakland,20,0,10,0.8
+food_assistance,Oakland,20,5,10,1.0
+food_assistance,Oakland,20,10,10,1.0
+food_assistance,Oakland,20,25,10,1.0
+food_assistance,Oakland,20,50,10,0.9
 government_services,Alameda,11,0,10,0.9
 government_services,Alameda,11,5,10,0.9
 government_services,Alameda,11,10,10,1.0

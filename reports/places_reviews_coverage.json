@@ -83,12 +83,12 @@
       "social_services": 1201,
       "community_health": 900,
       "behavioral_health": 693,
-      "grocery": 631,
+      "grocery": 641,
       "government_services": 507,
       "pharmacy": 249,
       "banking": 241,
       "employment_services": 161,
-      "food_assistance": 73,
+      "food_assistance": 63,
       "public_library": 44,
       "housing_assistance": 16,
       "legal_aid": 3
@@ -97,15 +97,15 @@
       "medical_providers": 2137,
       "transit": 1114,
       "social_services": 741,
-      "grocery": 550,
+      "grocery": 560,
       "community_health": 392,
       "behavioral_health": 314,
       "government_services": 248,
       "banking": 215,
       "pharmacy": 182,
       "employment_services": 83,
-      "food_assistance": 44,
       "public_library": 42,
+      "food_assistance": 34,
       "housing_assistance": 13,
       "legal_aid": 3
     },
@@ -146,9 +146,9 @@
         "C_used": 3.8614
       },
       "food_assistance": {
-        "family_mean": 4.0955,
-        "rated_candidates": 44,
-        "C_used": 4.0955
+        "family_mean": 4.1441,
+        "rated_candidates": 34,
+        "C_used": 4.1441
       },
       "government_services": {
         "family_mean": 3.6093,
@@ -156,9 +156,9 @@
         "C_used": 3.6093
       },
       "grocery": {
-        "family_mean": 4.2627,
-        "rated_candidates": 550,
-        "C_used": 4.2627
+        "family_mean": 4.2568,
+        "rated_candidates": 560,
+        "C_used": 4.2568
       },
       "housing_assistance": {
         "family_mean": 3.8846,

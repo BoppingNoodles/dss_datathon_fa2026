@@ -11,7 +11,7 @@ Phoenix helps people returning from incarceration find relevant **jobs**, **neig
 | Places/Reviews cleaning, service taxonomy, rating ranker, API, audits | Person 4 | Implemented and run on the real exports (this README) |
 | Indeed/Zillow cleaning, job ranking, housing summaries | Person 1 (Max) | Plugs into the API via [docs/api_contract.md](docs/api_contract.md) |
 | Requirement classifier, evaluation, subgroup analysis | Person 2 | Not yet in repo |
-| Frontend and demo | Person 3 | Build against [backend/fixtures/](backend/fixtures/) |
+| Frontend and demo | Person 3 | MVP in [frontend/](frontend/): form, three tabs, service cards, rent calculator |
 
 ## Setup
 
@@ -54,6 +54,15 @@ uv run python -m src.audit.worklists          --source real   # taxonomy spot ch
 uv run python -m src.audit.privacy_check      --source real   # reports/privacy_check.json
 uv run pytest -q
 ```
+
+## Frontend
+
+```bash
+make api SOURCE=real     # terminal 1
+make web                 # terminal 2: http://localhost:3000
+```
+
+Details are in [frontend/README.md](frontend/README.md).
 
 No downloads? `make fixtures` builds a clearly labeled **synthetic** dataset and writes example API JSON to `backend/fixtures/`. `make api SOURCE=synthetic` serves it.
 

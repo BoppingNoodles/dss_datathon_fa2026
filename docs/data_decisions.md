@@ -82,11 +82,12 @@ Fixes made after spot checks on the real data (2026-11-14):
 - 3,942 "Bus stop" and 831 "Transport hub" places were unmapped and now map to transit.
 - Private doctors, dentists, therapists and hospitals had no family. They now form `medical_providers`, an ordinary essential with cost and insurance unknown.
 - "Medical clinic" (801 places) is mostly private. The family is labeled "Clinics and community health centers" and remains *unverified*.
+- "Meal delivery" was matching supermarkets (9 of its 10 matches were Lucky or Foodmaxx). A place also tagged as a grocery store or supermarket no longer counts as food assistance; those stores appear only as grocery stores. SOS/Meals on Wheels, a real meal-delivery nonprofit, is kept.
 - Generic "Non-profit organization" places (883) were being shown for housing and work needs. `social_services` now serves **community_support only**.
 
 `reports/taxonomy_spot_check.csv` holds 10 random places per family for a relevance review (y/n). Record the outcome here once it is reviewed.
 
-Candidates by family (active, rated): medical providers 7,726 / 1,995; transit 4,465 / 1,053; social services 1,103 / 690; community health 816 / 340; behavioral health 655 / 296; grocery 515 / 471; government 480 / 237; banking 206 / 186; employment 154 / 77; pharmacy 150 / 114; food assistance 70 / 41; libraries 44 / 42; housing assistance 15 / 13; legal aid 3 / 3.
+Candidates by family (active, rated): medical providers 7,726 / 1,995; transit 4,465 / 1,053; social services 1,103 / 690; community health 816 / 340; behavioral health 655 / 296; grocery 525 / 481; government 480 / 237; banking 206 / 186; employment 154 / 77; pharmacy 150 / 114; food assistance 60 / 31; libraries 44 / 42; housing assistance 15 / 13; legal aid 3 / 3.
 
 ## Verification layer (`data/resources/service_verification.csv`)
 

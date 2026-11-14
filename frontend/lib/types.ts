@@ -1,0 +1,154 @@
+// Mirrors backend/app/schemas.py. Keep in sync with docs/api_contract.md.
+
+export type Need = "work" | "housing" | "food" | "health_care" | "transportation" | "community_support";
+export type Tab = "jobs" | "housing" | "services";
+export type ServiceSort = "highly_rated" | "nearest";
+export type JobSort = "highest_pay" | "nearest";
+
+export interface RecommendationRequest {
+  age: number | null;
+  location: string;
+  priority_need: Need;
+  experience: { skills: string[]; text: string | null; years: number | null; no_experience_yet: boolean };
+  education: { level: string | null; credentials: string[] };
+  service_sort: ServiceSort;
+  job_sort: JobSort;
+}
+
+export interface ServiceCard {
+  place_id: string;
+  name: string;
+  family_label: string;
+  group: string;
+  verification: {
+    status: string;
+    provider_type: string | null;
+    official_url: string | null;
+    checked_on: string | null;
+    cost_eligibility_notes: string | null;
+    service_area: string | null;
+  };
+  eligibility: { age_status: string; note: string };
+  rating: {
+    overall_rating: number | null;
+    overall_review_count: number | null;
+    overall_star_distribution: Record<string, number> | null;
+  };
+  review_evidence: {
+    sampled_review_count: number;
+    date_min: string | null;
+    date_max: string | null;
+    star_distribution: Record<string, number>;
+    snippets: { text: string; topic: string | null; attribution: string }[];
+    note: string;
+  };
+  distance: { miles: number | null; reference_point: string | null; measure: string | null };
+  availability: { temporarily_closed: boolean | null; hours_text: string; note: string };
+  contact: {
+    address: string | null;
+    phone: string | null;
+    website: string | null;
+    maps_url: string | null;
+  };
+  confirm_prompt: string;
+}
+
+export interface ServiceGroup {
+  key: string;
+  label: string;
+  note: string | null;
+  total: number;
+  items: ServiceCard[];
+}
+
+export interface ServicesSection {
+  status: "ok" | "no_results";
+  need_label: string;
+  sort: ServiceSort;
+  search_area: string;
+  ranking_settings: { highly_rated_min_rating: number; highly_rated_min_reviews: number };
+  groups: ServiceGroup[];
+  notes: string[];
+}
+
+export interface Pay {
+  min: number | null;
+  max: number | null;
+  period: "hour" | "day" | "week" | "month" | "year" | null;
+  raw_text: string | null;
+  hours_per_week: number | null;
+  hours_basis: string;
+  conversion_note: string | null;
+}
+
+export interface JobCard {
+  job_id: string;
+  title: string;
+  employer: string | null;
+  posted_date: string | null;
+  url: string | null;
+  suitability_tier: "strong_match" | "possible_match" | "known_gaps";
+  requirements: { label: string; status: string; evidence: string | null }[];
+  matches: string[];
+  gaps: string[];
+  unknowns: string[];
+  pay: Pay;
+  location: { text: string | null; city: string | null; precision: string; distance_miles: number | null; reference_point: string | null };
+  rank_explanation: string;
+}
+
+export interface JobsSection {
+  status: "ok" | "no_results" | "not_integrated";
+  sort: JobSort;
+  groups: { key: string; label: string; total: number; items: JobCard[] }[];
+  notes: string[];
+}
+
+export interface HousingArea {
+  area_id: string;
+  area_type: "zip" | "city";
+  label: string;
+  usable_rental_records: number;
+  suppressed: boolean;
+  median_monthly_rent: number | null;
+  rent_p25: number | null;
+  rent_p75: number | null;
+  rent_basis: "listed_rent" | "rent_estimate";
+  bedrooms: Record<string, number>;
+  nearby_services: { family: string; family_label: string; count_within_1_mile: number | null; nearest_miles: number | null }[];
+  source_note: string | null;
+}
+
+export interface HousingSection {
+  status: "ok" | "no_results" | "not_integrated";
+  areas: HousingArea[];
+  notes: string[];
+}
+
+export interface RecommendationResponse {
+  open_tab: Tab;
+  jobs: JobsSection;
+  housing_areas: HousingSection;
+  services: ServicesSection;
+  data_coverage: { mode: "real" | "synthetic"; notes: string[] };
+  next_steps: { id: string; text: string; tab: Tab }[];
+  disclaimer: string;
+}
+
+export interface HousingComparisonRequest {
+  pay_min: number | null;
+  pay_max: number | null;
+  pay_period: Pay["period"];
+  hours_per_week: number | null;
+  monthly_rent: number | null;
+}
+
+export interface HousingComparisonResponse {
+  annual_gross_min: number | null;
+  annual_gross_max: number | null;
+  rent_burden_min: number | null;
+  rent_burden_max: number | null;
+  status: "ok" | "unknown";
+  assumptions: string[];
+  caveat: string;
+}

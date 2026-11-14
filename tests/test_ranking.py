@@ -116,3 +116,8 @@ def test_overlong_snippets_refused(tmp_path):
                    "checked_by": "me", "checked_on": "2026-11-14"}]).to_csv(p, index=False)
     with pytest.raises(ValueError):
         load_snippets(p)
+
+
+def test_supermarket_with_meal_delivery_is_grocery_not_food_assistance():
+    assert classify(["Grocery store", "Meal delivery", "Supermarket"])[0] == ["grocery"]
+    assert classify(["Non-profit organization", "Meal delivery"])[0][0] == "food_assistance"

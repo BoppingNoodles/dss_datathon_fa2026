@@ -17,6 +17,7 @@ class Family:
     assistance: bool
     include: re.Pattern[str]
     exclude: re.Pattern[str] | None
+    veto: re.Pattern[str] | None = None
 
 
 def _compile(terms: list[str]) -> re.Pattern[str] | None:
@@ -36,6 +37,7 @@ def families() -> tuple[Family, ...]:
             assistance=bool(v["assistance"]),
             include=_compile(v["include"]),  # type: ignore[arg-type]
             exclude=_compile(v.get("exclude") or []),
+            veto=_compile(v.get("veto_if_place_has") or []),
         )
         for k, v in cfg.items()
     )
@@ -69,6 +71,8 @@ def classify(tags: list[str]) -> tuple[list[str], str | None]:
     matched: list[str] = []
     evidence: str | None = None
     for fam in families():
+        if fam.veto is not None and any(fam.veto.search(t) for t in tags):
+            continue
         for tag in tags:
             if fam.exclude is not None and fam.exclude.search(tag):
                 continue

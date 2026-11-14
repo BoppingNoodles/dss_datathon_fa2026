@@ -3,7 +3,7 @@
 SOURCE ?= real
 PY := uv run python
 
-.PHONY: install synthetic places reviews index services audits test api fixtures all clean-processed
+.PHONY: web install synthetic places reviews index services audits test api fixtures all clean-processed
 
 install:
 	uv sync --group dev --frozen
@@ -37,6 +37,9 @@ test:
 
 api:
 	PHOENIX_SOURCE=$(SOURCE) uv run uvicorn backend.app.main:app --reload --port 8000
+
+web:
+	cd frontend && npm install && npm run dev
 
 all: services audits test
 

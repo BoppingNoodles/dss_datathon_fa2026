@@ -26,6 +26,8 @@ families:
     needs: [food]
     assistance: true
     include: ['food bank', 'food pantry', 'soup kitchen', 'community meal', 'meal delivery', 'free meal', 'food assistance']
+    # Place-level veto: supermarkets tagged 'Meal delivery' (Lucky, Foodmaxx) are grocery stores, not food assistance.
+    veto_if_place_has: ['grocery store', 'supermarket']
     exclude: ['pet food', 'animal']
 
   housing_assistance:

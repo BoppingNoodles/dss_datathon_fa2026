@@ -43,7 +43,7 @@ Sampled-review counts are **never** added to `n`, and an overall rating is never
 
 **Ties.** Scores within **0.02** of each other count as tied (bucketed), and the nearer place comes first. The remaining ties fall back to `place_id`, so the order is deterministic. The user can switch any group to **Nearest**.
 
-Family means used for C (real data, 2026-11-14): public library 4.59, social services 4.37, medical providers 4.29, behavioral health 4.27, grocery 4.26, transit 4.12, food assistance 4.10, community health 4.02, housing assistance 3.88, employment 3.86, government 3.61, pharmacy 3.53, banking 3.37.
+Family means used for C (real data, 2026-11-14): public library 4.59, social services 4.37, medical providers 4.29, behavioral health 4.27, grocery 4.26, transit 4.12, food assistance 4.14, community health 4.02, housing assistance 3.88, employment 3.86, government 3.61, pharmacy 3.53, banking 3.37.
 
 ## Sensitivity (reports/ranking_sensitivity.csv)
 
@@ -69,7 +69,7 @@ The audit reports, for each family × city:
 
 Key observations from the real data:
 - **Low-review areas would lose most services under a highly-rated-only view.** Transit (76% missing ratings, 6 of 4,465 highly rated) and medical providers (74% missing) would almost vanish. That is why limited-evidence places stay visible.
-- **Food assistance has 70 active candidates** (41 rated, 14 highly rated). **Housing assistance has only 15** (5 highly rated). For housing, the verification layer matters more than ratings.
+- **Food assistance has 60 active candidates** (31 rated, 8 highly rated). **Housing assistance has only 15** (5 highly rated). For housing, the verification layer matters more than ratings.
 - **The review-join rate is under 1% in every family** (see data_decisions.md).
 
 This audit describes coverage. It is **not** a recommendation-accuracy measure: no labeled relevance judgments exist.
