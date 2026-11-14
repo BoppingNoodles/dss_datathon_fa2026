@@ -97,7 +97,10 @@ export default function Home() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 pb-16 sm:px-6">
       <header className="flex items-center justify-between py-5">
-        <p className="text-2xl font-bold tracking-tight">
+        <p className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+          {/* Decorative: the name next to it is the accessible label. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/phoenix-logo.png" alt="" width={342} height={701} className="h-10 w-auto" />
           <span className="text-brand-text">Phoenix</span>
         </p>
         <div className="flex items-center gap-2">
