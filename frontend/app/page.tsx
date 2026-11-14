@@ -163,11 +163,11 @@ export default function Home() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 pb-16 sm:px-6">
       <header className="flex items-center justify-between py-5">
-        <p className="flex items-center gap-2.5 text-3xl font-bold tracking-tight sm:text-4xl">
+        <p className="flex items-center gap-2.5 text-[2rem] font-bold tracking-tight sm:text-[2.625rem]">
           {/* Decorative: the name next to it is the accessible label. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {/* Stretched ~1.6x wider than the source image's 342x701 shape. */}
-          <img src="/phoenix-logo.png" alt="" width={342} height={701} className="h-16 w-16 object-fill sm:h-20 sm:w-20" />
+          {/* Slightly wider than the source 342x701 shape (about 1.4x). */}
+          <img src="/phoenix-logo.png" alt="" width={342} height={701} className="h-12 w-9 object-fill sm:h-16 sm:w-11" />
           <span className="phoenix-wordmark">Phoenix</span>
         </p>
         <div className="flex items-center gap-2">
