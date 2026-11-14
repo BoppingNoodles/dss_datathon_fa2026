@@ -8,7 +8,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
 
-from scrape_indeed import LABEL_PATTERNS, suggest_labels
+if __package__:
+    from .scrape_indeed import LABEL_PATTERNS, suggest_labels
+else:
+    from scrape_indeed import LABEL_PATTERNS, suggest_labels
 
 
 LABELS = tuple(LABEL_PATTERNS)
@@ -17,17 +20,20 @@ LABELS = tuple(LABEL_PATTERNS)
 def load_examples(directory, annotations):
     csv.field_size_limit(16 * 1024 * 1024)
     pending = {"train": {}, "validation": {}}
-    with annotations.open(encoding="utf-8-sig", newline="") as file:
-        for row in csv.DictReader(file):
-            split, index = row["split"], int(row["row"])
-            if split not in pending:
-                raise ValueError("Only train and validation annotations are accepted.")
-            if index < 1 or index in pending[split]:
-                raise ValueError(f"Invalid or duplicate annotation row {split}:{index}")
-            labels = tuple(row[label] for label in LABELS)
-            if set(labels) - {"0", "1", "?"}:
-                raise ValueError(f"Invalid annotation labels at {split}:{index}")
-            pending[split][index] = (row["jobid"], labels)
+    for path in [annotations] if isinstance(annotations, Path) else annotations:
+        with path.open(encoding="utf-8-sig", newline="") as file:
+            for row in csv.DictReader(file):
+                split, index = row["split"], int(row["row"])
+                if split not in pending:
+                    raise ValueError("Only train and validation annotations are accepted.")
+                if index < 1 or index in pending[split]:
+                    raise ValueError(f"Invalid or duplicate annotation row {split}:{index}")
+                labels = tuple(row[label].strip() for label in LABELS)
+                if all(not label for label in labels):
+                    continue
+                if set(labels) - {"0", "1", "?"}:
+                    raise ValueError(f"Invalid or incomplete annotation labels at {split}:{index}")
+                pending[split][index] = (row["jobid"], labels)
     with (directory / "train_folds.csv").open(encoding="utf-8", newline="") as file:
         folds = {int(r["train_row"]): int(r["fold"]) for r in csv.DictReader(file)}
     examples = {}

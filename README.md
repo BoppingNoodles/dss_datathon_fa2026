@@ -172,6 +172,37 @@ the pilot annotations with a larger independently reviewed sample for the final
 evaluation. The pilot deliberately used shorter descriptions to make review
 tractable, and its validation examples informed the rule changes.
 
+### Train the NLP classifier
+
+From the repository root, generate a training review CSV with 225 postings:
+
+```powershell
+python src/data/sample_training_jobs.py data/indeed_splits data/indeed_splits/training_review.csv
+```
+
+There are 15 postings per fold in each of three title-based job families. Fill
+the three blank requirement columns with `1`, `0`, or `?` after checking the
+description. The scraper suggestions and evidence are separate columns. Keep
+`split`, `row`, and `jobid` intact. Entirely blank rows are skipped and partially
+filled rows are rejected.
+
+Run a comparison using the existing validation references and completed
+training annotations. Omit `training_review.csv` to reproduce the 25-posting
+pilot. Choose a fresh output directory for each run.
+
+```powershell
+python -m pip install scikit-learn==1.6.1 sentence-transformers==3.4.1 transformers==4.49.0
+python -m src.data.train_indeed train data/indeed_splits data/indeed_splits/nlp_run data/indeed_splits/pilot_annotations.csv data/indeed_splits/validation_review_labeled.csv data/indeed_splits/training_review.csv --minilm
+python -m src.data.train_indeed predict data/indeed_splits/nlp_run/tfidf.joblib job_description.txt
+```
+
+Omit `--minilm` for the TF-IDF and majority baselines only. MiniLM uses a
+pinned frozen encoder and averages normalized chunk embeddings per posting.
+Metrics include five training folds, pooled out-of-fold scores, and development
+validation scores at a fixed 0.5 threshold. The command only reads train and
+validation. Load Joblib artifacts from trusted local runs. Jobs uses the scraper
+while evaluation of the trained models is pending.
+
 ## Oakland Jobs data handoff
 
 Run `python src/data/export_jobs.py` from the repository root. It reads
