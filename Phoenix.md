@@ -69,7 +69,7 @@ Every result needs source/snapshot information where available and a prompt to c
 4. **Places:** normalize closure booleans and category tags; remove confirmed permanently closed places from active recommendations and mark/withhold temporarily closed ones. Unknown closure status stays unknown. Map `category` plus `all_categories` to a small reviewed service taxonomy. Spot-check off-topic matches.
 5. **Reviews:** remove duplicate reviews where identifiable; preserve missing text as missing; join categories from deduplicated Places on `place_id`. Use a left join from service candidates so a lack of sampled reviews does not erase a useful service. Aggregate review rows by place before joining to service cards to avoid duplicate recommendations.
 6. **Housing ↔ services:** use internal property and service coordinates for straight-line proximity calculations, then publish aggregate ZIP/neighborhood results. Do not publish raw property coordinates. For onboarding location, resolve a city/ZIP representative point from a documented lookup or validated area records; label distance as approximate distance from the area center, not the user's home. Fall back to city-only matching if a ZIP cannot be resolved. A distance is not a walking/transit route time.
-7. **Jobs ↔ housing:** compare normalized cities or documented nearby-city rules. Indeed's README documents city text, not job coordinates; do not invent precise worksite distances or commute times.
+7. **Jobs ↔ housing:** compare normalized cities or documented nearby-city rules. Indeed's README documents city text, not job coordinates; do not invent precise worksite distances or commute times. If Caden supplies additional job-location data, validate that it identifies the actual worksite and record its source/precision before using it for distance comparisons. Company headquarters and city centroids are not precise worksite locations.
 8. Add a small manually curated `service_verification.csv` keyed by `place_id`: provider type, relevant service, official URL, verified age criteria if any, cost/eligibility notes, service area, and check date. Unknown fields stay unknown. Publicly listed contact details are distinct from private housing addresses.
 
 **First-hour feasibility gate:** count jobs with usable descriptions, jobs with interpretable pay, actual rental rows, relevant Places, and Places–Reviews match rate in the target area. Count how many relevant services can be verified as public/community providers. The READMEs establish join keys, but not sufficient overlap. If Oakland is sparse, broaden to nearby cities and document it. If rental rows remain sparse, show insufficient-listing coverage and a separately labeled estimate view; estimates must not masquerade as available rentals.
@@ -130,7 +130,41 @@ Check service rankings across at least three available service families: candida
 
 ## 9. Matching and housing calculations
 
-Use job skill similarity, evidence-backed qualifications, location compatibility, and optional advertised pay to rank jobs. Initial score weights can remain `0.45 skills + 0.25 qualifications + 0.20 location + 0.10 pay`, with all components normalized to [0,1]. These are design assumptions. Document neutral handling of missing data and expose qualification gaps; assess several fictional profiles manually. Age never enters the job score.
+### Job recommendation sequence
+
+Use a transparent sequence of suitability, comparable pay, and proximity. Replace the previous weighted sum: its undefined score scales and 10% pay weight could allow a small location-score change to outweigh a large pay increase. Requirement extraction and text similarity inform matching; the ranking policy makes the pay/location tradeoff. Age never enters the job ranking.
+
+1. **Check practical requirements and user constraints.** Distinguish mandatory qualifications from preferred ones, including alternative qualifications such as a degree OR equivalent experience. Record source-backed matches, confirmed gaps, and unknowns. Hard filters apply only to explicit user constraints backed by reliable data, such as a chosen search area. A predicted requirement, a preferred qualification, or missing user information must not automatically exclude a job. Show jobs with confirmed qualification gaps in a clearly labeled group rather than implying the person qualifies.
+2. **Group reasonably relevant jobs by suitability.** Use the user's experience, transferable skills, education, and evidence-backed requirements. Keep strong matches, possible matches needing confirmation, and jobs with known gaps distinguishable. Document the tier rules and review them with fictional profiles; model confidence or semantic similarity alone is not proof of eligibility. Higher pay must not make an unrelated specialist job appear to be a strong match.
+3. **Compare pay within the same suitability tier and pay basis.** The MVP default orders comparable advertised pay from highest to lowest, using the lower endpoint of a posted range and showing the full range. Use the same currency and pay period; prefer hourly rates when available. Convert annual/weekly pay to an hourly equivalent only when working hours are stated or a shared scenario is explicitly selected and labeled. Do not claim twice the compensation when the difference could come from twice the working hours, a one-time bonus, commission, or inconsistent units. Keep incomparable pay bases in labeled groups rather than forcing a false numeric comparison. Missing or ambiguous pay remains Pay not listed/Pay needs confirmation in a visible group within the relevant fit tier; do not assign it zero pay or call it a poor match.
+4. **Use proximity as a secondary preference.** Within a fit tier, pay is the primary default ordering key and reliable distance breaks pay ties; use a stable ID for remaining ties. This makes the MVP behavior deterministic without an arbitrary dollar-per-mile conversion. Do not apply abrupt distance buckets or a hidden radius cutoff. A small distance increase must not overturn a large pay advantage unless the job violates an explicit user travel constraint. Offer Highest pay and Nearest sorting within suitability groups so the user can choose the tradeoff. Nearest requires comparable location precision and the same reference point; retain distance-unknown results in a visible group. If a later balanced score applies a distance penalty, make it gradual, document its units/settings, and validate it before replacing this default.
+5. **Explain the recommendation.** Show qualification matches/gaps, advertised pay/range and conversion assumptions, location precision, and why the job is ordered ahead of alternatives. Do not imply an active vacancy, hiring guarantee, or known commute time.
+
+Location precision is part of the ranking contract. With city-only job locations, use city/nearby-area compatibility and show precise distance as Unknown. A reliable worksite coordinate can support an approximate straight-line distance from the selected area reference point; label the reference point and measurement. City/ZIP onboarding does not establish a user's exact home, and a geographic distance is not a transit or driving time. Do not compare a city-centroid estimate with a verified worksite distance as though their precision were equal.
+
+### Required pay-versus-distance behavior
+
+Illustrative scenario only; assume equal suitability, comparable work schedules/pay, verified worksite locations, and a common reference point. Both jobs satisfy the user's chosen travel constraints.
+
+| Factor | Job A | Job B |
+| --- | --- | --- |
+| Advertised hourly pay | $20 | $40 |
+| Approximate distance | 2.0 miles | 2.5 miles |
+| Experience and qualification fit | Similar | Similar |
+| Default ordering within the fit tier | Second | First |
+
+Expected explanation: Similar match to your experience, twice the advertised hourly pay, and approximately 0.5 mile farther from the selected reference point. Under Nearest sorting, Job A can appear first, with the pay tradeoff still visible. If the location data is only city-level, omit the mileage claim and explain the pay advantage using the available location information.
+
+### Ranking acceptance checks
+
+- Holding suitability, hours, pay basis, and location constant, increasing advertised pay never lowers a job's default rank within its group.
+- The $40/hour, 2.5-mile job outranks the $20/hour, 2-mile job under the example's assumptions; a small distance change cannot create an abrupt default-score drop.
+- An explicit travel limit can remove an otherwise attractive job only when reliable location data supports that decision. Unknown distance is flagged, not treated as outside the limit.
+- $40,000/year for 20 hours/week is not described as half the hourly pay of $80,000/year for 40 hours/week under equal working-week assumptions. Advertised hours and actual earnings scenarios remain visible.
+- Missing pay, missing location, skipped qualifications, and preferred-versus-required wording do not become fabricated values or automatic disqualifications. Strong pay cannot erase a confirmed qualification gap.
+- Pay ranges use the same endpoint policy, geographic comparisons use the same reference/precision, sorting is deterministic, and explanations agree with the actual ordering. Record manually reviewed fixtures and outcomes alongside the data audit; these checks validate the ranking policy, not real-world hiring success.
+
+### Housing calculations
 
 For a selected job and a rental-cost summary:
 
@@ -168,7 +202,7 @@ Proposed endpoints: `GET /health`, `POST /recommendations`, and an optional `POS
 
 Request fields: `age` (nullable), `location` (city/ZIP), `priority_need`, `experience` (skills/text/optional years), and `education` (level/optional credentials).
 
-Response sections: `jobs`, `housing_areas`, `services`, `data_coverage`, and `next_steps`. Include stable IDs, source fields, match explanations, uncertainty, and nullable missing values. Services need overall rating/count separate from sampled-review count/date range, verification status, and evidence source. Housing responses must contain only publishable aggregates, not raw property addresses, IDs, or exact coordinates. The frontend must handle empty results, unknown eligibility, sparse reviews, and missing pay.
+Response sections: `jobs`, `housing_areas`, `services`, `data_coverage`, and `next_steps`. Include stable IDs, source fields, match explanations, uncertainty, and nullable missing values. Jobs need suitability tier, requirement evidence/gaps/unknowns, pay range/period/currency and conversion basis, stated or assumed hours, location source/precision, nullable distance and its reference point, active sort mode, and ranking explanation. Services need overall rating/count separate from sampled-review count/date range, verification status, and evidence source. Housing responses must contain only publishable aggregates, not raw property addresses, IDs, or exact coordinates. The frontend must handle empty results, unknown eligibility, sparse reviews, and missing pay.
 
 ## 11. Four-person ownership and handoffs
 
