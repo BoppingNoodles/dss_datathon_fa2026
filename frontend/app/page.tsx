@@ -165,9 +165,8 @@ export default function Home() {
       <header className="flex items-center justify-between py-5">
         <p className="flex items-center gap-2.5 text-[2rem] font-bold tracking-tight sm:text-[2.625rem]">
           {/* Decorative: the name next to it is the accessible label. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          {/* Slightly wider than the source 342x701 shape (about 1.4x). */}
-          <img src="/phoenix-logo.png" alt="" width={342} height={701} className="h-12 w-9 object-fill sm:h-16 sm:w-11" />
+          {/* Flame-gradient phoenix: the PNG is used as a mask, slightly wider than its 342x701 shape. */}
+          <span aria-hidden className="inline-block h-12 w-9 shrink-0 sm:h-16 sm:w-11 bg-[linear-gradient(170deg,#e08a12_0%,#e8701a_38%,#c23d18_70%,#8f2410_100%)] dark:bg-[linear-gradient(170deg,#ffd56b_0%,#ff9a3c_40%,#f2643a_75%,#d9452a_100%)] [mask:url(/phoenix-logo.png)_center/100%_100%_no-repeat] drop-shadow-[0_2px_6px_rgb(240_122_26/0.3)]" />
           <span className="phoenix-wordmark">Phoenix</span>
         </p>
         <div className="flex items-center gap-2">
