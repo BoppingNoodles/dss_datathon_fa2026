@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistSans = localFont({ src: "../public/fonts/geist-latin.woff2", variable: "--font-geist-sans", weight: "100 900", display: "swap" });
 
 const themeScript = `try{var q=new URLSearchParams(location.search).get('theme');var t=(q==='light'||q==='dark')?q:localStorage.getItem('phoenix-theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.toggle('dark',t==='dark')}catch(e){}`;
 
 export const metadata: Metadata = {
   title: "Phoenix",
-  description: "Find jobs, neighborhood rent ranges, and community services in the East Bay.",
+  description: "A personal reentry plan with jobs, housing support, services and a monthly budget.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
