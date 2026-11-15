@@ -1,5 +1,8 @@
 "use client";
 
+import ResourceActions, { useResources } from "./ResourceActions";
+import ResourceCandidates from "./ResourceCandidates";
+
 import type { ServiceCard, ServiceSort, ServicesSection } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +52,9 @@ function verificationBadge(v: ServiceCard["verification"]) {
 }
 
 function ServiceItem({ c }: { c: ServiceCard }) {
+  const { session } = useResources();
+  const resource = session?.recommendations.find((r) => r.id === `service:${c.place_id}`);
+  if (resource && (resource.userStatus === "dismissed" || resource.userStatus === "rejected")) return null;
   const r = c.rating;
   const ev = c.review_evidence;
   const ageTone = c.eligibility.age_status === "outside_published_age_criterion" ? "warn"
@@ -123,6 +129,7 @@ function ServiceItem({ c }: { c: ServiceCard }) {
             Map
           </a></Button>
         )}
+        <ResourceActions id={`service:${c.place_id}`} />
       </CardFooter>
       </Card>
     </li>
@@ -132,20 +139,18 @@ function ServiceItem({ c }: { c: ServiceCard }) {
 export default function ServicesTab({ data, loading, onSort }: {
   data: ServicesSection; loading: boolean; onSort: (s: ServiceSort) => void;
 }) {
-  const s = data.ranking_settings;
   return (
     <div className="flex flex-col gap-5">
+      <ResourceCandidates mode="service" excludeIds={data.groups.flatMap((g) => g.items.map((c) => `service:${c.place_id}`))} />
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          {data.need_label} services {data.search_area}.
-        </p>
+        <h3 className="text-xl font-semibold">Services</h3>
         <SortToggle
           label="Sort services" value={data.sort} disabled={loading} onChange={onSort}
           options={[{ value: "highly_rated", label: "Highly rated" }, { value: "nearest", label: "Nearest" }]}
         />
       </div>
 
-      <Notes notes={data.notes} />
+      <Notes notes={[`${data.need_label} services ${data.search_area}.`, `Highly rated: ${data.ranking_settings.highly_rated_min_rating}+ stars and ${data.ranking_settings.highly_rated_min_reviews}+ reviews.`, ...data.notes, ...data.groups.flatMap(group => group.note ? [group.note] : [])]} />
 
       {data.groups.length === 0 ? (
         <EmptyState title="No services found for this need here">
@@ -161,12 +166,6 @@ export default function ServicesTab({ data, loading, onSort }: {
                   {g.total > g.items.length ? `showing ${g.items.length} of ${g.total}` : g.total}
                 </span>
               </h3>
-              {g.key === "highly_rated" && (
-                <p className="text-sm text-muted-foreground">
-                  {s.highly_rated_min_rating}+ stars · {s.highly_rated_min_reviews}+ Google reviews. Confirm cost and eligibility before visiting.
-                </p>
-              )}
-              {g.note && <p className="text-sm text-muted-foreground">{g.note}</p>}
             </div>
             <ul className="grid gap-4 md:grid-cols-2">
               {g.items.map((c) => <ServiceItem key={c.place_id} c={c} />)}

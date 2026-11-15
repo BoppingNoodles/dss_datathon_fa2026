@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge, EmptyState, Notes, SortToggle } from "./shared";
+import ResourceActions, { useResources } from "./ResourceActions";
 
 const CHECK_STATUS = {
   reported_met: "Reported met", gap: "Needs preparation", needs_confirmation: "Confirm", preferred: "Preferred",
@@ -23,14 +24,12 @@ function groupLabel(key: string, fallback: string) {
   return labels[tier] ? `${labels[tier]}${pay ? ` · ${pay}` : ""}` : fallback;
 }
 
-function JobItem({ j, selected, loading, onSelect, onCompare, onQualificationChange }: {
-  j: JobCard; selected: boolean; loading: boolean;
-  onSelect: (j: JobCard) => void; onCompare: (j: JobCard) => void;
+function JobItem({ j, loading, onQualificationChange }: {
+  j: JobCard; loading: boolean;
   onQualificationChange: (job: JobCard, key: string, checked: boolean) => void;
 }) {
   const relevance = matchLabel(j);
   const progress = qualificationProgress(j);
-  const hasPay = !j.pay.needs_confirmation && j.pay.period != null && (j.pay.min != null || j.pay.max != null);
   const requirements = j.requirements.filter((r) => r.status === "required" || r.status === "preferred");
   const checks = j.qualification_checks ?? [];
   return (
@@ -49,12 +48,14 @@ function JobItem({ j, selected, loading, onSelect, onCompare, onQualificationCha
             {[j.employer, j.location.city ?? j.location.text].filter(Boolean).join(" · ") || "Employer not listed"}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-            <span className="font-medium">Relevance</span>
             <Badge tone={relevance === "Clear match" ? "ok" : relevance === "Needs preparation" ? "warn" : "brand"}>{relevance}</Badge>
-            {relevance === "Clear match" && <span className="text-xs text-muted-foreground">To listed mandatory requirements</span>}
           </div>
-          <div className="mt-2 flex flex-col gap-2">
-            <p className="text-sm font-medium">Qualifications you have</p>
+          <p className="mt-2 text-lg font-semibold">{payText(j.pay)}</p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <details className="text-sm">
+            <summary className="cursor-pointer font-medium text-brand-text">Qualifications{progress.total > 0 ? ` · ${progress.reported}/${progress.total} reported` : ""}</summary>
+            <div className="mt-3 flex flex-col gap-2">
             {progress.total > 0 && <p className="text-xs text-muted-foreground" aria-live="polite">
               {progress.required > 0 ? `${progress.requiredMet} of ${progress.required} required met · ` : ""}{progress.reported} of {progress.total} listed reported
             </p>}
@@ -70,10 +71,8 @@ function JobItem({ j, selected, loading, onSelect, onCompare, onQualificationCha
                 </li>
               ))}
             </ul>
-          </div>
-          <p className="mt-2 text-lg font-semibold">{payText(j.pay)}</p>
-        </CardHeader>
-        <CardContent>
+            </div>
+          </details>
           <details className="text-sm">
             <summary className="cursor-pointer font-medium text-brand-text">Job description</summary>
             <div className="mt-3 flex flex-col gap-3">
@@ -104,16 +103,12 @@ function JobItem({ j, selected, loading, onSelect, onCompare, onQualificationCha
                   <p>Confirm the full posting and current opening with the employer.</p>
                 </div>
               </details>
-              {hasPay && <Button type="button" variant="outline" className="self-start" onClick={() => onCompare(j)}>Compare pay with rent</Button>}
             </div>
           </details>
         </CardContent>
         <CardFooter className="mt-auto flex-wrap gap-2">
-          <Button type="button" variant={selected ? "secondary" : "default"}
-            disabled={loading || j.selectable === false} aria-pressed={selected}
-            aria-label={`${selected ? "View plan" : "Make a plan"}: ${j.title}`} onClick={() => onSelect(j)}>
-            {selected ? "View my plan" : "Make a plan"}
-          </Button>
+          <ResourceActions id={`job:${j.job_id}`} />
+
           {j.url && <Button asChild variant="outline"><a href={j.url} target="_blank" rel="noopener noreferrer">View posting</a></Button>}
         </CardFooter>
       </Card>
@@ -121,14 +116,19 @@ function JobItem({ j, selected, loading, onSelect, onCompare, onQualificationCha
   );
 }
 
-export default function JobsTab({ data, loading, selectedJobId, onSelect, onSort, onCompare, onQualificationChange }: {
-  data: JobsSection; loading: boolean; onSort: (s: JobSort) => void; onCompare: (j: JobCard) => void;
-  selectedJobId: string | null; onSelect: (j: JobCard) => void;
+export default function JobsTab({ data, loading, onSort, onQualificationChange }: {
+  data: JobsSection; loading: boolean; onSort: (s: JobSort) => void;
   onQualificationChange: (job: JobCard, key: string, checked: boolean) => void;
 }) {
+  const { session } = useResources();
   if (data.status === "not_integrated") return <EmptyState title="Jobs are unavailable">{data.notes.join(" ")}</EmptyState>;
-  const mainGroups = data.groups.filter((group) => group.items.length > 0);
-  const otherGroups = (data.other_groups ?? []).filter((group) => group.items.length > 0);
+  const hidden = new Set(session?.recommendations.filter((r) => r.userStatus === "dismissed" || r.userStatus === "rejected" || r.userReportedAvailability === "unavailable").map((r) => r.id));
+  const all = [...data.groups, ...(data.other_groups ?? [])].flatMap((g) => g.items);
+  const topCards = (session?.topJobIds ?? []).flatMap((id) => all.filter((j) => `job:${j.job_id}` === id && !hidden.has(id)));
+  const shown = new Set(topCards.map((j) => j.job_id));
+  const filtered = (groups: JobsSection["groups"]) => groups.map((g) => ({ ...g, items: g.items.filter((j) => !hidden.has(`job:${j.job_id}`) && !shown.has(j.job_id)) })).filter((g) => g.items.length);
+  const mainGroups = filtered(data.groups);
+  const otherGroups = filtered(data.other_groups ?? []);
   const otherTotal = otherGroups.reduce((total, group) => total + group.total, 0);
   const renderGroups = (groups: JobsSection["groups"]) => groups.map((g) => (
     <section key={g.key}>
@@ -137,20 +137,20 @@ export default function JobsTab({ data, loading, selectedJobId, onSelect, onSort
         <span className="text-sm font-normal text-muted-foreground">{g.total > g.items.length ? `${g.items.length} of ${g.total}` : g.total}</span>
       </h3>
       <ul className="grid gap-4 md:grid-cols-2">
-        {g.items.map((j) => <JobItem key={j.job_id} j={j} selected={j.job_id === selectedJobId}
-          loading={loading} onSelect={onSelect} onCompare={onCompare} onQualificationChange={onQualificationChange} />)}
+        {g.items.map((j) => <JobItem key={j.job_id} j={j}
+          loading={loading} onQualificationChange={onQualificationChange} />)}
       </ul>
     </section>
   ));
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-md text-sm text-muted-foreground">Find a role to work toward. Choose one to build your 30-day plan.</p>
+        <h3 className="text-xl font-semibold">Jobs</h3>
         <SortToggle label="Sort jobs" value={data.sort} disabled={loading} onChange={onSort}
           options={[{ value: "highest_pay", label: "Highest pay" }, { value: "nearest", label: "Nearest" }]} />
       </div>
       <details className="text-sm text-muted-foreground">
-        <summary className="cursor-pointer font-medium text-brand-text">How relevance and qualifications work</summary>
+        <summary className="cursor-pointer font-medium">How matching works</summary>
         <div className="mt-2 flex flex-col gap-2">
           <p><strong>Relevance:</strong> overlap between your reported work areas and the job title. It does not establish that you meet the job&apos;s requirements.</p>
           <p><strong>Clear match:</strong> you report meeting every listed mandatory qualification. We may not have extracted every requirement; confirm the full posting and vacancy.</p>
@@ -160,15 +160,16 @@ export default function JobsTab({ data, loading, selectedJobId, onSelect, onSort
         </div>
       </details>
       <Notes notes={data.notes} />
-      {!mainGroups.length ? <EmptyState title={otherGroups.length ? "No roles matched your reported experience" : "No job listings found for this location"} />
-        : renderGroups(mainGroups)}
+      {topCards.length > 0 && renderGroups([{ key: "top5", label: "Your suggested jobs", total: topCards.length, items: topCards }])}
+      {!mainGroups.length && !topCards.length ? <EmptyState title={otherGroups.length ? "No roles matched your reported experience" : "No job listings found for this location"} />
+        : mainGroups.length > 0 && <details open={!session}><summary className="cursor-pointer py-3 font-semibold text-brand-text">More jobs matching your experience</summary><div className="space-y-5">{renderGroups(mainGroups)}</div></details>}
       {otherGroups.length > 0 && (
         <details>
           <summary className="cursor-pointer py-3 font-semibold text-brand-text focus-visible:outline-offset-4">
             Explore other nearby roles ({otherTotal.toLocaleString()})
           </summary>
           <p className="mt-1 mb-4 text-sm text-muted-foreground">
-            These roles differ from your reported work areas. Check transferable skills and qualifications, or choose one to build a preparation plan.
+            Other roles near your area.
           </p>
           <div className="flex flex-col gap-5">{renderGroups(otherGroups)}</div>
         </details>

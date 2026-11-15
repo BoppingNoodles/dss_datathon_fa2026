@@ -135,7 +135,6 @@ export default function AreaMap({ zip, label, places, job = null }: { zip: strin
   return (
     <Card id="housing-map" className="gap-3 scroll-mt-4">
       <CardHeader>
-        <p className="text-xs font-medium text-brand-text">Explore the area</p>
         <div className="flex items-center justify-between gap-3">
           <CardTitle><h3 className="text-lg font-semibold">{label}</h3></CardTitle>
           <Button type="button" size="sm" variant="outline" disabled={!ready || (!hasBoundary && !places.length && !hasJobPoint)} onClick={() => {
@@ -154,13 +153,12 @@ export default function AreaMap({ zip, label, places, job = null }: { zip: strin
         <p className="sr-only" aria-live="polite">{zoom != null ? `Map zoom level ${zoom}` : "Loading map"}</p>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
           {hasBoundary && <span className="flex items-center gap-2"><span className="size-2.5 rounded-sm border border-primary bg-accent" aria-hidden="true" />ZIP {zip}</span>}
-          <span>{places.length} nearby place{places.length === 1 ? "" : "s"} pinned</span>
+          <span>{places.length} nearby place{places.length === 1 ? "" : "s"}</span>
           {job && hasJobPoint && <span className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-ok" aria-hidden="true" />Selected job{approximateJob ? " · approximate area" : ""}</span>}
         </div>
         {job && !hasJobPoint && <p className="text-xs text-muted-foreground">The selected job has no mappable coordinates. Check its posting for the worksite.</p>}
         {tileFailed && <p role="status" className="text-xs text-muted-foreground">Street tiles couldn&apos;t load. The ZIP boundary and place pins are still shown.</p>}
         {(boundaryFailed || (data && !hasBoundary)) && <p className="text-xs text-muted-foreground">A ZIP-area boundary is unavailable for this location.</p>}
-        <p className="text-xs text-muted-foreground">Drag to explore. Use + / − or pinch to zoom. Select a pin for details.</p>
         <p className="text-xs text-muted-foreground">
           <a href="https://www.census.gov/programs-surveys/geography/guidance/geo-areas/zctas.html" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">Census ZIP-area approximation</a>. Places may be outside the ZIP.
         </p>

@@ -5,16 +5,20 @@ import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { buildDailyPlan, dateKey, monthCells } from "@/lib/plan";
-import type { ThirtyDayPlan } from "@/lib/types";
+import { buildDailyPlan, dateKey, monthCells, type CalendarPlan } from "@/lib/plan";
 import { cn } from "@/lib/utils";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const formatDate = (date: Date) => date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-export default function JobPlan({ plan, startDate, loading, completed, onToggleStep, onClear }: {
-  plan: ThirtyDayPlan; startDate: Date; loading: boolean; completed: string[];
-  onToggleStep: (stepId: string, checked: boolean) => void; onClear: () => void;
+export default function JobPlan({ plan, startDate, loading, completed, onToggleStep, onClear,
+  idPrefix = "job-plan", dayTasks = {}, blockedActionIds = [], reviewOnlyActionIds = [] }: {
+  plan: CalendarPlan; startDate: Date; loading: boolean; completed: string[];
+  onToggleStep: (stepId: string, checked: boolean) => void; onClear?: () => void;
+  idPrefix?: string;
+  dayTasks?: Record<string, { title: string; action: string }[]>;
+  blockedActionIds?: string[];
+  reviewOnlyActionIds?: string[];
 }) {
   const [month, setMonth] = useState(() => new Date(startDate.getFullYear(), startDate.getMonth(), 1, 12));
   const [selectedDay, setSelectedDay] = useState(1);
@@ -23,6 +27,7 @@ export default function JobPlan({ plan, startDate, loading, completed, onToggleS
   const byDate = new Map(days.map((day) => [dateKey(day.date), day]));
   const done = new Set(completed);
   const count = days.filter((day) => done.has(day.id)).length;
+  const actionDays = days.filter(day => !reviewOnlyActionIds.includes(day.id)).length;
   const end = days[29].date;
   const firstMonth = startDate.getFullYear() * 12 + startDate.getMonth();
   const lastMonth = end.getFullYear() * 12 + end.getMonth();
@@ -36,22 +41,21 @@ export default function JobPlan({ plan, startDate, loading, completed, onToggleS
   }
 
   return (
-    <div id="job-plan" role="region" tabIndex={-1} aria-labelledby="job-plan-title" aria-busy={loading} className="flex scroll-mt-4 flex-col gap-5 outline-none">
+    <div id={idPrefix} role="region" tabIndex={-1} aria-labelledby={`${idPrefix}-title`} aria-busy={loading} className="flex scroll-mt-4 flex-col gap-5 outline-none">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-text">One day at a time</p>
-          <h2 id="job-plan-title" className="text-xl font-semibold">Your 30-day plan</h2>
-          <p className="max-w-xl text-sm text-muted-foreground">Working toward <strong className="font-medium text-foreground">{plan.target_job_title}</strong></p>
+          <h2 id={`${idPrefix}-title`} className="text-xl font-semibold">Your 30-day plan</h2>
+          {idPrefix !== "reentry-calendar" && <p className="max-w-xl text-sm text-muted-foreground">{plan.target_job_title}</p>}
         </div>
-        <Button type="button" variant="outline" disabled={loading} onClick={onClear}>Change goal</Button>
+        {onClear && <Button type="button" variant="outline" disabled={loading} onClick={onClear}>Change goal</Button>}
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap justify-between gap-2 text-sm text-muted-foreground">
           <span>{formatDate(startDate)} – {formatDate(end)}</span>
-          <span role="status">{count} of 30 days complete</span>
+          <span role="status">{count} of {actionDays} {reviewOnlyActionIds.length ? "action days" : "days"} complete</span>
         </div>
-        <div role="progressbar" aria-label="Plan progress" aria-valuenow={count} aria-valuemin={0} aria-valuemax={30} className="h-1.5 overflow-hidden rounded-full bg-muted">
-          <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${count / 30 * 100}%` }} />
+        <div role="progressbar" aria-label="Plan progress" aria-valuenow={count} aria-valuemin={0} aria-valuemax={actionDays || 1} className="h-1.5 overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${actionDays ? count / actionDays * 100 : 0}%` }} />
         </div>
       </div>
       <Card className="gap-0 py-0">
@@ -88,7 +92,7 @@ export default function JobPlan({ plan, startDate, loading, completed, onToggleS
                   aria-label={`${formatDate(date)}, day ${day.day}: ${day.title}${finished ? ", complete" : ""}`}
                   onClick={() => {
                     setSelectedDay(day.day);
-                    if (window.innerWidth < 640) requestAnimationFrame(() => document.getElementById("daily-action-card")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+                    if (window.innerWidth < 640) requestAnimationFrame(() => document.getElementById(`${idPrefix}-daily-card`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
                   }}
                   className={cn("relative flex min-h-20 min-w-0 flex-col items-start gap-2 bg-card p-1.5 text-left transition-colors hover:bg-muted focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-[-2px] sm:min-h-28 sm:p-3",
                     active && "bg-accent ring-2 ring-primary ring-inset", finished && !active && "bg-ok-soft/40", !inMonth && "opacity-60")}>
@@ -99,20 +103,24 @@ export default function JobPlan({ plan, startDate, loading, completed, onToggleS
           </div>
         </CardContent>
       </Card>
-      <Card id="daily-action-card" role="region" aria-labelledby="daily-action" aria-live="polite" className="gap-3 scroll-mt-4">
+      <Card id={`${idPrefix}-daily-card`} role="region" aria-labelledby={`${idPrefix}-daily-action`} aria-live="polite" className="gap-3 scroll-mt-4">
         <CardHeader>
           <p className="text-xs font-medium text-brand-text">Day {selected.day} · {formatDate(selected.date)} · {selected.phase}</p>
-          <CardTitle><h3 id="daily-action" className="text-lg font-semibold">{selected.title}</h3></CardTitle>
+          <CardTitle><h3 id={`${idPrefix}-daily-action`} className="text-lg font-semibold">{selected.title}</h3></CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{selected.action}</p>
+          {!(dayTasks[selected.id]?.length > 1) && <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{selected.action}</p>}
+          {dayTasks[selected.id]?.length > 1 && <ul className="space-y-3 text-sm">
+            {dayTasks[selected.id].map((task) => <li key={task.title}><p className="font-medium">{task.title}</p><p className="text-muted-foreground">{task.action}</p></li>)}
+          </ul>}
           {selected.links.length > 0 && <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
             {selected.links.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer" className="text-brand-text underline underline-offset-4">{link.label}</a>)}
           </div>}
-          <div className="flex items-center gap-2.5">
-            <Checkbox id="complete-day" disabled={loading} checked={done.has(selected.id)} onCheckedChange={(value) => onToggleStep(selected.id, value === true)} />
-            <label htmlFor="complete-day" className="cursor-pointer text-sm font-medium">Mark day {selected.day} complete</label>
-          </div>
+          {reviewOnlyActionIds.includes(selected.id) ? <p className="text-sm text-muted-foreground">Review day · no tasks due.</p> : <div className="flex items-center gap-2.5">
+            <Checkbox id={`${idPrefix}-complete-day`} disabled={loading || blockedActionIds.includes(selected.id)} checked={done.has(selected.id)} onCheckedChange={(value) => onToggleStep(selected.id, value === true)} />
+            <label htmlFor={`${idPrefix}-complete-day`} className="cursor-pointer text-sm font-medium">Mark day {selected.day} complete</label>
+          </div>}
+          {blockedActionIds.includes(selected.id) && <p className="text-sm text-muted-foreground">Complete the prerequisite steps in your overview first.</p>}
         </CardContent>
       </Card>
       {plan.credential_paths.length > 0 && <details className="text-sm">
@@ -124,7 +132,7 @@ export default function JobPlan({ plan, startDate, loading, completed, onToggleS
           </li>)}
         </ul>
       </details>}
-      <p className="text-xs leading-relaxed text-muted-foreground">A practical path toward your goal. Hiring and training dates depend on the employer and provider; some goals take longer than 30 days. Progress is saved in this browser so you can continue after a refresh.</p>
+      <p className="text-xs text-muted-foreground">Suggested dates are flexible. Confirm appointments with the provider.</p>
     </div>
   );
 }

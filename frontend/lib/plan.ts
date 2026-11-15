@@ -26,7 +26,9 @@ export function monthCells(month: Date): Date[] {
   return Array.from({ length }, (_, index) => addDays(first, index - first.getDay()));
 }
 
-export function buildDailyPlan(plan: ThirtyDayPlan, start: Date): PlanDay[] {
+export type CalendarPlan = Pick<ThirtyDayPlan, "daily_actions" | "credential_paths" | "steps" | "notes" | "target_job_title">;
+
+export function buildDailyPlan(plan: CalendarPlan, start: Date): PlanDay[] {
   const daily = plan.daily_actions;
   if (daily?.length === 30 && new Set(daily.map((item) => item.action_id)).size === 30
       && daily.every((item) => Number.isInteger(item.day) && item.day >= 1 && item.day <= 30)
