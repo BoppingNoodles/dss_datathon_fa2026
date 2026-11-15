@@ -1,6 +1,8 @@
 import type { RecommendationRequest, RecommendationResponse } from "./types";
 
-export const RESULTS_CACHE_KEY = "phoenix-results:v1";
+// Typed task/resource associations must be regenerated from the API, not replayed
+// from the earlier cache that could link rental estimates to immediate housing.
+export const RESULTS_CACHE_KEY = "phoenix-results:v2";
 const CACHE_AGE_MS = 15 * 60 * 1000;
 type CacheStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 const record = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
@@ -27,7 +29,7 @@ export function readCachedResults(request: RecommendationRequest, storage?: Cach
     const raw = (storage ?? window.sessionStorage).getItem(RESULTS_CACHE_KEY);
     if (!raw) return null;
     const value: unknown = JSON.parse(raw);
-    if (!record(value) || value.version !== 1 || value.request !== JSON.stringify(request)
+    if (!record(value) || value.version !== 2 || value.request !== JSON.stringify(request)
       || typeof value.savedAt !== "number" || now < value.savedAt || now - value.savedAt > CACHE_AGE_MS
       || !isResponse(value.data)) return null;
     return value.data;
@@ -38,7 +40,7 @@ export function readCachedResults(request: RecommendationRequest, storage?: Cach
 
 export function cacheResults(request: RecommendationRequest, data: RecommendationResponse, storage?: CacheStorage, now = Date.now()): boolean {
   try {
-    const value = JSON.stringify({ version: 1, request: JSON.stringify(request), savedAt: now, data });
+    const value = JSON.stringify({ version: 2, request: JSON.stringify(request), savedAt: now, data });
     if (value.length > 2_000_000) return false;
     (storage ?? window.sessionStorage).setItem(RESULTS_CACHE_KEY, value);
     return true;
@@ -49,7 +51,9 @@ export function cacheResults(request: RecommendationRequest, data: Recommendatio
 
 export function clearCachedResults(storage?: CacheStorage): boolean {
   try {
-    (storage ?? window.sessionStorage).removeItem(RESULTS_CACHE_KEY);
+    const target = storage ?? window.sessionStorage;
+    target.removeItem(RESULTS_CACHE_KEY);
+    target.removeItem("phoenix-results:v1");
     return true;
   } catch {
     return false;

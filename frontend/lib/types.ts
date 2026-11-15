@@ -1,11 +1,62 @@
 // Mirrors backend/app/schemas.py. Keep in sync with docs/api_contract.md.
 
 export type Need = "work" | "housing" | "food" | "health_care" | "transportation" | "community_support";
-export type Tab = "jobs" | "housing" | "services" | "plan";
+export type Tab = "jobs" | "housing" | "services" | "plan" | "finances";
 export type ServiceSort = "highly_rated" | "nearest";
 export type JobSort = "highest_pay" | "nearest";
 
+export type ReentryAnswer = "yes" | "no" | "unsure" | "prefer_not_to_say";
+export interface ReentrySituation {
+  release_status?: "preparing_for_release" | "already_released" | "unsure" | "prefer_not_to_say" | null;
+  release_date?: string | null;
+  has_immediate_housing?: ReentryAnswer | null;
+  has_id?: ReentryAnswer | null;
+  has_transportation?: ReentryAnswer | null;
+  has_phone_access?: ReentryAnswer | null;
+  has_required_appointment?: ReentryAnswer | null;
+  priority_need?: Need | null;
+  employment_goal?: "find_work" | "prepare_for_work" | "keep_work" | "not_now" | "unsure" | null;
+}
+
+export interface ReentryTask {
+  task_id: string;
+  title: string;
+  action: string;
+  barrier: string;
+  priority: "immediate" | "high" | "medium" | "later";
+  stage: "immediate_stability" | "removing_barriers" | "building_independence";
+  resource_tab?: "jobs" | "housing" | "services" | null;
+  resource_need?: Need | null;
+  prerequisites: string[];
+  rationale: string;
+  confirmations: string[];
+  deadline: string | null;
+  planning_day: number;
+  status: "todo" | "waiting" | "completed";
+  referrals: {
+    resource_id: string; name: string; url: string | null;
+    verification: "verified_reentry_scope" | "verified_general_service" | "unverified";
+    provider_category: string; scope: string; source_url: string | null; checked_on: string | null;
+    confirmation: string;
+  }[];
+  links: { label: string; url: string }[];
+}
+
+export interface ReentryPlan {
+  version: "1";
+  start_date: string;
+  synthetic: boolean;
+  tasks: ReentryTask[];
+  next_task_ids: string[];
+  completed_ids: string[];
+  daily_actions: (NonNullable<ThirtyDayPlan["daily_actions"]>[number] & { task_ids: string[] })[];
+  notes: string[];
+}
+
 export interface RecommendationRequest {
+  profile?: import("./domain").ReentryProfile;
+  phoenix_session?: import("./domain").PhoenixSession;
+  user_event?: import("./domain").UserEvent;
   age: number | null;
   location: string;
   priority_need: Need;
@@ -13,8 +64,12 @@ export interface RecommendationRequest {
   education: { level: string | null; credentials: string[]; no_credentials?: boolean };
   qualification_answers?: Record<string, Record<string, boolean>>;
   service_sort: ServiceSort;
+  service_need?: Need | null;
   job_sort: JobSort;
   selected_job_id?: string | null;
+  reentry?: ReentrySituation | null;
+  reentry_completed_ids?: string[];
+  reentry_start_date?: string | null;
 }
 
 export interface ServiceCard {
@@ -232,6 +287,8 @@ export interface HousingSection {
 }
 
 export interface RecommendationResponse {
+  phoenix_session?: import("./domain").PhoenixSession | null;
+  reentry_plan?: ReentryPlan | null;
   open_tab: Tab;
   jobs: JobsSection;
   housing_areas: HousingSection;

@@ -43,3 +43,13 @@ test("cache failures do not block live results and clearing removes the snapshot
   assert.equal(cacheResults(request, response, denied), false);
   assert.equal(readCachedResults(request, denied), null);
 });
+
+test("legacy task-resource associations cannot reappear from an earlier cached response", () => {
+  const storage = memoryStorage();
+  storage.setItem("phoenix-results:v1", JSON.stringify({ version: 1, savedAt: 1000, request: JSON.stringify(request), data: response }));
+  assert.equal(readCachedResults(request, storage, 2000), null);
+  cacheResults(request, response, storage, 1000);
+  assert.deepEqual(readCachedResults(request, storage, 2000), response);
+  clearCachedResults(storage);
+  assert.equal(storage.getItem("phoenix-results:v1"), null);
+});
