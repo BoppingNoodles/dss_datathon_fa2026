@@ -11,12 +11,13 @@ def synthetic():
     """Build the synthetic fixture through the real pipeline code once per test session."""
     from src.common import processed_dir
     from src.data import make_synthetic, places, reviews
-    from src.recommend import build_index
+    from src.recommend import build_index, prepare_person1
 
     make_synthetic.build()
     places.run("synthetic")
     reviews.run("synthetic")
     build_index.run("synthetic")
+    prepare_person1.run("synthetic")
     d = processed_dir("synthetic")
     return {
         "candidates": pd.read_parquet(d / "service_candidates.parquet"),

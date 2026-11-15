@@ -4,24 +4,17 @@ from __future__ import annotations
 
 import re
 
-from .credentials import credential_reported_held, credential_summary, with_credential_evidence
+from .credentials import credential_reported_held, credential_summary
 from .models import Job, JobCard, UserProfile
+from .job_evidence import prepared_job
 from .normalization import city_key, haversine_miles, request_cities
-from .pay import comparable_pay
+from .pay import checked_pay, comparable_pay
+from .qualifications import (LEVELS, SOURCE, SKILL_FAMILIES, experience_assessment, experience_text, qualification_checks,
+                             title_scope_matches)
 
 TIERS = {"strong_match": 0, "possible_match": 1, "qualification_gap": 2}
 BASES = {"USD/hour": 0, "USD/year": 1, "USD/month": 2, "USD/week": 3, "USD/day": 4,
          "pay_needs_confirmation": 5}
-LEVELS = {"none": 0, "high_school": 1, "some_college": 2, "associate": 3, "bachelor": 4, "master": 5, "doctorate": 6}
-SKILL_FAMILIES = {
-    "warehouse": ["warehouse", "forklift", "logistics", "inventory", "shipping", "receiving", "fulfillment", "stockroom", "stock clerk", "package handler", "material handler", "order picker"],
-    "customer service": ["customer service", "customer support", "call center", "retail", "cashier", "sales associate"],
-    "food service": ["food service", "restaurant", "cook", "kitchen", "barista", "dishwasher", "food preparation"],
-    "construction": ["construction", "carpentry", "carpenter", "laborer", "labourer"],
-    "cleaning": ["cleaning", "janitor", "janitorial", "custodian", "housekeeping"],
-    "driving": ["delivery driver", "truck driver", "driving", "courier"],
-    "administration": ["administrative", "administration", "data entry", "receptionist", "office assistant"],
-}
 
 
 def _contains(text: str, term: str) -> bool:
@@ -30,6 +23,8 @@ def _contains(text: str, term: str) -> bool:
 
 def _skill_matches(job: Job, profile: UserProfile, active_families: list[tuple[str, list[str]]]) -> tuple[list[str], bool]:
     title = job.title.casefold()
+    if not title_scope_matches(title, experience_text(profile)):
+        return [], False
     direct = [s.strip() for s in profile.experience.skills if len(s.strip()) >= 3]
     title_match = (any(_contains(title, term) for _, terms in active_families for term in terms)
                    or any(_contains(title, skill) for skill in direct))
@@ -48,7 +43,13 @@ def _skill_matches(job: Job, profile: UserProfile, active_families: list[tuple[s
 
 def _qualifications(job: Job, profile: UserProfile) -> tuple[list[str], list[str]]:
     gaps, unknown = [], []
+    checks = {check.key: check for check in qualification_checks(job, profile)}
     for req in job.requirements:
+        answer = profile.qualification_answers.get(job.job_id, {}).get(req.key)
+        if answer is not None:
+            if not answer and req.kind == "required":
+                gaps.append(f"Not reported held: {checks[req.key].label}.")
+            continue
         if req.kind != "required":
             if req.kind in {"alternative", "uncertain"}:
                 unknown.append(f"Confirm alternative/uncertain requirement: {req.evidence}")
@@ -61,21 +62,14 @@ def _qualifications(job: Job, profile: UserProfile) -> tuple[list[str], list[str
             elif actual < required:
                 gaps.append(f"Posting requires {req.value}; stated education is {profile.education.level}.")
         elif req.field == "experience_years":
-            try:
-                needed = float(req.value)
-            except (TypeError, ValueError):
-                unknown.append("Required experience amount needs confirmation.")
-                continue
-            if profile.experience.years is None:
-                unknown.append("Years of relevant experience are not confirmed.")
-            elif profile.experience.years < needed:
-                gaps.append(f"Posting requires {needed:g} years of relevant experience; {profile.experience.years:g} stated.")
-            else:
-                unknown.append("Confirm that stated experience covers the specific work required.")
+            status, explanation = experience_assessment(req, profile, job_id=job.job_id)
+            (gaps if status == "gap" else unknown).append(explanation)
         elif req.field == "certification":
-            if not credential_reported_held(str(req.value), profile):
-                unknown.append(f"Required credential not confirmed: {req.value}.")
-    if not job.requirements or all(r.source.startswith(("posting_credential_hints_", "operator_role_check:")) for r in job.requirements):
+            if not credential_reported_held(str(req.value), profile, job_id=job.job_id, requirement=req):
+                (gaps if profile.education.no_certifications else unknown).append(f"Required credential not confirmed: {req.value}.")
+    if any(r.source == SOURCE for r in job.requirements):
+        unknown.append("Only explicit requirements were extracted; confirm the full posting with the employer.")
+    elif not job.requirements or all(r.source.startswith(("posting_credential_hints_", "operator_role_check:")) for r in job.requirements):
         unknown.append("Structured requirements not supplied; confirm qualifications in the original posting.")
     return gaps, sorted(set(unknown))
 
@@ -87,12 +81,13 @@ def _distance(job: Job, profile: UserProfile) -> float | None:
     return haversine_miles(ref.latitude, ref.longitude, job.point.latitude, job.point.longitude)
 
 
-def rank_jobs(jobs: list[Job], profile: UserProfile, *, include_expired: bool = False) -> list[JobCard]:
+def rank_jobs(jobs: list[Job], profile: UserProfile, *, include_expired: bool = False,
+              include_other_roles: bool = False) -> list[JobCard]:
     cities = request_cities(profile.location, profile.search_cities)
     if not cities:
         return []  # An unresolved ZIP must not turn into a nationwide search.
     cards: list[JobCard] = []
-    user = " ".join(profile.experience.skills + [profile.experience.text]).casefold()
+    user = experience_text(profile)
     active_families = [(family, terms) for family, terms in SKILL_FAMILIES.items()
                        if any(_contains(user, term) for term in terms)]
     for job in jobs:
@@ -104,12 +99,19 @@ def rank_jobs(jobs: list[Job], profile: UserProfile, *, include_expired: bool = 
         if distance is not None and profile.max_distance_miles is not None and distance > profile.max_distance_miles:
             continue
         matches, title_match = _skill_matches(job, profile, active_families)
-        if (profile.experience.skills or profile.experience.text.strip()) and not title_match:
+        has_experience = bool(user.strip())
+        answers = profile.qualification_answers.get(job.job_id, {})
+        if has_experience and not title_match and not include_other_roles and not answers:
             # Description-only terms (e.g. a software role mentioning warehouse clients)
             # must not let unrelated high salaries dominate the main recommendations.
             # This conservative role-title baseline can be replaced by a reviewed matcher.
             continue
-        job = with_credential_evidence(job)
+        job = prepared_job(job)
+        if any(req.field == "experience_years" and answers.get(req.key) is True for req in job.requirements):
+            title_match = True
+            matches = sorted(set([*matches, "reported experience for this role"]))
+        if has_experience and not title_match and not include_other_roles:
+            continue
         gaps, unknown = _qualifications(job, profile)
         tier = "qualification_gap" if gaps else "strong_match" if title_match and not unknown else "possible_match"
         if not matches:
@@ -130,14 +132,16 @@ def rank_jobs(jobs: list[Job], profile: UserProfile, *, include_expired: bool = 
         cards.append(JobCard(job_id=job.job_id, title=job.title, company=job.company, city=job.city,
             location_text=job.location_text, source_url=job.source_url, posted_at=job.posted_at,
             availability="expired_snapshot" if job.is_expired is True else "not_marked_expired_in_snapshot" if job.is_expired is False else "unknown",
-            pay=job.pay, fit_tier=tier, matched_skills=matches, qualification_gaps=gaps,
+            pay=checked_pay(job.pay), fit_tier=tier, matched_skills=matches, qualification_gaps=gaps,
             unknowns=sorted(set(unknown)), requirements=job.requirements,
             pay_basis=basis, comparable_pay_minimum=pay_min, pay_assumptions=assumptions,
             approximate_distance_miles=None if distance is None else round(distance, 3),
             distance_reference=profile.reference_point.label if distance is not None else None,
             location_precision=job.point.precision if job.point else "city_only" if job.city else "unknown",
             worksite_location_source=job.point.source if job.point else None,
-            credential_summary=credential_summary(job.requirements, profile),
+            credential_summary=credential_summary(job.requirements, profile, job_id=job.job_id),
+            matches_reported_role=title_match if has_experience or matches else None,
+            qualification_checks=qualification_checks(job, profile),
             ranking_explanation=why))
 
     def key(card: JobCard) -> tuple:

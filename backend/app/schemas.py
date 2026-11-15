@@ -10,9 +10,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, model_validator
 
-from src.phoenix.models import ThirtyDayPlan
+from src.phoenix.models import QualificationCheck, ThirtyDayPlan
 
 Need = Literal["work", "housing", "food", "health_care", "transportation", "community_support"]
 EducationLevel = Literal[
@@ -37,6 +37,13 @@ class Experience(Strict):
 class Education(Strict):
     level: EducationLevel | None = None
     credentials: list[str] = Field(default_factory=list, description="Certificates / licenses")
+    no_credentials: bool = False
+
+    @model_validator(mode="after")
+    def consistent_credentials(self):
+        if self.no_credentials and self.credentials:
+            raise ValueError("Choose certificates or none, not both")
+        return self
 
 
 class RecommendationRequest(Strict):
@@ -50,6 +57,7 @@ class RecommendationRequest(Strict):
     service_sort: Literal["highly_rated", "nearest"] = "highly_rated"
     job_sort: Literal["highest_pay", "nearest"] = "highest_pay"
     selected_job_id: str | None = Field(None, min_length=1)
+    qualification_answers: dict[str, dict[str, StrictBool]] = Field(default_factory=dict, max_length=100)
     selected_interim_job_id: str | None = Field(None, min_length=1)
     scenario_hours_per_week: float | None = Field(None, gt=0, le=80)
     scenario_weeks_per_year: float | None = Field(None, gt=0, le=53)
@@ -85,6 +93,7 @@ class Pay(Strict):
     hourly_equivalent_min: float | None = None
     hourly_equivalent_max: float | None = None
     conversion_note: str | None = None
+    needs_confirmation: bool = False
 
 
 class JobLocation(Strict):
@@ -99,6 +108,7 @@ class JobLocation(Strict):
 class JobCard(Strict):
     job_id: str
     title: str
+    description: str | None = None
     employer: str | None = None
     posted_date: str | None = None
     url: str | None = None
@@ -114,6 +124,8 @@ class JobCard(Strict):
     selectable: bool = True
     is_selected: bool = False
     credential_summary: str | None = None
+    matches_reported_role: bool | None = None
+    qualification_checks: list[QualificationCheck] = Field(default_factory=list)
 
 
 class JobGroup(Strict):
@@ -127,6 +139,7 @@ class JobsSection(Strict):
     status: Literal["ok", "no_results", "not_integrated"]
     sort: Literal["highest_pay", "nearest"]
     groups: list[JobGroup] = Field(default_factory=list)
+    other_groups: list[JobGroup] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -144,6 +157,15 @@ class NearbyServiceSummary(Strict):
     measurement: str | None = None
 
 
+class NearbyPlace(Strict):
+    """Public business names only; no housing property identifiers or coordinates."""
+
+    place_id: str
+    name: str
+    family_label: str
+    maps_url: str | None = None
+
+
 class HousingArea(Strict):
     """Publishable ZIP / city aggregate. No property addresses, IDs, or coordinates (Zillow README)."""
 
@@ -159,6 +181,7 @@ class HousingArea(Strict):
     bedrooms: dict[str, int] = Field(default_factory=dict)
     property_types: dict[str, int] = Field(default_factory=dict)
     nearby_services: list[NearbyServiceSummary] = Field(default_factory=list)
+    nearby_places: list[NearbyPlace] = Field(default_factory=list, max_length=10)
     source_note: str | None = None
 
 
@@ -293,10 +316,19 @@ class DataCoverage(Strict):
     notes: list[str]
 
 
+class ServiceMapPoint(Strict):
+    """Coordinates of a publicly listed service, never a rental property."""
+
+    place_id: str
+    lat: float = Field(ge=-90, le=90)
+    lon: float = Field(ge=-180, le=180)
+
+
 class RecommendationResponse(Strict):
     open_tab: Literal["jobs", "housing", "services"]
     jobs: JobsSection
     housing_areas: HousingSection
+    service_map_points: list[ServiceMapPoint] = Field(default_factory=list)
     services: ServicesSection
     data_coverage: DataCoverage
     next_steps: list[NextStep]

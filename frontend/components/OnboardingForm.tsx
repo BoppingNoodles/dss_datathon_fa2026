@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CERTIFICATE_PRESETS } from "@/lib/certificates";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { Need, RecommendationRequest } from "@/lib/types";
+import { onboardingDraft, type OnboardingDraft } from "@/lib/saved-session";
 
 const NEEDS: { value: Need; label: string }[] = [
   { value: "work", label: "Work" },
@@ -59,21 +61,30 @@ function Question({ n, title, optional, children }: {
   );
 }
 
-export default function OnboardingForm({ initial, loading, onSubmit }: {
+export default function OnboardingForm({ initial, draft, loading, onDraftChange, onSubmit }: {
   initial: RecommendationRequest | null;
+  draft: OnboardingDraft | null;
   loading: boolean;
+  onDraftChange: (answers: OnboardingDraft) => void;
   onSubmit: (req: RecommendationRequest) => void;
 }) {
-  const [location, setLocation] = useState(initial?.location ?? "");
-  const [need, setNeed] = useState<Need | null>(initial?.priority_need ?? null);
-  const [age, setAge] = useState(initial?.age?.toString() ?? "");
-  const [skills, setSkills] = useState<string[]>(initial?.experience.skills ?? []);
-  const [expText, setExpText] = useState(initial?.experience.text ?? "");
-  const [years, setYears] = useState(initial?.experience.years?.toString() ?? "");
-  const [noExp, setNoExp] = useState(initial?.experience.no_experience_yet ?? false);
-  const [level, setLevel] = useState(initial?.education.level ?? "");
-  const [creds, setCreds] = useState(initial?.education.credentials.join(", ") ?? "");
+  const answers = draft ?? onboardingDraft(initial);
+  const [location, setLocation] = useState(answers.location);
+  const [need, setNeed] = useState<Need | null>(answers.need);
+  const [age, setAge] = useState(answers.age);
+  const [skills, setSkills] = useState<string[]>(answers.skills);
+  const [expText, setExpText] = useState(answers.expText);
+  const [years, setYears] = useState(answers.years);
+  const [noExp, setNoExp] = useState(answers.noExp);
+  const [level, setLevel] = useState(answers.level);
+  const [certs, setCerts] = useState<string[]>(answers.certs);
+  const [otherCerts, setOtherCerts] = useState(answers.otherCerts);
+  const [noCerts, setNoCerts] = useState(answers.noCerts);
   const [tried, setTried] = useState(false);
+
+  useEffect(() => {
+    onDraftChange({ location, need, age, skills, expText, years, noExp, level, certs, otherCerts, noCerts });
+  }, [location, need, age, skills, expText, years, noExp, level, certs, otherCerts, noCerts, onDraftChange]);
 
   const locationOk = location.trim().length >= 2;
   const ageNum = age.trim() === "" ? null : Number(age);
@@ -95,7 +106,8 @@ export default function OnboardingForm({ initial, loading, onSubmit }: {
       },
       education: {
         level: level || null,
-        credentials: creds.split(",").map((c) => c.trim()).filter(Boolean),
+        credentials: noCerts ? [] : [...new Set([...certs, ...otherCerts.split(",").map((c) => c.trim()).filter(Boolean)])],
+        no_credentials: noCerts,
       },
       service_sort: initial?.service_sort ?? "highly_rated",
       job_sort: initial?.job_sort ?? "highest_pay",
@@ -175,21 +187,55 @@ export default function OnboardingForm({ initial, loading, onSubmit }: {
 
       <Question n={5} title="What education or qualifications do you have?" optional>
         <Label htmlFor="level" className="sr-only">Highest education level</Label>
-        <NativeSelect id="level" className="w-full [&_select]:h-11 [&_select]:bg-card [&_select]:text-base"
-          value={level} onChange={(e) => setLevel(e.target.value)}>
-          {EDUCATION.map((o) => <NativeSelectOption key={o.value} value={o.value}>{o.label}</NativeSelectOption>)}
-        </NativeSelect>
-        <div className="space-y-1.5">
-          <Label htmlFor="creds">Certificates or licenses</Label>
-          <Input id="creds" className={field} value={creds} placeholder="Like ServSafe, forklift, CDL"
-            onChange={(e) => setCreds(e.target.value)} />
-        </div>
+        <Select value={level || "skip"} onValueChange={(value) => setLevel(value === "skip" ? "" : value)}>
+          <SelectTrigger id="level" className="w-full bg-card text-base data-[size=default]:h-11">
+            <SelectValue placeholder="Choose one (optional)" />
+          </SelectTrigger>
+          <SelectContent position="popper" align="start" className="max-h-72 w-(--radix-select-trigger-width)">
+            <SelectGroup>
+              {EDUCATION.map((o) => <SelectItem key={o.value || "skip"} value={o.value || "skip"} className="min-h-10">{o.label}</SelectItem>)}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-2 text-sm font-medium">Certificates or licenses you already have</legend>
+          <details className="rounded-lg border border-input bg-card p-3">
+            <summary className="cursor-pointer font-medium text-brand-text">
+              Select certificates or licenses{certs.length ? ` (${certs.length} selected)` : ""}
+            </summary>
+            <div className="mt-3 flex max-h-60 flex-col gap-3 overflow-y-auto p-1">
+              {[...new Set([...CERTIFICATE_PRESETS, ...certs])].map((certificate, index) => (
+                <div key={certificate} className="flex items-center gap-2.5">
+                  <Checkbox id={`certificate-${index}`} checked={certs.includes(certificate)}
+                    onCheckedChange={(checked) => {
+                      setCerts((current) => checked === true ? [...current, certificate] : current.filter((item) => item !== certificate));
+                      setNoCerts(false);
+                    }} />
+                  <Label htmlFor={`certificate-${index}`} className="font-normal">{certificate}</Label>
+                </div>
+              ))}
+            </div>
+          </details>
+          <div className="flex items-center gap-2.5">
+            <Checkbox id="no-certificates" checked={noCerts} onCheckedChange={(checked) => {
+              setNoCerts(checked === true);
+              if (checked === true) { setCerts([]); setOtherCerts(""); }
+            }} />
+            <Label htmlFor="no-certificates" className="font-normal">I don&apos;t have any certificates or licenses yet</Label>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="creds">Another certificate or license (optional)</Label>
+            <Input id="creds" className={field} value={otherCerts} disabled={noCerts} placeholder="Separate more than one with commas"
+              onChange={(e) => setOtherCerts(e.target.value)} />
+          </div>
+          <p className="text-xs text-muted-foreground">Choose all that you already hold, or select none. Add anything unlisted below.</p>
+        </fieldset>
       </Question>
 
       <Alert role="note" className="border-transparent bg-info-soft px-4 py-3">
         <AlertDescription className="text-info">
-          We never ask about convictions, your Social Security number, or your exact address. No account needed, and
-          your answers aren&apos;t saved.
+          We never ask about convictions, your Social Security number, or your exact address. No account needed. Your answers save automatically as you type in this browser,
+          along with your plan progress, so you can continue after a refresh.
         </AlertDescription>
       </Alert>
 

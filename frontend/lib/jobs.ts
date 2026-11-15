@@ -1,23 +1,14 @@
 import { money } from "./api";
-import type { InterimJob, Pay } from "./types";
+import type { Pay } from "./types";
 
 export function payText(p: Pay): string {
-  if (p.raw_text) return p.raw_text;
-  if (p.min == null && p.max == null) return "Pay not listed";
-  const digits = p.period === "hour" ? 2 : 0;
+  if (p.needs_confirmation) return "Pay needs confirmation";
+  if (p.raw_text) return p.raw_text.replace(/\bpor\s+hora\b/gi, "per hour");
+  if (p.currency && p.currency !== "USD") return p.raw_text || `Pay in ${p.currency}; confirm amount`;
+  if (!p.period || (p.min == null && p.max == null)) return p.raw_text || "Pay not listed";
+  const digits = [p.min, p.max].some((n) => n != null && !Number.isInteger(n)) ? 2 : 0;
   const lo = money(p.min ?? p.max, digits);
   const hi = money(p.max ?? p.min, digits);
-  return `${lo === hi ? lo : `${lo}–${hi}`}${p.period ? ` per ${p.period}` : " (pay period not stated)"}`;
-}
-
-export function interimPay(job: InterimJob): Pay {
-  return {
-    min: job.pay.minimum,
-    max: job.pay.maximum,
-    period: job.pay.period === "unknown" ? null : job.pay.period,
-    raw_text: job.pay.raw,
-    hours_per_week: null,
-    hours_basis: "unknown",
-    conversion_note: job.pay.notes.join(" ") || null,
-  };
+  const amount = p.min == null ? `Up to ${hi}` : p.max == null ? `From ${lo}` : lo === hi ? lo : `${lo}–${hi}`;
+  return `${amount} / ${{hour:"hr",day:"day",week:"wk",month:"mo",year:"yr"}[p.period]}`;
 }

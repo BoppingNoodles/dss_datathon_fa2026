@@ -51,16 +51,22 @@ def test_indeed_only_mode_personalizes_jobs_without_service_or_rental_data(clien
     from backend.app import main
     from src.recommend import person1_data
 
+    # Match the runtime directory layout and isolate this case from local datasets.
+    data_root = tmp_path / "data" / "processed"
+    indeed_dir = data_root / "indeed"
+    indeed_dir.mkdir(parents=True)
+    monkeypatch.setattr(person1_data, "processed_dir", lambda source: data_root / source)
+
     monkeypatch.delenv("PHOENIX_SOURCE")
     monkeypatch.setattr(main, "ROOT", tmp_path)
-    monkeypatch.setattr(person1_data, "INDEED_DIR", tmp_path)
-    (tmp_path / "coverage.json").write_text(json.dumps({
+    monkeypatch.setattr(person1_data, "INDEED_DIR", indeed_dir)
+    (indeed_dir / "coverage.json").write_text(json.dumps({
         "data_mode": "full", "sources": [{"kind": "jobs", "counts": {"input_rows": 2}}],
         "retained": {"jobs": 2},
     }), encoding="utf-8")
     jobs = [Job(job_id=title, title=title, company="Example", city="Oakland",
                 location_text="Oakland, CA 94612") for title in ("Warehouse associate", "Barista")]
-    (tmp_path / "jobs.jsonl").write_text("\n".join(job.model_dump_json() for job in jobs), encoding="utf-8")
+    (indeed_dir / "jobs.jsonl").write_text("\n".join(job.model_dump_json() for job in jobs), encoding="utf-8")
     main.load_data.cache_clear()
     try:
         assert main.data_source() == "real"
@@ -180,3 +186,29 @@ def test_city_name_ending_in_ca_is_not_mistaken_for_a_state_suffix(person1_api):
     from src.recommend.person1_data import native_profile
     resolved=native_profile({"location":"Pacifica","priority_need":"housing"},"synthetic")
     assert resolved.search_cities==["Pacifica"]
+
+def test_posting_requirements_affect_api_ranking_and_keep_gap_jobs_selectable(person1_api):
+    path=processed_dir("synthetic")/"jobs.jsonl"
+    original=path.read_text()
+    records=[
+        Job(job_id="example-degree-gap",title="Warehouse Associate",company="Fictional employer",
+            location_text="Oakland, CA",city="Oakland",description="Bachelor's degree required. Five years of warehouse experience required."),
+        Job(job_id="example-repair-only",title="Forklift Technician",company="Fictional employer",
+            location_text="Oakland, CA",city="Oakland",description="Requirements: Two years of service technician experience."),
+    ]
+    try:
+        path.write_text(original+"".join(record.model_dump_json()+"\n" for record in records))
+        response=person1_api.post("/recommendations",json=profile(selected_job_id="example-degree-gap"))
+        assert response.status_code==200,response.text
+        data=response.json()
+        result={card["job_id"]:card for card in cards(data)}
+        assert "example-repair-only" not in result
+        target=result["example-degree-gap"]
+        assert target["suitability_tier"]=="known_gaps" and target["selectable"] and target["is_selected"]
+        assert any(req["label"]=="education_required" and req["value"]=="bachelor" for req in target["requirements"])
+        assert any("5 years" in gap for gap in target["gaps"])
+        assert data["thirty_day_plan"]["target_job_id"]=="example-degree-gap"
+        assert any(step["step_id"]=="experience-route" for step in data["thirty_day_plan"]["steps"])
+        assert scan(data)==[]
+    finally:
+        path.write_text(original)

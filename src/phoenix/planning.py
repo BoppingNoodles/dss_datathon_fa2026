@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from .credentials import credential_key, credential_reported_held, credential_summary
+from .daily_plan import personalized_daily_actions
 from .models import (CredentialPath, InterimJobOption, Job, JobCard, PlanLink, PlanStep,
                      ThirtyDayPlan, UserProfile)
+from .qualifications import experience_assessment
 
 DMV = PlanLink(label="California DMV commercial licensing steps", role="official_requirements",
               url="https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/commercial-driver-licenses-cdl/")
@@ -20,13 +22,17 @@ JOB_CENTER = PlanLink(label="Find an American Job Center; ask about training fun
 def interim_options(cards: list[JobCard], target_id: str, profile: UserProfile, *, limit: int = 5) -> list[InterimJobOption]:
     options = []
     for card in cards:
-        if card.job_id == target_id or card.qualification_gaps or card.availability == "expired_snapshot":
+        if (card.job_id == target_id or card.qualification_gaps or card.availability == "expired_snapshot"
+                or card.matches_reported_role is False):
             continue
         if any(r.field == "certification" and r.kind in {"required", "alternative", "uncertain"}
-               and not credential_reported_held(str(r.value), profile) for r in card.requirements):
+               and not credential_reported_held(str(r.value), profile, job_id=card.job_id, requirement=r) for r in card.requirements):
+            continue
+        if any(r.field == "experience_years" and r.kind in {"required", "alternative", "uncertain"}
+               and experience_assessment(r, profile, job_id=card.job_id)[0] != "reported_match" for r in card.requirements):
             continue
         options.append(InterimJobOption(job_id=card.job_id, title=card.title, company=card.company,
-            pay=card.pay, credential_summary=credential_summary(card.requirements, profile), source_url=card.source_url,
+            pay=card.pay, credential_summary=credential_summary(card.requirements, profile, job_id=card.job_id), source_url=card.source_url,
             confirmation_needed=["Confirm all qualifications, current vacancy, and any required training with the employer.",
                                  "Confirm offered shifts can fit the target credential's training schedule.",
                                  "A job application is not a confirmed start date or guaranteed income."]))
@@ -51,7 +57,7 @@ def build_thirty_day_plan(profile: UserProfile, target: Job, cards: list[JobCard
         if key in seen:
             continue
         seen.add(key)
-        held = credential_reported_held(label, profile)
+        held = credential_reported_held(label, profile, job_id=target.job_id, requirement=req)
         links = [DMV, TPR, JOB_CENTER] if key == "class a cdl" else [FORKLIFT, JOB_CENTER] if key == "forklift" else [JOB_CENTER]
         paths.append(CredentialPath(credential=label, requirement_kind=req.kind,
             user_status="reported_held" if held else "not_confirmed", job_evidence=req.evidence,
@@ -62,7 +68,12 @@ def build_thirty_day_plan(profile: UserProfile, target: Job, cards: list[JobCard
                 title=f"Verify your existing {label}", action="Check validity, any endorsements/restrictions, and employer acceptance. Reuse valid documented training where accepted; do not automatically enroll again.",
                 depends_on=["confirm-target"], links=posting+links))
             continue
-        optional = "This posting marks it preferred or offers alternatives; first ask whether you can apply without it. " if req.kind != "required" else ""
+        optional = {
+            "required": "",
+            "preferred": "This credential is preferred; first ask whether you can apply without it. ",
+            "alternative": "The posting offers alternatives; ask which route the employer accepts before choosing training. ",
+            "uncertain": "Whether this credential is required is unclear; ask the employer before choosing training. ",
+        }[req.kind]
         if key == "class a cdl":
             titles = ["Check the CDL pathway and endorsements", "Compare registered training and funding", "Start the application and enrollment steps", "Work through prerequisites and training", "Review progress and book the next eligible milestone"]
             actions = [
@@ -96,7 +107,7 @@ def build_thirty_day_plan(profile: UserProfile, target: Job, cards: list[JobCard
             step_id = f"{prefix}-{i}"
             steps.append(PlanStep(step_id=step_id, day_start=start, day_end=end, title=title,
                 action=(optional+action if i == 1 else
-                        "Only if you choose this preferred/alternative pathway after employer confirmation: "+action
+                        "Only if the employer confirms this pathway is needed or you choose it as optional preparation: "+action
                         if req.kind != "required" else action),
                 track="credential", depends_on=[previous], links=posting+links))
             previous = step_id
@@ -104,7 +115,7 @@ def build_thirty_day_plan(profile: UserProfile, target: Job, cards: list[JobCard
         steps.append(PlanStep(step_id="check-unparsed-requirements", day_start=1, day_end=7, track="credential",
             title="Check requirements before choosing a course", action="No credential pathway was identified from the supplied evidence. Read the full posting with the employer; do not assume no certification is required or buy a generic course.",
             depends_on=["confirm-target"], links=posting))
-    if any(r.field == "experience_years" and r.kind == "required" for r in target.requirements):
+    if any(r.field == "experience_years" and r.kind in {"required", "alternative", "uncertain"} for r in target.requirements):
         steps.append(PlanStep(step_id="experience-route", day_start=1, day_end=7, track="experience",
             title="Check role-specific experience separately", action="Confirm that your experience is in the required trade. If it is not, ask about a trainee, apprenticeship, or supervised-work route; earning a certificate does not replace years of required experience.",
             depends_on=["confirm-target"], links=posting))
@@ -125,10 +136,11 @@ def build_thirty_day_plan(profile: UserProfile, target: Job, cards: list[JobCard
             title="Review the target-job transition", action="Check which credentials and experience requirements are actually met and whether the target opening is still available. Apply or ask about the next step when appropriate; continue interim work and the training pathway if more time is needed.", depends_on=["confirm-target"], links=posting),
     ])
     steps.sort(key=lambda s:(s.day_start, s.day_end, s.step_id))
-    return ThirtyDayPlan(target_job_id=target.job_id, target_job_title=target.title,
+    plan = ThirtyDayPlan(target_job_id=target.job_id, target_job_title=target.title,
         selected_interim_job_id=selected_interim_job_id, credential_paths=paths, interim_jobs=options, steps=steps,
         notes=["This is a 30-day action window, not a promise of certification, placement, or funding.",
                "Days are planning windows; actual prerequisites, course dates, and work shifts may extend the timeline.",
                "No certification identified is not confirmation that none is required; verify before starting work.",
                "Target pay is a future scenario. Interim pay is also only a scenario until employment and hours are confirmed.",
                "Official pathway/finder pages reviewed November 14, 2026; no individual course price, seat, or start date has been verified."])
+    return plan.model_copy(update={"daily_actions": personalized_daily_actions(profile, target, plan)})

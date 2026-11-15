@@ -28,6 +28,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 export const getRecommendations = (req: RecommendationRequest) =>
   post<RecommendationResponse>("/recommendations", req);
 
+
 export const compareHousing = (req: HousingComparisonRequest) =>
   post<HousingComparisonResponse>("/housing-comparison", req);
 

@@ -16,6 +16,16 @@ _PERIODS = {
 }
 
 
+def checked_pay(pay: Pay) -> Pay:
+    # Some source rows advertise salary-sized figures "per hour". This conservative
+    # review threshold flags the unit; it does not infer a corrected annual salary.
+    if (pay.source == "advertised" and pay.currency == "USD" and pay.period == "hour"
+            and any(value is not None and value >= 1000 for value in [pay.minimum, pay.maximum])):
+        return pay.model_copy(update={"minimum": None, "maximum": None, "period": "unknown", "source": "ambiguous",
+            "notes": [*pay.notes, "Advertised hourly amount is unusually high (at least $1,000/hour); confirm the amount and pay period. No annual salary was inferred."]})
+    return pay
+
+
 def parse_pay(raw: str | None, *, currency: str = "USD") -> Pay:
     if not raw or not raw.strip():
         return Pay()
@@ -54,7 +64,7 @@ def parse_pay(raw: str | None, *, currency: str = "USD") -> Pay:
 
 def comparable_pay(job: Job) -> tuple[str, float | None, list[str]]:
     """Only comparable within returned basis. Never impute missing pay or work hours."""
-    pay = job.pay
+    pay = checked_pay(job.pay)
     if pay.source != "advertised" or pay.minimum is None or pay.currency != "USD" or pay.period == "unknown":
         return "pay_needs_confirmation", None, list(pay.notes)
     if pay.period == "year" and job.hours_per_week and job.weeks_per_year:
@@ -65,7 +75,7 @@ def comparable_pay(job: Job) -> tuple[str, float | None, list[str]]:
 
 def annual_income(job: Job, *, scenario_hours_per_week: float | None = None,
                   scenario_weeks_per_year: float | None = None) -> dict:
-    pay = job.pay
+    pay = checked_pay(job.pay)
     assumptions: list[str] = []
     if pay.source != "advertised" or pay.currency != "USD" or pay.period == "unknown":
         return {"minimum": None, "maximum": None, "assumptions": [], "basis": "unknown"}

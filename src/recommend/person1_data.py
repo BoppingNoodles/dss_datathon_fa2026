@@ -64,7 +64,7 @@ def load_person1(source: str) -> tuple[list[Job], list[Rental], dict]:
     root = processed_dir(source)
     files = [root / name for name in ("jobs.jsonl", "rentals.jsonl", "person1_coverage.json")]
     if not all(p.exists() for p in files):
-        raise Person1DataUnavailable(f"Person 1 normalized inputs are missing for {source}; run make person1 SOURCE={source} after preparing inputs.")
+        raise Person1DataUnavailable(f"Person 1 normalized inputs are missing for {source}; install the processed runtime bundle (docs/teammate_setup.md), or run make person1 SOURCE={source} after preparing all normalized inputs.")
     return _load(str(root), tuple(_token(p) for p in files))
 
 
@@ -85,7 +85,9 @@ def native_profile(request: dict, source: str) -> UserProfile:
         priority_need="health" if request["priority_need"] == "health_care" else request["priority_need"],
         experience=Experience(skills=exp.get("skills") or [], text=exp.get("text") or "",
                               years=0 if exp.get("no_experience_yet") else exp.get("years")),
-        education=Education(level=levels[edu.get("level")], certifications=edu.get("credentials") or []),
+        education=Education(level=levels[edu.get("level")], certifications=edu.get("credentials") or [],
+                            no_certifications=edu.get("no_credentials", False)),
+        qualification_answers=request.get("qualification_answers") or {},
         sort=request.get("job_sort", "highest_pay"))
     root = processed_dir(source)
     paths = [root / "area_reference_points.parquet", root / "service_candidates.parquet"]

@@ -7,7 +7,7 @@ Endpoints:
     POST /recommendations        five onboarding inputs -> jobs, housing_areas, services
     POST /housing-comparison     selected job pay + area rent -> hypothetical rent-burden scenario
 
-PHOENIX_SOURCE selects data/processed/<real|synthetic>/. Default: real if built, else synthetic.
+PHOENIX_SOURCE selects data/processed/<real|synthetic>/. Default: real if any real runtime input exists, else synthetic.
 
 Jobs and housing use separate data adapters (docs/api_contract.md):
     src.recommend.jobs.rank_jobs(request: dict, sort: str, *, source: str, area_city: str | None) -> JobsSection
@@ -33,9 +33,9 @@ from backend.app.schemas import (
     RecommendationResponse,
 )
 from src.common import ROOT, normalize_location_input
-from src.recommend import housing_math
+from src.recommend import housing_math, person1_data
 from src.recommend.jobs import rank_jobs
-from src.recommend.person1_data import indeed_jobs_ready
+from src.recommend.data_readiness import has_real_data, readiness
 from src.recommend.services import rank_services
 
 OPEN_TAB = {"work": "jobs", "housing": "housing"}
@@ -55,18 +55,21 @@ def data_source() -> str:
     env = os.environ.get("PHOENIX_SOURCE")
     if env:
         return env
-    return "real" if indeed_jobs_ready() or (ROOT / "data/processed/real/service_candidates.parquet").exists() else "synthetic"
+    return "real" if person1_data.indeed_jobs_ready() or has_real_data(ROOT) else "synthetic"
 
 
 @lru_cache(maxsize=2)
 def load_data(source: str) -> dict[str, Any]:
     d = ROOT / "data" / "processed" / source
     path = d / "service_candidates.parquet"
-    if not path.exists():
-        if source == "real" and indeed_jobs_ready():
+    if source not in {"real", "synthetic"}:
+        raise RuntimeError(f"PHOENIX_SOURCE must be real or synthetic, got {source!r}")
+    if not path.is_file() or not (d / "area_reference_points.parquet").is_file():
+        state = readiness(source, ROOT, indeed_directory=person1_data.INDEED_DIR)
+        if any(state["sections"][name]["status"] == "ready" for name in ("jobs", "housing")):
             return {"candidates": pd.DataFrame(), "refs": pd.DataFrame(columns=["area_type", "area_key", "city_for_zip"]),
                     "stats": {}, "services_unavailable": True}
-        raise RuntimeError(f"{path} missing. Run `make services SOURCE={source}` first.")
+        raise RuntimeError(f"Runtime data is incomplete in {d}. See docs/teammate_setup.md: install the processed bundle, or run make fixtures and make api SOURCE=synthetic.")
     stats = {}
     for name in ("places_stats", "reviews_stats", "index_stats"):
         p = d / f"{name}.json"
@@ -179,11 +182,18 @@ def root() -> dict:
 def health() -> dict:
     source = data_source()
     try:
+        result = readiness(source, ROOT, indeed_directory=person1_data.INDEED_DIR)
         d = load_data(source)
-        return {"status": "degraded" if d.get("services_unavailable") else "ok", "source": source,
-                "service_candidates": int(len(d["candidates"]))}
-    except RuntimeError as e:
-        return {"status": "degraded", "source": source, "detail": str(e)}
+        result["service_candidates"] = int(len(d["candidates"]))
+        if d.get("services_unavailable"):
+            result["status"] = "degraded"
+    except (RuntimeError, ValueError, OSError) as error:
+        result = {"status": "degraded", "source": source, "project_root": str(ROOT), "detail": str(error)}
+        if source in {"real", "synthetic"}:
+            result.update(readiness(source, ROOT, indeed_directory=person1_data.INDEED_DIR))
+            result["status"] = "degraded"
+            result["detail"] = str(error)
+    return result
 
 
 @app.post("/recommendations", response_model=RecommendationResponse)
@@ -203,17 +213,25 @@ def recommendations(req: RecommendationRequest) -> dict:
                                  age=req.age, sort=req.service_sort)
     jobs = jobs_section(req, d["refs"])
     housing = housing_section(req, d["candidates"])
+    map_points = _optional("src.recommend.housing", "service_map_points")
     selection = selection_section(req)
     return {
         "open_tab": OPEN_TAB.get(req.priority_need, "services"),
         "jobs": jobs,
         "housing_areas": housing,
+        "service_map_points": map_points(housing.get("areas", []), d["candidates"]) if map_points else [],
         "services": services,
         "data_coverage": coverage(source, d["stats"], jobs, housing),
         "next_steps": next_steps(req.priority_need),
         "disclaimer": DISCLAIMER,
         **selection,
     }
+
+
+@app.get("/job-certificates")
+def job_certificates() -> dict:
+    from src.recommend.certificates import certificate_catalog
+    return certificate_catalog(data_source())
 
 
 @app.post("/housing-comparison", response_model=HousingComparisonResponse)

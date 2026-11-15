@@ -53,3 +53,15 @@ all: services audits test
 
 clean-processed:
 	rm -rf data/processed/$(SOURCE)
+
+# Teammate runtime handoff; these targets never rebuild the raw-data pipelines.
+.PHONY: data-bundle data-install data-check
+data-bundle:
+	$(PY) -m src.data.runtime_bundle create
+
+data-install:
+	@test -n "$(BUNDLE)" || (echo 'Usage: make data-install BUNDLE=/path/to/phoenix-real-runtime-v1.tar.gz' && exit 1)
+	$(PY) -m src.data.runtime_bundle install "$(BUNDLE)"
+
+data-check:
+	$(PY) -c 'import json; from src.recommend.data_readiness import readiness; print(json.dumps(readiness("$(SOURCE)"), indent=2))'

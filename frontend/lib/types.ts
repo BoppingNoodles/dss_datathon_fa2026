@@ -1,7 +1,7 @@
 // Mirrors backend/app/schemas.py. Keep in sync with docs/api_contract.md.
 
 export type Need = "work" | "housing" | "food" | "health_care" | "transportation" | "community_support";
-export type Tab = "jobs" | "housing" | "services";
+export type Tab = "jobs" | "housing" | "services" | "plan";
 export type ServiceSort = "highly_rated" | "nearest";
 export type JobSort = "highest_pay" | "nearest";
 
@@ -10,11 +10,11 @@ export interface RecommendationRequest {
   location: string;
   priority_need: Need;
   experience: { skills: string[]; text: string | null; years: number | null; no_experience_yet: boolean };
-  education: { level: string | null; credentials: string[] };
+  education: { level: string | null; credentials: string[]; no_credentials?: boolean };
+  qualification_answers?: Record<string, Record<string, boolean>>;
   service_sort: ServiceSort;
   job_sort: JobSort;
   selected_job_id?: string | null;
-  selected_interim_job_id?: string | null;
 }
 
 export interface ServiceCard {
@@ -74,6 +74,8 @@ export interface ServicesSection {
 }
 
 export interface Pay {
+  needs_confirmation?: boolean;
+  currency?: string | null;
   min: number | null;
   max: number | null;
   period: "hour" | "day" | "week" | "month" | "year" | null;
@@ -86,6 +88,7 @@ export interface Pay {
 export interface JobCard {
   job_id: string;
   title: string;
+  description?: string | null;
   employer: string | null;
   posted_date: string | null;
   url: string | null;
@@ -101,7 +104,17 @@ export interface JobCard {
   selectable?: boolean;
   is_selected?: boolean;
   credential_summary?: string | null;
+  matches_reported_role?: boolean | null;
+  qualification_checks?: {
+    key: string;
+    field: "education" | "experience_years" | "certification";
+    requirement_kind: "required" | "preferred" | "alternative" | "uncertain";
+    label: string;
+    status: "reported_met" | "gap" | "needs_confirmation" | "preferred";
+    detail: string;
+  }[];
 }
+
 
 export type PayComparisonJob = Pick<JobCard, "job_id" | "title" | "pay">;
 
@@ -152,6 +165,14 @@ export interface ThirtyDayPlan {
     depends_on: string[];
     links: PlanLink[];
   }[];
+  daily_actions?: {
+    action_id: string;
+    day: number;
+    title: string;
+    action: string;
+    phase: string;
+    links: PlanLink[];
+  }[];
   notes: string[];
 }
 
@@ -159,8 +180,24 @@ export interface JobsSection {
   status: "ok" | "no_results" | "not_integrated";
   sort: JobSort;
   groups: { key: string; label: string; total: number; items: JobCard[] }[];
+  other_groups?: { key: string; label: string; total: number; items: JobCard[] }[];
   notes: string[];
 }
+
+export interface NearbyPlace {
+  place_id: string;
+  name: string;
+  family_label: string;
+  maps_url: string | null;
+}
+
+export interface ServiceMapPoint {
+  place_id: string;
+  lat: number;
+  lon: number;
+}
+
+export type MappedPlace = NearbyPlace & ServiceMapPoint & { number: number };
 
 export interface HousingArea {
   area_id: string;
@@ -174,6 +211,7 @@ export interface HousingArea {
   rent_basis: "listed_rent" | "rent_estimate";
   bedrooms: Record<string, number>;
   nearby_services: { family: string; family_label: string; count_within_1_mile: number | null; nearest_miles: number | null }[];
+  nearby_places?: NearbyPlace[];
   source_note: string | null;
 }
 
@@ -187,6 +225,7 @@ export interface RecommendationResponse {
   open_tab: Tab;
   jobs: JobsSection;
   housing_areas: HousingSection;
+  service_map_points?: ServiceMapPoint[];
   services: ServicesSection;
   data_coverage: { mode: "real" | "synthetic"; notes: string[] };
   next_steps: { id: string; text: string; tab: Tab }[];

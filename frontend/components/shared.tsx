@@ -1,6 +1,5 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge as UiBadge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -21,13 +20,12 @@ export function Badge({ tone, children }: { tone: keyof typeof TONES; children: 
 export function Notes({ notes }: { notes: string[] }) {
   if (!notes.length) return null;
   return (
-    <Alert role="note" className="border-transparent bg-warn-soft px-4 py-3 text-warn">
-      <AlertDescription className="text-warn">
-        <ul className="space-y-1">
-          {notes.map((n, i) => <li key={i}>{n}</li>)}
-        </ul>
-      </AlertDescription>
-    </Alert>
+    <details className="text-sm text-muted-foreground">
+      <summary className="cursor-pointer font-medium">About these results</summary>
+      <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">
+        {notes.map((n, i) => <li key={i}>{n}</li>)}
+      </ul>
+    </details>
   );
 }
 

@@ -1,173 +1,130 @@
 "use client";
 
+import { useState } from "react";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { interimPay, payText } from "@/lib/jobs";
-import type { InterimJob, PlanLink, ThirtyDayPlan } from "@/lib/types";
+import { buildDailyPlan, dateKey, monthCells } from "@/lib/plan";
+import type { ThirtyDayPlan } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
-const TRACKS = {
-  job_confirmation: "Confirm the job",
-  credential: "Training and credentials",
-  interim_work: "Interim work",
-  application: "Apply and follow up",
-  experience: "Build experience",
-};
-const REQUIREMENTS = {
-  required: "Required in the posting",
-  preferred: "Preferred in the posting",
-  alternative: "One possible qualification pathway",
-  uncertain: "Confirm whether this is needed",
-};
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const formatDate = (date: Date) => date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-function PlanLinks({ links }: { links: PlanLink[] }) {
-  if (!links.length) return null;
-  return (
-    <ul className="flex flex-col items-start gap-2">
-      {links.map((link) => (
-        <li key={`${link.role}:${link.url}`}>
-          <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-brand-text underline">
-            {link.label}
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-export default function JobPlan({ plan, loading, completed, onToggleStep, onSelectInterim, onClear, onCompareInterim }: {
-  plan: ThirtyDayPlan;
-  loading: boolean;
-  completed: string[];
-  onToggleStep: (stepId: string, checked: boolean) => void;
-  onSelectInterim: (jobId: string | null) => void;
-  onClear: () => void;
-  onCompareInterim: (job: InterimJob) => void;
+export default function JobPlan({ plan, startDate, loading, completed, onToggleStep, onClear }: {
+  plan: ThirtyDayPlan; startDate: Date; loading: boolean; completed: string[];
+  onToggleStep: (stepId: string, checked: boolean) => void; onClear: () => void;
 }) {
-  const selectedInterim = plan.interim_jobs.find((job) => job.job_id === plan.selected_interim_job_id);
-  const checkedCount = plan.steps.filter((step) => completed.includes(step.step_id)).length;
-  const stepTitles = new Map(plan.steps.map((step) => [step.step_id, step.title]));
+  const [month, setMonth] = useState(() => new Date(startDate.getFullYear(), startDate.getMonth(), 1, 12));
+  const [selectedDay, setSelectedDay] = useState(1);
+  const days = buildDailyPlan(plan, startDate);
+  const selected = days[selectedDay - 1];
+  const byDate = new Map(days.map((day) => [dateKey(day.date), day]));
+  const done = new Set(completed);
+  const count = days.filter((day) => done.has(day.id)).length;
+  const end = days[29].date;
+  const firstMonth = startDate.getFullYear() * 12 + startDate.getMonth();
+  const lastMonth = end.getFullYear() * 12 + end.getMonth();
+  const currentMonth = month.getFullYear() * 12 + month.getMonth();
+
+  function moveMonth(direction: number) {
+    const next = new Date(month.getFullYear(), month.getMonth() + direction, 1, 12);
+    setMonth(next);
+    const first = days.find((day) => day.date.getMonth() === next.getMonth() && day.date.getFullYear() === next.getFullYear());
+    if (first) setSelectedDay(first.day);
+  }
 
   return (
-    <Card id="job-plan" role="region" tabIndex={-1} aria-labelledby="job-plan-title" aria-busy={loading} className="mb-6 scroll-mt-4">
-      <CardHeader>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <CardTitle><h2 id="job-plan-title" className="text-xl font-semibold">Your 30-day plan</h2></CardTitle>
-          <Button type="button" variant="outline" disabled={loading} onClick={onClear}>Clear target and plan</Button>
+    <div id="job-plan" role="region" tabIndex={-1} aria-labelledby="job-plan-title" aria-busy={loading} className="flex scroll-mt-4 flex-col gap-5 outline-none">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-brand-text">One day at a time</p>
+          <h2 id="job-plan-title" className="text-xl font-semibold">Your 30-day plan</h2>
+          <p className="max-w-xl text-sm text-muted-foreground">Working toward <strong className="font-medium text-foreground">{plan.target_job_title}</strong></p>
         </div>
-        <CardDescription>
-          Target job: <strong className="text-foreground">{plan.target_job_title}</strong>
-        </CardDescription>
-        <p className="text-sm text-muted-foreground">
-          This is a preparation plan. Hiring, funding, and certification within 30 days need confirmation.
-        </p>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-6">
-        {plan.credential_paths.length > 0 && (
-          <section aria-labelledby="credential-paths" className="flex flex-col gap-3">
-            <h3 id="credential-paths" className="font-semibold">Credentials to check</h3>
-            {plan.credential_paths.map((path) => (
-              <details key={path.credential} className="text-sm">
-                <summary className="cursor-pointer">
-                  <span className="font-medium">{path.credential}</span>{" · "}
-                  {path.user_status === "reported_held" ? "You reported holding this" : REQUIREMENTS[path.requirement_kind]}
-                </summary>
-                <div className="mt-2 flex flex-col gap-3 pl-4">
-                  <p>{path.job_evidence}</p>
-                  <PlanLinks links={path.links} />
-                </div>
-              </details>
-            ))}
-          </section>
-        )}
-
-        <fieldset className="min-w-0">
-          <legend className="mb-2 font-semibold">Work while preparing (optional)</legend>
-          <p id="interim-help" className="mb-3 text-sm text-muted-foreground">
-            Choose an interim job to pursue while working toward your target. Confirm the full requirements, opening, and shifts with the employer.
-          </p>
-          <ToggleGroup type="single" variant="outline" orientation="vertical" spacing={2}
-            aria-label="Interim job" aria-describedby="interim-help" disabled={loading}
-            value={plan.selected_interim_job_id ?? "none"} className="w-full"
-            onValueChange={(value) => {
-              const id = value && value !== "none" ? value : null;
-              if (id !== plan.selected_interim_job_id) onSelectInterim(id);
-            }}>
-            <ToggleGroupItem value="none" className="h-auto w-full justify-start whitespace-normal px-3 py-3 text-left">
-              No interim job for now
-            </ToggleGroupItem>
-            {plan.interim_jobs.map((job) => (
-              <ToggleGroupItem key={job.job_id} value={job.job_id} aria-label={`Interim job: ${job.title} at ${job.company}`}
-                className="h-auto w-full min-w-0 flex-col items-start gap-1 whitespace-normal px-3 py-3 text-left">
-                <span className="font-semibold">{job.title}</span>
-                <span>{job.company} · {payText(interimPay(job))}</span>
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-          {plan.interim_jobs.length === 0 && (
-            <p className="mt-3 text-sm text-muted-foreground">
-              No interim matches were identified. Use the job-center link in your plan to ask about other options.
-            </p>
-          )}
-          {selectedInterim && (
-            <div className="mt-3 flex flex-col items-start gap-3 text-sm" role="region" aria-label="Selected interim job">
-              <p><strong>Selected interim job:</strong> {selectedInterim.title} · {selectedInterim.company}</p>
-              <ul className="flex list-disc flex-col gap-1 pl-5">
-                {selectedInterim.confirmation_needed.map((note) => <li key={note}>{note}</li>)}
-              </ul>
-              <div className="flex flex-wrap gap-2">
-                {selectedInterim.source_url && (
-                  <Button asChild variant="outline">
-                    <a href={selectedInterim.source_url} target="_blank" rel="noopener noreferrer">View interim posting</a>
-                  </Button>
-                )}
-                <Button type="button" variant="outline" disabled={loading} onClick={() => onCompareInterim(selectedInterim)}>
-                  Compare interim pay with rent
-                </Button>
-              </div>
-            </div>
-          )}
-        </fieldset>
-
-        <section aria-labelledby="plan-steps" className="flex flex-col gap-3">
-          <h3 id="plan-steps" className="font-semibold">Your steps</h3>
-          <p className="text-sm text-muted-foreground" role="status">
-            {checkedCount} of {plan.steps.length} steps checked. Expand a step for instructions and links. Progress clears when you refresh.
-          </p>
-          <ol className="flex flex-col gap-4">
-            {plan.steps.map((step, index) => (
-              <li key={step.step_id} className="flex items-start gap-3">
-                <Checkbox id={`plan-step-${step.step_id}`} aria-label={`Mark step complete: ${step.title}`}
-                  className="mt-1 size-5 shrink-0" checked={completed.includes(step.step_id)}
-                  onCheckedChange={(value) => onToggleStep(step.step_id, value === true)} />
-                <details className="min-w-0 flex-1" open={index === 0 || undefined}>
-                  <summary className="cursor-pointer">
-                    <span className="text-sm text-muted-foreground">Days {step.day_start}–{step.day_end} · {TRACKS[step.track]}</span>
-                    <span className="block font-medium">{step.title}</span>
-                  </summary>
-                  <div className="mt-2 flex flex-col gap-3 text-sm">
-                    <p>{step.action}</p>
-                    {step.depends_on.length > 0 && (
-                      <p className="text-muted-foreground">
-                        Before this step: {step.depends_on.map((id) => stepTitles.get(id) ?? id).join("; ")}.
-                      </p>
-                    )}
-                    <PlanLinks links={step.links} />
-                  </div>
-                </details>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <details className="text-sm text-muted-foreground">
-          <summary className="cursor-pointer font-medium">About this plan</summary>
-          <ul className="mt-2 flex list-disc flex-col gap-2 pl-5">
-            {plan.notes.map((note) => <li key={note}>{note}</li>)}
-          </ul>
-        </details>
-      </CardContent>
-    </Card>
+        <Button type="button" variant="outline" disabled={loading} onClick={onClear}>Change goal</Button>
+      </div>
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap justify-between gap-2 text-sm text-muted-foreground">
+          <span>{formatDate(startDate)} – {formatDate(end)}</span>
+          <span role="status">{count} of 30 days complete</span>
+        </div>
+        <div role="progressbar" aria-label="Plan progress" aria-valuenow={count} aria-valuemin={0} aria-valuemax={30} className="h-1.5 overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${count / 30 * 100}%` }} />
+        </div>
+      </div>
+      <Card className="gap-0 py-0">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 py-4">
+          <CardTitle><h3 className="text-lg font-semibold" aria-live="polite">{month.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h3></CardTitle>
+          <div className="flex gap-1">
+            <Button type="button" variant="ghost" size="icon" aria-label="Previous month" disabled={currentMonth <= firstMonth} onClick={() => moveMonth(-1)}><ChevronLeft /></Button>
+            <Button type="button" variant="ghost" size="icon" aria-label="Next month" disabled={currentMonth >= lastMonth} onClick={() => moveMonth(1)}><ChevronRight /></Button>
+          </div>
+        </CardHeader>
+        <CardContent className="px-0">
+          <div className="grid grid-cols-7 border-y border-border bg-muted/40" aria-hidden="true">
+            {WEEKDAYS.map((day) => <div key={day} className="py-2 text-center text-xs font-medium text-muted-foreground">{day}</div>)}
+          </div>
+          <div className="grid grid-cols-7 gap-px bg-border" role="group" aria-label="Daily plan calendar">
+            {monthCells(month).map((date) => {
+              const day = byDate.get(dateKey(date));
+              const inMonth = date.getMonth() === month.getMonth();
+              const active = day?.day === selectedDay;
+              const finished = day ? done.has(day.id) : false;
+              const today = dateKey(date) === dateKey(new Date());
+              const label = <>
+                <span className="flex w-full items-center justify-between gap-1">
+                  <span className={cn("flex size-6 shrink-0 items-center justify-center rounded-full text-xs sm:text-sm", today && "bg-foreground text-background")}>{date.getDate()}</span>
+                  {finished && <Check className="size-3.5 shrink-0 text-ok" aria-hidden="true" />}
+                </span>
+                {day && <>
+                  <span className="hidden text-xs leading-snug font-medium sm:block">{day.title}</span>
+                  <span className="mt-auto text-[10px] text-muted-foreground sm:text-xs">Day {day.day}</span>
+                </>}
+              </>;
+              return day ? (
+                <button key={dateKey(date)} type="button" disabled={loading} aria-pressed={active}
+                  aria-label={`${formatDate(date)}, day ${day.day}: ${day.title}${finished ? ", complete" : ""}`}
+                  onClick={() => {
+                    setSelectedDay(day.day);
+                    if (window.innerWidth < 640) requestAnimationFrame(() => document.getElementById("daily-action-card")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+                  }}
+                  className={cn("relative flex min-h-20 min-w-0 flex-col items-start gap-2 bg-card p-1.5 text-left transition-colors hover:bg-muted focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-[-2px] sm:min-h-28 sm:p-3",
+                    active && "bg-accent ring-2 ring-primary ring-inset", finished && !active && "bg-ok-soft/40", !inMonth && "opacity-60")}>
+                  {label}
+                </button>
+              ) : <div key={dateKey(date)} className={cn("flex min-h-20 flex-col bg-background p-1.5 text-muted-foreground/60 sm:min-h-28 sm:p-3", !inMonth && "opacity-40")}>{label}</div>;
+            })}
+          </div>
+        </CardContent>
+      </Card>
+      <Card id="daily-action-card" role="region" aria-labelledby="daily-action" aria-live="polite" className="gap-3 scroll-mt-4">
+        <CardHeader>
+          <p className="text-xs font-medium text-brand-text">Day {selected.day} · {formatDate(selected.date)} · {selected.phase}</p>
+          <CardTitle><h3 id="daily-action" className="text-lg font-semibold">{selected.title}</h3></CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{selected.action}</p>
+          {selected.links.length > 0 && <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+            {selected.links.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer" className="text-brand-text underline underline-offset-4">{link.label}</a>)}
+          </div>}
+          <div className="flex items-center gap-2.5">
+            <Checkbox id="complete-day" disabled={loading} checked={done.has(selected.id)} onCheckedChange={(value) => onToggleStep(selected.id, value === true)} />
+            <label htmlFor="complete-day" className="cursor-pointer text-sm font-medium">Mark day {selected.day} complete</label>
+          </div>
+        </CardContent>
+      </Card>
+      {plan.credential_paths.length > 0 && <details className="text-sm">
+        <summary className="cursor-pointer font-medium text-brand-text">Credentials for this goal</summary>
+        <ul className="mt-3 flex flex-col gap-3">
+          {plan.credential_paths.map((path) => <li key={path.credential} className="flex flex-col gap-1">
+            <p className="font-medium">{path.credential} · {path.user_status === "reported_held" ? "Verify your existing credential" : path.requirement_kind === "required" ? "Required" : "Confirm with employer"}</p>
+            <p className="text-muted-foreground">{path.job_evidence}</p>
+          </li>)}
+        </ul>
+      </details>}
+      <p className="text-xs leading-relaxed text-muted-foreground">A practical path toward your goal. Hiring and training dates depend on the employer and provider; some goals take longer than 30 days. Progress is saved in this browser so you can continue after a refresh.</p>
+    </div>
   );
 }

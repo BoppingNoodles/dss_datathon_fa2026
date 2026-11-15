@@ -1,60 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { compareHousing, money } from "@/lib/api";
-import type { HousingArea, HousingComparisonResponse, HousingSection, PayComparisonJob, Pay } from "@/lib/types";
+import type { HousingArea, HousingComparisonResponse, HousingSection, MappedPlace, PayComparisonJob, Pay, ServiceMapPoint } from "@/lib/types";
 import { payText } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { Badge, EmptyState, Notes } from "./shared";
+import { EmptyState, Notes } from "./shared";
+import AreaMap from "./AreaMap";
+import { cn } from "@/lib/utils";
 
 const field = "h-10 bg-card text-base md:text-base";
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
-function AreaCard({ a, onUse }: { a: HousingArea; onUse: (rent: number) => void }) {
+function AreaCard({ a, selected, onSelect }: { a: HousingArea; selected: boolean; onSelect: () => void }) {
+  const range = !a.suppressed && a.rent_p25 != null && a.rent_p75 != null;
+  const places = a.nearby_places?.slice(0, 3) ?? [];
   return (
     <li>
-      <Card className="h-full gap-0 p-4 text-base">
-      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-        <div>
-          <h4 className="text-lg font-semibold">{a.label}</h4>
-          <p className="text-sm text-muted-foreground">
-            {a.usable_rental_records.toLocaleString()} rental record{a.usable_rental_records === 1 ? "" : "s"}
+      <Card className={cn("relative gap-3 transition-shadow", selected ? "ring-2 ring-primary/60" : "hover:ring-2 hover:ring-primary/40")}>
+        <button type="button" aria-pressed={selected} aria-label={`Show ${a.label} on map`} onClick={onSelect}
+          className="absolute inset-0 cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-[-2px]" />
+        <CardHeader className="pointer-events-none">
+          <div className="flex items-start justify-between gap-3">
+            <CardTitle><h4 className="text-lg font-semibold">{a.label}</h4></CardTitle>
+            {selected && <span className="shrink-0 text-xs font-medium text-brand-text">On map</span>}
+          </div>
+          <p className="mt-1 text-xl font-semibold">
+            {range ? `${money(a.rent_p25)}–${money(a.rent_p75)}` : "Rent range unavailable"}
+            {range && <span className="ml-1 text-sm font-normal text-muted-foreground">/ month</span>}
           </p>
-        </div>
-        {a.median_monthly_rent != null && !a.suppressed && (
-          <p className="text-right">
-            <span className="block text-xl font-semibold">{money(a.median_monthly_rent)}</span>
-            <span className="text-sm text-muted-foreground">typical monthly rent</span>
-          </p>
-        )}
-      </div>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {a.rent_basis === "rent_estimate" && <Badge tone="warn">Estimate, not an available listing</Badge>}
-        {a.suppressed && <Badge tone="neutral">Too few listings to show details</Badge>}
-      </div>
-      {!a.suppressed && a.rent_p25 != null && a.rent_p75 != null && (
-        <p className="mt-2 text-sm">Most rents fall between {money(a.rent_p25)} and {money(a.rent_p75)}.</p>
-      )}
-      {a.nearby_services.length > 0 && (
-        <ul className="mt-2 text-sm text-muted-foreground">
-          {a.nearby_services.map((s) => (
-            <li key={s.family}>
-              {s.family_label}: {s.count_within_1_mile ?? "unknown"} within 1 mile
-              {s.nearest_miles != null && `, nearest about ${s.nearest_miles} mi`}
-            </li>
-          ))}
-        </ul>
-      )}
-      {a.source_note && <p className="mt-2 text-sm text-muted-foreground">{a.source_note}</p>}
-      {a.median_monthly_rent != null && !a.suppressed && (
-        <Button type="button" variant="outline" size="lg" className="mt-3 self-start" onClick={() => onUse(a.median_monthly_rent!)}>
-          Compare this rent with a job&apos;s pay
-        </Button>
-      )}
+          {a.rent_basis === "rent_estimate" && <p className="text-xs text-warn">Estimated rents</p>}
+        </CardHeader>
+        <CardContent className="pointer-events-none flex flex-col gap-2">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Nearby places</p>
+          {places.length ? <ul className="flex flex-col gap-2.5">
+            {places.map((place, index) => <li key={place.place_id} className="flex min-w-0 items-start gap-2 text-sm">
+              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-brand-text" aria-hidden="true">{index + 1}</span>
+              <div className="min-w-0">
+              {place.maps_url ? <a href={place.maps_url} target="_blank" rel="noopener noreferrer" className="pointer-events-auto relative font-medium hover:text-brand-text hover:underline">{place.name} <span aria-hidden="true">↗</span></a>
+                : <p className="font-medium">{place.name}</p>}
+              <p className="truncate text-xs text-muted-foreground" title={place.family_label}>{place.family_label.split(" (")[0]}</p>
+              </div>
+            </li>)}
+          </ul> : <p className="text-sm text-muted-foreground">Nearby place details aren&apos;t available for this area yet.</p>}
+        </CardContent>
       </Card>
     </li>
   );
@@ -168,26 +161,44 @@ function RentCalculator({ job, rent, setRent }: { job: PayComparisonJob | null; 
   );
 }
 
-export default function HousingTab({ data, job }: { data: HousingSection; job: PayComparisonJob | null }) {
+const NO_MAP_POINTS: ServiceMapPoint[] = [];
+
+export default function HousingTab({ data, job, mapPoints = NO_MAP_POINTS }: { data: HousingSection; job: PayComparisonJob | null; mapPoints?: ServiceMapPoint[] }) {
   const [rent, setRent] = useState("");
+  const zipAreas = data.areas.filter((area) => area.area_type === "zip");
+  const areas = zipAreas.length ? zipAreas : data.areas;
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = areas.find((area) => area.area_id === selectedId) ?? areas[0];
+  const zip = selected?.area_type === "zip" ? selected.label.match(/\b\d{5}\b/)?.[0] ?? null : null;
+  const places = useMemo<MappedPlace[]>(() => {
+    const byId = new Map(mapPoints.map((point) => [point.place_id, point]));
+    return (selected?.nearby_places ?? []).flatMap((place, index) => {
+      const point = byId.get(place.place_id);
+      return point && Number.isFinite(point.lat) && Number.isFinite(point.lon)
+        ? [{ ...place, ...point, number: index + 1 }] : [];
+    });
+  }, [mapPoints, selected]);
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Rent ranges by ZIP code or neighborhood. Phoenix never shows street addresses, and these are not live listings.
-      </p>
+    <div className="flex flex-col gap-5">
+      <p className="text-sm text-muted-foreground">Monthly rent ranges and three nearby places to know. Ranges cover the middle half of snapshot rents, across home sizes.</p>
       <Notes notes={data.status === "not_integrated" ? [] : data.notes} />
-      {data.status === "not_integrated" ? (
-        <EmptyState title="Neighborhood rent ranges aren't connected yet">
-          This tab will show typical rents by ZIP code and the services near each area. The calculator below works now.
-        </EmptyState>
-      ) : data.areas.length === 0 ? (
-        <EmptyState title="Not enough rental listings here">Try a nearby city or ZIP code.</EmptyState>
-      ) : (
-        <ul className="grid gap-3 lg:grid-cols-2">
-          {data.areas.map((a) => <AreaCard key={a.area_id} a={a} onUse={(r) => setRent(String(r))} />)}
-        </ul>
-      )}
-      <RentCalculator job={job} rent={rent} setRent={setRent} />
+      {data.status === "not_integrated" ? <EmptyState title="Neighborhood rent ranges aren't connected yet" />
+        : areas.length === 0 ? <EmptyState title="Not enough rental listings here">Try a nearby city or ZIP code.</EmptyState>
+        : <div className="grid items-start gap-5 lg:gap-6 lg:grid-cols-[minmax(20rem,0.85fr)_minmax(0,1.65fr)]">
+          <div className="order-first lg:sticky lg:top-5 lg:order-last">
+            <AreaMap zip={zip} label={selected?.label ?? "Your area"} places={places} />
+          </div>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            {areas.map((area) => <AreaCard key={area.area_id} a={area} selected={area.area_id === selected?.area_id} onSelect={() => {
+              setSelectedId(area.area_id);
+              if (window.innerWidth < 1024) requestAnimationFrame(() => document.getElementById("housing-map")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+            }} />)}
+          </ul>
+        </div>}
+      <details className="group" open={job ? true : undefined}>
+        <summary className="cursor-pointer text-sm font-medium text-brand-text">Compare pay with rent</summary>
+        <div className="mt-3"><RentCalculator job={job} rent={rent} setRent={setRent} /></div>
+      </details>
     </div>
   );
 }

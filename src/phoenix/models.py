@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -41,6 +43,12 @@ class Requirement(Contract):
     kind: Literal["required", "preferred", "alternative", "uncertain"]
     evidence: str = Field(min_length=1)
     source: str = "extraction_rules"
+    scope: str | None = None
+
+    @property
+    def key(self) -> str:
+        value = json.dumps([self.field, str(self.value).casefold(), self.kind, self.scope], sort_keys=True)
+        return "req-" + hashlib.sha256(value.encode()).hexdigest()[:12]
 
 
 class Job(Contract):
@@ -74,6 +82,7 @@ class Experience(Contract):
 class Education(Contract):
     level: Literal["unknown", "none", "high_school", "some_college", "associate", "bachelor", "master", "doctorate"] = "unknown"
     certifications: list[str] = Field(default_factory=list)
+    no_certifications: bool = False
 
 
 class UserProfile(Contract):
@@ -87,6 +96,7 @@ class UserProfile(Contract):
     reference_point: Point | None = None
     max_distance_miles: float | None = Field(default=None, gt=0)
     sort: Literal["recommended", "highest_pay", "nearest"] = "recommended"
+    qualification_answers: dict[str, dict[str, bool]] = Field(default_factory=dict)
 
 
 class RecommendationRequest(Contract):
@@ -157,6 +167,15 @@ class HousingArea(Contract):
     service_access_status: Literal["not_connected", "available", "insufficient_coordinates", "no_candidates"] = "not_connected"
 
 
+class QualificationCheck(Contract):
+    key: str
+    field: Literal["education", "experience_years", "certification"]
+    requirement_kind: Literal["required", "preferred", "alternative", "uncertain"]
+    label: str
+    status: Literal["reported_met", "gap", "needs_confirmation", "preferred"]
+    detail: str
+
+
 class JobCard(Contract):
     job_id: str
     title: str
@@ -183,6 +202,8 @@ class JobCard(Contract):
     selectable: bool = True
     is_selected: bool = False
     credential_summary: str = "Requirements need confirmation."
+    matches_reported_role: bool | None = None
+    qualification_checks: list[QualificationCheck] = Field(default_factory=list)
 
 
 class PlanLink(Contract):
@@ -223,6 +244,15 @@ class InterimJobOption(Contract):
     is_selected: bool = False
 
 
+class DailyPlanAction(Contract):
+    action_id: str
+    day: int = Field(ge=1, le=30)
+    title: str
+    action: str
+    phase: str
+    links: list[PlanLink] = Field(default_factory=list)
+
+
 class ThirtyDayPlan(Contract):
     target_job_id: str
     target_job_title: str
@@ -230,7 +260,16 @@ class ThirtyDayPlan(Contract):
     credential_paths: list[CredentialPath] = Field(default_factory=list)
     interim_jobs: list[InterimJobOption] = Field(default_factory=list)
     steps: list[PlanStep]
+    daily_actions: list[DailyPlanAction] = Field(default_factory=list)
     notes: list[str]
+
+    @model_validator(mode="after")
+    def complete_daily_schedule(self) -> ThirtyDayPlan:
+        # Empty is retained for older fixtures/clients. Generated plans have all 30 days.
+        if self.daily_actions and (sorted(a.day for a in self.daily_actions) != list(range(1, 31))
+                or len({a.action_id for a in self.daily_actions}) != 30):
+            raise ValueError("A daily schedule must contain days 1–30 with unique action IDs")
+        return self
 
 
 class RecommendationResponse(Contract):

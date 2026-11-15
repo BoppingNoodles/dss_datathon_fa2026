@@ -2,7 +2,7 @@
 
 import type { ServiceCard, ServiceSort, ServicesSection } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge, EmptyState, Notes, SortToggle } from "./shared";
 
 function Stars({ rating }: { rating: number }) {
@@ -43,7 +43,7 @@ function StarBars({ dist, label }: { dist: Record<string, number>; label: string
 
 function verificationBadge(v: ServiceCard["verification"]) {
   if (v.status === "verified_public_community")
-    return <Badge tone="ok">Verified {v.provider_type === "public" ? "public" : "community"} provider</Badge>;
+    return <Badge tone="ok">{v.provider_type === "public" ? "Public" : "Community"} provider</Badge>;
   if (v.status === "verified_private") return <Badge tone="neutral">Verified private provider</Badge>;
   return <Badge tone="neutral">Not verified yet</Badge>;
 }
@@ -55,11 +55,12 @@ function ServiceItem({ c }: { c: ServiceCard }) {
     : c.eligibility.age_status === "meets_published_age_criterion" ? "ok" : "neutral";
   return (
     <li>
-      <Card className="h-full gap-0 p-4 text-base">
+      <Card className="h-full gap-3">
+      <CardHeader>
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
         <div className="min-w-0">
-          <h4 className="text-lg font-semibold break-words">{c.name}</h4>
-          <p className="text-sm text-muted-foreground">{c.family_label}</p>
+          <CardTitle><h4 className="text-lg font-semibold break-words">{c.name}</h4></CardTitle>
+          <p className="text-sm text-muted-foreground">{c.family_label.split(" (")[0]}</p>
         </div>
         {c.distance.miles != null && (
           <p className="shrink-0 text-sm font-medium" title={c.distance.measure ?? undefined}>
@@ -75,21 +76,36 @@ function ServiceItem({ c }: { c: ServiceCard }) {
           <span className="flex items-center gap-1.5 text-sm">
             <Stars rating={r.overall_rating} />
             <span className="font-semibold">{r.overall_rating.toFixed(1)}</span>
-            <span className="text-muted-foreground">({r.overall_review_count?.toLocaleString()} Google reviews)</span>
+            <span className="text-muted-foreground">({r.overall_review_count?.toLocaleString()})</span>
           </span>
         ) : (
           <span className="text-sm text-muted-foreground">No Google rating yet</span>
         )}
       </div>
 
-      <p className={`mt-2 text-sm ${ageTone === "warn" ? "text-warn" : ageTone === "ok" ? "text-ok" : "text-muted-foreground"}`}>
-        {c.eligibility.note}
-      </p>
-      {c.verification.cost_eligibility_notes && (
-        <p className="mt-1 text-sm">{c.verification.cost_eligibility_notes}</p>
-      )}
+      {ageTone === "warn" && <p className="mt-2 text-sm text-warn">Check the provider&apos;s age requirements before visiting.</p>}
+      </CardHeader>
+      <CardContent>
+      <details className="text-sm">
+        <summary className="cursor-pointer font-medium text-brand-text">Hours, eligibility, and reviews</summary>
+        <div className="mt-3 flex flex-col gap-3">
+          <p>{c.eligibility.note}</p>
+          {c.verification.cost_eligibility_notes && <p>{c.verification.cost_eligibility_notes}</p>}
+          <p><span className="font-medium">Hours: </span>{c.availability.hours_text}</p>
+          {c.contact.address && <p><span className="font-medium">Address: </span>{c.contact.address}</p>}
+          {c.distance.miles != null && <p className="text-muted-foreground">Distance is a straight line from the {c.distance.reference_point}, not travel time.</p>}
+          {r.overall_star_distribution && <StarBars dist={r.overall_star_distribution} label="All Google reviews" />}
+          {ev.sampled_review_count > 0 && <div className="rounded-lg bg-muted p-3">
+            <StarBars dist={ev.star_distribution} label={`Sample of ${ev.sampled_review_count} reviews`} />
+            {ev.snippets.map((s, i) => <blockquote key={i} className="mt-2 border-l-2 border-border pl-3">{s.attribution}: &ldquo;{s.text}&rdquo;</blockquote>)}
+          </div>}
+          {c.verification.checked_on && <p className="text-muted-foreground">Provider details checked {c.verification.checked_on}.</p>}
+          <p className="text-muted-foreground">{c.confirm_prompt}</p>
+        </div>
+      </details>
+      </CardContent>
 
-      <div className="mt-3 flex flex-wrap gap-2 text-sm font-medium">
+      <CardFooter className="mt-auto flex-wrap gap-2">
         {c.contact.phone && (
           <Button asChild variant="outline" size="lg"><a href={`tel:${c.contact.phone.replace(/[^\d+]/g, "")}`}>
             Call {c.contact.phone}
@@ -107,35 +123,7 @@ function ServiceItem({ c }: { c: ServiceCard }) {
             Map
           </a></Button>
         )}
-      </div>
-
-      <details className="mt-3 text-sm">
-        <summary className="cursor-pointer font-medium text-brand-text">Hours, address, and reviews</summary>
-        <div className="mt-2 space-y-3">
-          <p><span className="font-medium">Hours: </span>{c.availability.hours_text}</p>
-          {c.contact.address && <p><span className="font-medium">Address: </span>{c.contact.address}</p>}
-          {c.distance.miles != null && (
-            <p className="text-muted-foreground">Distance is a straight line from the {c.distance.reference_point}, not travel time.</p>
-          )}
-          {r.overall_star_distribution && <StarBars dist={r.overall_star_distribution} label="All Google reviews" />}
-          {ev.sampled_review_count > 0 && (
-            <div className="rounded-lg bg-muted p-3">
-              <StarBars dist={ev.star_distribution}
-                label={`Sample of ${ev.sampled_review_count} reviews${ev.date_min ? ` (${ev.date_min.slice(0, 4)}–${ev.date_max?.slice(0, 4)})` : ""}`} />
-              {ev.snippets.map((s, i) => (
-                <blockquote key={i} className="mt-2 border-l-2 border-border pl-3">
-                  {s.attribution}: &ldquo;{s.text}&rdquo;
-                </blockquote>
-              ))}
-            </div>
-          )}
-          {c.verification.checked_on && (
-            <p className="text-muted-foreground">Checked against the provider&apos;s official page on {c.verification.checked_on}.</p>
-          )}
-        </div>
-      </details>
-
-      <p className="mt-3 border-t border-border pt-2 text-sm text-muted-foreground">{c.confirm_prompt}</p>
+      </CardFooter>
       </Card>
     </li>
   );
@@ -146,7 +134,7 @@ export default function ServicesTab({ data, loading, onSort }: {
 }) {
   const s = data.ranking_settings;
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           {data.need_label} services {data.search_area}.
@@ -175,13 +163,12 @@ export default function ServicesTab({ data, loading, onSort }: {
               </h3>
               {g.key === "highly_rated" && (
                 <p className="text-sm text-muted-foreground">
-                  {s.highly_rated_min_rating}+ stars with {s.highly_rated_min_reviews}+ Google reviews. A rating shows
-                  how visitors felt. It doesn&apos;t prove a service is free or right for you.
+                  {s.highly_rated_min_rating}+ stars · {s.highly_rated_min_reviews}+ Google reviews. Confirm cost and eligibility before visiting.
                 </p>
               )}
               {g.note && <p className="text-sm text-muted-foreground">{g.note}</p>}
             </div>
-            <ul className="grid gap-3 lg:grid-cols-2">
+            <ul className="grid gap-4 md:grid-cols-2">
               {g.items.map((c) => <ServiceItem key={c.place_id} c={c} />)}
             </ul>
           </section>

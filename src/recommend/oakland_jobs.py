@@ -7,6 +7,7 @@ from pathlib import Path
 
 from src.common import ROOT, normalize_location_input
 from src.data.scrape_indeed import PAY
+from src.phoenix.qualifications import redact_contacts
 
 
 JOBS_PATH = ROOT / "data/jobs/oakland_jobs.json"
@@ -46,6 +47,7 @@ def job_card(row: dict, pay: dict, explanation: str) -> dict:
     return {
         "job_id": row["job_id"],
         "title": row["title"],
+        "description": redact_contacts(row.get("description_text") or row.get("description") or "") or None,
         "employer": row["employer"],
         "posted_date": row["posted_date"],
         "url": row["source_url"],

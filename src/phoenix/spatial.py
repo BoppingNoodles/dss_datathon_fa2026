@@ -6,8 +6,10 @@ import math
 from collections import defaultdict
 from statistics import median
 
+import numpy as np
+
 from .models import AreaServiceAccess, HousingArea, Rental, ServiceLocation
-from .normalization import city_key, haversine_miles
+from .normalization import city_key
 
 
 class ServiceIndex:
@@ -25,6 +27,13 @@ class ServiceIndex:
             seen[service.place_id] = service
             self.grid[self._cell(service.latitude, service.longitude)].append(service)
             self.families.add(service.service_family)
+        self.family_names = sorted(self.families)
+        family_ids = {family: index for index, family in enumerate(self.family_names)}
+        self.cells = {}
+        for cell, points in self.grid.items():
+            coordinates = np.radians([(point.latitude, point.longitude) for point in points])
+            self.cells[cell] = (coordinates[:, 0], coordinates[:, 1], np.cos(coordinates[:, 0]),
+                                np.array([family_ids[point.service_family] for point in points]))
 
     @staticmethod
     def _cell(latitude: float, longitude: float) -> tuple[int, int]:
@@ -36,13 +45,18 @@ class ServiceIndex:
         lon_delta = radius / (68 * max(.01, math.cos(math.radians(latitude))))
         low = self._cell(latitude-lat_delta, longitude-lon_delta)
         high = self._cell(latitude+lat_delta, longitude+lon_delta)
-        counts = {family: 0 for family in self.families}
+        counts = np.zeros(len(self.family_names), dtype=np.int64)
+        lat, lon = math.radians(latitude), math.radians(longitude)
         for i in range(low[0], high[0]+1):
             for j in range(low[1], high[1]+1):
-                for service in self.grid.get((i, j), []):
-                    if haversine_miles(latitude, longitude, service.latitude, service.longitude) <= radius:
-                        counts[service.service_family] += 1
-        return counts
+                cell = self.cells.get((i, j))
+                if cell is None:
+                    continue
+                lats, lons, cos_lats, families = cell
+                h = np.sin((lats-lat)/2)**2 + math.cos(lat)*cos_lats*np.sin((lons-lon)/2)**2
+                distances = 3958.7613 * 2 * np.arcsin(np.sqrt(np.clip(h, 0, 1)))
+                counts += np.bincount(families[distances <= radius], minlength=len(self.family_names))
+        return {family: int(counts[index]) for index, family in enumerate(self.family_names)}
 
 
 def attach_service_access(areas: list[HousingArea], rentals: list[Rental], services: list[ServiceLocation],

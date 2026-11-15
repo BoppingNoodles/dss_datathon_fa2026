@@ -33,7 +33,7 @@ Only `location` and `priority_need` are required. Unknown fields are rejected (H
 
 - `open_tab`: `jobs` for work, `housing` for housing, `services` otherwise.
 - `services` (Person 4): `groups[]` → `items[]` of `ServiceCard`. Overall rating and count are kept separate from `review_evidence` (the sample), along with verification status, an age-eligibility note, distance with its reference point, closure and hours, and public business contact details.
-- `jobs` (Person 1/2): `JobsSection` with `groups[]` of `JobCard` (suitability tier, requirement evidence, pay with conversion basis, location precision, rank explanation).
+- `jobs` (Person 1/2): `JobsSection` with `groups[]` of `JobCard` (suitability tier, requirement evidence, pay with conversion basis, location precision, rank explanation), plus `other_groups[]` for local roles outside reported work areas.
 - `housing_areas` (Person 1): `HousingSection` with `HousingArea` aggregates only. The schema forbids extra fields, so `zpid`, street addresses and coordinates cannot be returned.
 - `data_coverage`: data mode (real or synthetic), per-source counts and status, and plain-language coverage notes.
 - `next_steps`: deterministic checklist templates.
@@ -87,3 +87,100 @@ The audit expects Person 1's cleaned files at the paths in `configs/audit.yaml`.
 | --- | --- |
 | 2026-11-14 | Initial contract (Person 4) |
 | 2026-11-14 | Person 1 adapters integrated; source-specific audit inputs; additive job selection, credential/interim-work plan and area-level proximity fields. Existing onboarding names and service schema/ranking retained. |
+
+
+### Compact listing UI additions (November 14, 2026)
+
+`JobCard.description` is an optional plain-text source description. It appears only
+in an expanded job card. Older/export-only records may leave it null.
+
+`HousingArea.nearby_places` is an additive list of at most ten public business
+summaries (`place_id`, `name`, `family_label`, nullable `maps_url`). Candidates must
+be within two straight-line miles of the median public-business location in that
+ZIP/city. Known permanently or temporarily closed places are excluded. Verified
+public/community providers and assistance services sort first, followed by review-adjusted rating
+`(n*r + 20*3.5)/(n+20)`, distance, and place ID. The shortlist includes distinct
+service families when available, then fills remaining slots in ranked order. Duplicate IDs are removed. Missing
+ratings use the 3.5 prior, not a fabricated displayed rating. No rental address or
+coordinate is used as the reference or published. Areas with no reference or usable
+place data return an empty list. These names describe nearby places, not verified
+eligibility, free services, or current opening hours.
+
+The UI now has a separate 30-day calendar tab and no interim-work selection. Existing
+API interim fields remain available for backward compatibility. `ThirtyDayPlan.daily_actions`
+supplies exactly 30 relative days with `action_id`, `day`, `title`, `action`, `phase`, and
+`links`. Activities use the selected role, reported education and experience, required
+versus preferred credentials, and any known or unconfirmed qualification gap. Existing
+credentials trigger verification instead of automatic repeat enrollment. Education and
+experience gaps trigger accepted-equivalent or trainee-route questions; the schedule
+does not imply those gaps can be closed in 30 days. A selected API interim job is named
+only conditionally, without assuming an offer, schedule, or income. The frontend dates
+these actions from the local current date and retains the older fixture fallback.
+Task IDs remain stable across sorting/date changes and change with job/task content.
+The UI's additional `plan` tab is local navigation; API `open_tab` is unchanged.
+
+### Role relevance and qualification checkboxes (November 14, 2026)
+
+`JobCard.matches_reported_role` is true when the conservative title/work-area matcher
+finds overlap, false for another role, and null when there is no positive experience
+context to assess. It is a keyword baseline, not a calibrated similarity score or a
+qualification decision. `groups` contains related or unassessed roles; `other_groups`
+contains other roles in the same resolved city/search area. Both preserve suitability,
+pay-period, availability, and distance rules, with at most 12 cards and the full count
+per group. Other roles remain selectable for a personalized plan. They are not included
+automatically in the more conservative interim-work shortlist. No experience supplied
+means roles are unassessed, not rejected or duplicated in the other-role list.
+
+`JobCard.qualification_checks` lists specific extracted requirements, such as
+“High school diploma or GED”, “Class-A CDL”, and “2 years of warehouse experience”.
+Each row has a stable `key`, `field`, `label`, `requirement_kind`, `status`, and
+supporting `detail`. Status is `reported_met`, `gap`, `needs_confirmation`, or
+`preferred`. A checked row is a self-report, not employer verification. No extracted
+requirements means an empty checklist and a prompt to confirm the full posting.
+
+Optional `qualification_answers` maps job IDs to requirement keys and boolean
+self-reports. Answers affect only that job's qualification assessment and plan;
+they do not rewrite global education, experience duration, or certificates. Unknown
+keys cannot establish a qualification. Edited/selected jobs stay in their result
+group even beyond the usual 12-card cap. The frontend updates immediately without disabling the screen. Rapid clicks are
+batched for 300 ms; only the latest response can update the result. Failed updates
+restore the last server-confirmed state. The listed/mandatory progress count makes
+remaining requirements visible. A positive job-specific experience report updates
+relevance for that role without rewriting global work history. “Clear match” means every **listed mandatory**
+item is reported met. Preferred items do not block it. “Needs preparation” is the lower level when
+no listed mandatory qualification is reported met and at least one is explicitly
+missing. Skipped answers alone do not trigger that label. Matching onboarding
+diplomas, certificate aliases, and scoped experience prefill the relevant rows,
+including criteria marked alternative or uncertain; their acceptance still needs
+confirmation. Evidence completeness, employer acceptance, and vacancy remain
+separate checks.
+
+`GET /job-certificates` returns recognized certificate/license labels actually
+mentioned in the loaded Indeed data, with posting counts and coverage notes.
+The cached list refreshes when the source job file changes. Onboarding renders 17
+standardized presets immediately without waiting for this endpoint. These labels
+were checked against the loaded Indeed data. The picker supports multiple
+selections, an unlisted credential entry, or `education.no_credentials`.
+The explicit none option cannot accompany credential names. Mentioned credentials
+may be preferred or optional; this catalog is not exhaustive. No extra mandatory
+onboarding question is added.
+
+Daily activities use short, plain instructions, normally one to three sentences.
+The detailed posting evidence and official pathway links remain available beside
+the calendar rather than being repeated in each day's task.
+
+`Pay.needs_confirmation` identifies ambiguous source pay. USD hourly amounts of
+$1,000 or more at either endpoint are flagged for review, with the raw source text
+retained and an explicit note. This is a conservative sanity threshold, not proof
+of an error. Such amounts are excluded from comparable-pay ranking and income/rent
+scenarios until confirmed; they are never automatically reinterpreted as annual pay.
+The job remains selectable, with “Pay needs confirmation” in the UI.
+
+`RecommendationResponse.service_map_points` contains `{place_id, lat, lon}` for
+the public service/business IDs named in the housing shortlists. These locations
+come exclusively from the public Places dataset. Invalid coordinates and duplicate
+IDs are removed. Coordinates are kept outside `housing_areas`; the housing property
+privacy contract and audit remain unchanged. The frontend joins by `place_id` to
+draw up to ten numbered nearby-place pins on a zoomable street map. Housing cards
+keep a compact preview of the first three places, and selecting any part of a card
+updates its map. Public-place links remain separate actions.

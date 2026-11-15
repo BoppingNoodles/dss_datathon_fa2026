@@ -17,7 +17,8 @@ def build_recommendations(profile: UserProfile, jobs: list[Job], rentals: list[R
                           selected_interim_job_id: str | None = None,
                           scenario_hours_per_week: float | None = None,
                           scenario_weeks_per_year: float | None = None,
-                          include_expired: bool = False) -> RecommendationResponse:
+                          include_expired: bool = False,
+                          include_other_roles: bool = False) -> RecommendationResponse:
     cities = request_cities(profile.location, profile.search_cities)
     # Resolve a ZIP only when the input data maps it unambiguously to a city.
     if not cities and profile.location.strip().isdigit() and len(profile.location.strip()) == 5:
@@ -26,7 +27,7 @@ def build_recommendations(profile: UserProfile, jobs: list[Job], rentals: list[R
             profile = profile.model_copy(update={"search_cities": sorted(cities)})
         else:
             cities = set()
-    cards = rank_jobs(jobs, profile, include_expired=include_expired)
+    cards = rank_jobs(jobs, profile, include_expired=include_expired, include_other_roles=include_other_roles)
     if cities:
         areas, housing_status = summarize_housing(rentals, cities=cities)
     else:
