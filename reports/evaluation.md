@@ -1,5 +1,7 @@
 # Phoenix job-requirement NLP evaluation
 
+> **Historical handoff — not the current model.** The 450-row annotation files and saved weights referenced below are absent from this checkout, so these figures were not reproduced here. The active checked-in pilot, its actual held-out metrics, labels, hashes, and reproduction steps are in [requirement_classifier_v1.md](requirement_classifier_v1.md). Do not present the historical figures as current runtime performance.
+
 ## Task and data
 
 Phoenix extracts three independent flags from Indeed job descriptions: mandatory education, relevant prior work experience, and a certification or license. A positive flag signals language to verify in the posting. The task measures requirement detection. Applicant eligibility, hiring outcomes, and job-ranking quality require separate evaluation.

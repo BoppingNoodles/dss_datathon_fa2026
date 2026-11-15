@@ -1,0 +1,1047 @@
+{
+  "model_sha256": "c6c09fa307cf09e78f04abb4d57f042802622bd494bc6453df0345db7da3125a",
+  "test_annotations_sha256": "792797553f4a3771638c168cdf3c9f84c86fcc505c4b329e3c0c714f990260aa",
+  "test_postings": 29,
+  "thresholds": [
+    0.4,
+    0.4,
+    0.3
+  ],
+  "models": {
+    "tfidf": {
+      "overall": {
+        "macro_f1": 0.427511545158604,
+        "micro_f1": 0.47058823529411764,
+        "labels": {
+          "education_required": {
+            "precision": 0.18181818181818182,
+            "recall": 0.6666666666666666,
+            "f1": 0.2857142857142857,
+            "positives": 3,
+            "scored": 29,
+            "tp": 2,
+            "tn": 17,
+            "fp": 9,
+            "fn": 1,
+            "false_positive_rate": 0.34615384615384615,
+            "false_negative_rate": 0.3333333333333333
+          },
+          "experience_required": {
+            "precision": 0.5416666666666666,
+            "recall": 1.0,
+            "f1": 0.7027027027027027,
+            "positives": 13,
+            "scored": 27,
+            "tp": 13,
+            "tn": 3,
+            "fp": 11,
+            "fn": 0,
+            "false_positive_rate": 0.7857142857142857,
+            "false_negative_rate": 0.0
+          },
+          "certification_required": {
+            "precision": 0.1724137931034483,
+            "recall": 1.0,
+            "f1": 0.29411764705882354,
+            "positives": 5,
+            "scored": 29,
+            "tp": 5,
+            "tn": 0,
+            "fp": 24,
+            "fn": 0,
+            "false_positive_rate": 1.0,
+            "false_negative_rate": 0.0
+          }
+        }
+      },
+      "subgroups": {
+        "food_service_hospitality": {
+          "postings": 10,
+          "macro_f1": 0.37777777777777777,
+          "micro_f1": 0.5161290322580645,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 0,
+              "scored": 10,
+              "tp": 0,
+              "tn": 6,
+              "fp": 4,
+              "fn": 0,
+              "false_positive_rate": 0.4,
+              "false_negative_rate": null
+            },
+            "experience_required": {
+              "precision": 0.6666666666666666,
+              "recall": 1.0,
+              "f1": 0.8,
+              "positives": 6,
+              "scored": 9,
+              "tp": 6,
+              "tn": 0,
+              "fp": 3,
+              "fn": 0,
+              "false_positive_rate": 1.0,
+              "false_negative_rate": 0.0
+            },
+            "certification_required": {
+              "precision": 0.2,
+              "recall": 1.0,
+              "f1": 0.3333333333333333,
+              "positives": 2,
+              "scored": 10,
+              "tp": 2,
+              "tn": 0,
+              "fp": 8,
+              "fn": 0,
+              "false_positive_rate": 1.0,
+              "false_negative_rate": 0.0
+            }
+          }
+        },
+        "logistics_warehouse": {
+          "postings": 9,
+          "macro_f1": 0.5442890442890443,
+          "micro_f1": 0.5714285714285714,
+          "labels": {
+            "education_required": {
+              "precision": 0.5,
+              "recall": 0.5,
+              "f1": 0.5,
+              "positives": 2,
+              "scored": 9,
+              "tp": 1,
+              "tn": 6,
+              "fp": 1,
+              "fn": 1,
+              "false_positive_rate": 0.14285714285714285,
+              "false_negative_rate": 0.5
+            },
+            "experience_required": {
+              "precision": 0.625,
+              "recall": 1.0,
+              "f1": 0.7692307692307693,
+              "positives": 5,
+              "scored": 8,
+              "tp": 5,
+              "tn": 0,
+              "fp": 3,
+              "fn": 0,
+              "false_positive_rate": 1.0,
+              "false_negative_rate": 0.0
+            },
+            "certification_required": {
+              "precision": 0.2222222222222222,
+              "recall": 1.0,
+              "f1": 0.36363636363636365,
+              "positives": 2,
+              "scored": 9,
+              "tp": 2,
+              "tn": 0,
+              "fp": 7,
+              "fn": 0,
+              "false_positive_rate": 1.0,
+              "false_negative_rate": 0.0
+            }
+          }
+        },
+        "retail_customer_service": {
+          "postings": 10,
+          "macro_f1": 0.31986531986531985,
+          "micro_f1": 0.3076923076923077,
+          "labels": {
+            "education_required": {
+              "precision": 0.2,
+              "recall": 1.0,
+              "f1": 0.3333333333333333,
+              "positives": 1,
+              "scored": 10,
+              "tp": 1,
+              "tn": 5,
+              "fp": 4,
+              "fn": 0,
+              "false_positive_rate": 0.4444444444444444,
+              "false_negative_rate": 0.0
+            },
+            "experience_required": {
+              "precision": 0.2857142857142857,
+              "recall": 1.0,
+              "f1": 0.4444444444444444,
+              "positives": 2,
+              "scored": 10,
+              "tp": 2,
+              "tn": 3,
+              "fp": 5,
+              "fn": 0,
+              "false_positive_rate": 0.625,
+              "false_negative_rate": 0.0
+            },
+            "certification_required": {
+              "precision": 0.1,
+              "recall": 1.0,
+              "f1": 0.18181818181818182,
+              "positives": 1,
+              "scored": 10,
+              "tp": 1,
+              "tn": 0,
+              "fp": 9,
+              "fn": 0,
+              "false_positive_rate": 1.0,
+              "false_negative_rate": 0.0
+            }
+          }
+        }
+      }
+    },
+    "majority": {
+      "overall": {
+        "macro_f1": 0.0,
+        "micro_f1": 0.0,
+        "labels": {
+          "education_required": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "positives": 3,
+            "scored": 29,
+            "tp": 0,
+            "tn": 26,
+            "fp": 0,
+            "fn": 3,
+            "false_positive_rate": 0.0,
+            "false_negative_rate": 1.0
+          },
+          "experience_required": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "positives": 13,
+            "scored": 27,
+            "tp": 0,
+            "tn": 14,
+            "fp": 0,
+            "fn": 13,
+            "false_positive_rate": 0.0,
+            "false_negative_rate": 1.0
+          },
+          "certification_required": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "positives": 5,
+            "scored": 29,
+            "tp": 0,
+            "tn": 24,
+            "fp": 0,
+            "fn": 5,
+            "false_positive_rate": 0.0,
+            "false_negative_rate": 1.0
+          }
+        }
+      },
+      "subgroups": {
+        "food_service_hospitality": {
+          "postings": 10,
+          "macro_f1": 0.0,
+          "micro_f1": 0.0,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 0,
+              "scored": 10,
+              "tp": 0,
+              "tn": 10,
+              "fp": 0,
+              "fn": 0,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": null
+            },
+            "experience_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 6,
+              "scored": 9,
+              "tp": 0,
+              "tn": 3,
+              "fp": 0,
+              "fn": 6,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            },
+            "certification_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 10,
+              "tp": 0,
+              "tn": 8,
+              "fp": 0,
+              "fn": 2,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            }
+          }
+        },
+        "logistics_warehouse": {
+          "postings": 9,
+          "macro_f1": 0.0,
+          "micro_f1": 0.0,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 9,
+              "tp": 0,
+              "tn": 7,
+              "fp": 0,
+              "fn": 2,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            },
+            "experience_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 5,
+              "scored": 8,
+              "tp": 0,
+              "tn": 3,
+              "fp": 0,
+              "fn": 5,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            },
+            "certification_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 9,
+              "tp": 0,
+              "tn": 7,
+              "fp": 0,
+              "fn": 2,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            }
+          }
+        },
+        "retail_customer_service": {
+          "postings": 10,
+          "macro_f1": 0.0,
+          "micro_f1": 0.0,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 1,
+              "scored": 10,
+              "tp": 0,
+              "tn": 9,
+              "fp": 0,
+              "fn": 1,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            },
+            "experience_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 10,
+              "tp": 0,
+              "tn": 8,
+              "fp": 0,
+              "fn": 2,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            },
+            "certification_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 1,
+              "scored": 10,
+              "tp": 0,
+              "tn": 9,
+              "fp": 0,
+              "fn": 1,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            }
+          }
+        }
+      }
+    },
+    "scraper": {
+      "overall": {
+        "macro_f1": 0.7222222222222222,
+        "micro_f1": 0.8333333333333334,
+        "labels": {
+          "education_required": {
+            "precision": 1.0,
+            "recall": 0.3333333333333333,
+            "f1": 0.5,
+            "positives": 3,
+            "scored": 29,
+            "tp": 1,
+            "tn": 26,
+            "fp": 0,
+            "fn": 2,
+            "false_positive_rate": 0.0,
+            "false_negative_rate": 0.6666666666666666
+          },
+          "experience_required": {
+            "precision": 1.0,
+            "recall": 0.8461538461538461,
+            "f1": 0.9166666666666666,
+            "positives": 13,
+            "scored": 27,
+            "tp": 11,
+            "tn": 14,
+            "fp": 0,
+            "fn": 2,
+            "false_positive_rate": 0.0,
+            "false_negative_rate": 0.15384615384615385
+          },
+          "certification_required": {
+            "precision": 1.0,
+            "recall": 0.6,
+            "f1": 0.75,
+            "positives": 5,
+            "scored": 29,
+            "tp": 3,
+            "tn": 24,
+            "fp": 0,
+            "fn": 2,
+            "false_positive_rate": 0.0,
+            "false_negative_rate": 0.4
+          }
+        }
+      },
+      "subgroups": {
+        "food_service_hospitality": {
+          "postings": 10,
+          "macro_f1": 0.30303030303030304,
+          "micro_f1": 0.7692307692307693,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 0,
+              "scored": 10,
+              "tp": 0,
+              "tn": 10,
+              "fp": 0,
+              "fn": 0,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": null
+            },
+            "experience_required": {
+              "precision": 1.0,
+              "recall": 0.8333333333333334,
+              "f1": 0.9090909090909091,
+              "positives": 6,
+              "scored": 9,
+              "tp": 5,
+              "tn": 3,
+              "fp": 0,
+              "fn": 1,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 0.16666666666666666
+            },
+            "certification_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 10,
+              "tp": 0,
+              "tn": 8,
+              "fp": 0,
+              "fn": 2,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            }
+          }
+        },
+        "logistics_warehouse": {
+          "postings": 9,
+          "macro_f1": 0.6296296296296297,
+          "micro_f1": 0.8,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 9,
+              "tp": 0,
+              "tn": 7,
+              "fp": 0,
+              "fn": 2,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 1.0
+            },
+            "experience_required": {
+              "precision": 1.0,
+              "recall": 0.8,
+              "f1": 0.8888888888888888,
+              "positives": 5,
+              "scored": 8,
+              "tp": 4,
+              "tn": 3,
+              "fp": 0,
+              "fn": 1,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 0.2
+            },
+            "certification_required": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "positives": 2,
+              "scored": 9,
+              "tp": 2,
+              "tn": 7,
+              "fp": 0,
+              "fn": 0,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 0.0
+            }
+          }
+        },
+        "retail_customer_service": {
+          "postings": 10,
+          "macro_f1": 1.0,
+          "micro_f1": 1.0,
+          "labels": {
+            "education_required": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "positives": 1,
+              "scored": 10,
+              "tp": 1,
+              "tn": 9,
+              "fp": 0,
+              "fn": 0,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 0.0
+            },
+            "experience_required": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "positives": 2,
+              "scored": 10,
+              "tp": 2,
+              "tn": 8,
+              "fp": 0,
+              "fn": 0,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 0.0
+            },
+            "certification_required": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "positives": 1,
+              "scored": 10,
+              "tp": 1,
+              "tn": 9,
+              "fp": 0,
+              "fn": 0,
+              "false_positive_rate": 0.0,
+              "false_negative_rate": 0.0
+            }
+          }
+        }
+      }
+    }
+  },
+  "errors": [
+    {
+      "model": "tfidf",
+      "row": 1533,
+      "jobid": "cc6c90fee06f5ad2",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 1729,
+      "jobid": "319772a46d84f802",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 2865,
+      "jobid": "ef493bdc79cecca0",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "education_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 3714,
+      "jobid": "29505ddcae6963c0",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "education_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 3784,
+      "jobid": "7cd1df9528a95a61",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "education_required",
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 4353,
+      "jobid": "bd9b1ca8120d9c6c",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 4355,
+      "jobid": "6170dedddbc7f2f8",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 4507,
+      "jobid": "f0138424d3299463",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 5608,
+      "jobid": "93fb6ef9f42173b5",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 5792,
+      "jobid": "c9ae020d2cdf0d22",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 5899,
+      "jobid": "13ad3bf91e93b514",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 6775,
+      "jobid": "99b30981cb49e6bf",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "education_required",
+        "experience_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 6782,
+      "jobid": "24c5306a670c2f01",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 9217,
+      "jobid": "dc834a9f95e1863b",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 9585,
+      "jobid": "50074b696ef9dfe3",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 9679,
+      "jobid": "0ab7fa646b542a87",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 11659,
+      "jobid": "08a31a117c15c29a",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 12877,
+      "jobid": "2053614d0180ca00",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "education_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 13805,
+      "jobid": "ed8a686576b0509e",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "education_required",
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 14864,
+      "jobid": "f32f94b971fec484",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "education_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 14872,
+      "jobid": "6ba897cabf7a8f3f",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 16158,
+      "jobid": "cbd6d51cadb9dc54",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 17166,
+      "jobid": "82ec493b440255e0",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "education_required",
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 19200,
+      "jobid": "04234777863d2368",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 20074,
+      "jobid": "ddd60c3b4823baff",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 20272,
+      "jobid": "4d8d092818d6d558",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 20388,
+      "jobid": "dc6a215f6e2ba131",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "education_required"
+      ]
+    },
+    {
+      "model": "tfidf",
+      "row": 20899,
+      "jobid": "63b255077be8a953",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "education_required",
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 1533,
+      "jobid": "cc6c90fee06f5ad2",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 1729,
+      "jobid": "319772a46d84f802",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 2865,
+      "jobid": "ef493bdc79cecca0",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 3714,
+      "jobid": "29505ddcae6963c0",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 4353,
+      "jobid": "bd9b1ca8120d9c6c",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 4630,
+      "jobid": "900913bf7958b40e",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 5899,
+      "jobid": "13ad3bf91e93b514",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 6775,
+      "jobid": "99b30981cb49e6bf",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 9217,
+      "jobid": "dc834a9f95e1863b",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 9585,
+      "jobid": "50074b696ef9dfe3",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 9679,
+      "jobid": "0ab7fa646b542a87",
+      "job_family": "retail_customer_service",
+      "incorrect_labels": [
+        "education_required",
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 12877,
+      "jobid": "2053614d0180ca00",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 14864,
+      "jobid": "f32f94b971fec484",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "education_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 14872,
+      "jobid": "6ba897cabf7a8f3f",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 20272,
+      "jobid": "4d8d092818d6d558",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "education_required",
+        "experience_required"
+      ]
+    },
+    {
+      "model": "majority",
+      "row": 20388,
+      "jobid": "dc6a215f6e2ba131",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "experience_required",
+        "certification_required"
+      ]
+    },
+    {
+      "model": "scraper",
+      "row": 1533,
+      "jobid": "cc6c90fee06f5ad2",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "scraper",
+      "row": 4353,
+      "jobid": "bd9b1ca8120d9c6c",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "experience_required"
+      ]
+    },
+    {
+      "model": "scraper",
+      "row": 14864,
+      "jobid": "f32f94b971fec484",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "education_required"
+      ]
+    },
+    {
+      "model": "scraper",
+      "row": 14872,
+      "jobid": "6ba897cabf7a8f3f",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    },
+    {
+      "model": "scraper",
+      "row": 20272,
+      "jobid": "4d8d092818d6d558",
+      "job_family": "logistics_warehouse",
+      "incorrect_labels": [
+        "education_required"
+      ]
+    },
+    {
+      "model": "scraper",
+      "row": 20388,
+      "jobid": "dc6a215f6e2ba131",
+      "job_family": "food_service_hospitality",
+      "incorrect_labels": [
+        "certification_required"
+      ]
+    }
+  ]
+}

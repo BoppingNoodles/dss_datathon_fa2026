@@ -2,6 +2,7 @@
 
 import argparse
 import csv
+import hashlib
 from pathlib import Path
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -33,7 +34,7 @@ def load_examples(directory, annotations):
                     continue
                 if set(labels) - {"0", "1", "?"}:
                     raise ValueError(f"Invalid or incomplete annotation labels at {split}:{index}")
-                pending[split][index] = (row["jobid"], labels)
+                pending[split][index] = (row["jobid"], labels, row.get("description_sha256"))
     with (directory / "train_folds.csv").open(encoding="utf-8", newline="") as file:
         folds = {int(r["train_row"]): int(r["fold"]) for r in csv.DictReader(file)}
     examples = {}
@@ -46,9 +47,11 @@ def load_examples(directory, annotations):
                 annotation = wanted.get(index)
                 if annotation is None:
                     continue
-                jobid, labels = annotation
+                jobid, labels, checksum = annotation
                 if jobid != row["jobid"]:
                     raise ValueError(f"Job ID mismatch at {split}:{index}.")
+                if checksum and hashlib.sha256(row["description_text"].encode()).hexdigest() != checksum:
+                    raise ValueError(f"Description checksum mismatch at {split}:{index}.")
                 fold = folds[index] if split == "train" else 0
                 examples[split].append((row["description_text"], labels, fold))
                 if len(examples[split]) == len(wanted):

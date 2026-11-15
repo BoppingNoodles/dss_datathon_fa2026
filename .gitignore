@@ -25,3 +25,6 @@ reports/local/
 *.sqlite
 *.sqlite3
 *.egg-info/
+
+# Local development candidates; only the frozen requirements_v1 artifact is shared.
+/models/requirements_tfidf*/

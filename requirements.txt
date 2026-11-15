@@ -16,10 +16,16 @@ h11==0.16.0
     # via uvicorn
 idna==3.20
     # via anyio
+joblib==1.4.2
+    # via
+    #   phoenix
+    #   scikit-learn
 numpy==2.5.4
     # via
     #   pandas
     #   phoenix
+    #   scikit-learn
+    #   scipy
 opentelemetry-api==1.45.2
     # via fastapi
 pandas==2.3.3
@@ -38,8 +44,14 @@ pytz==2026.6
     # via pandas
 pyyaml==6.0.3
     # via phoenix
+scikit-learn==1.6.1
+    # via phoenix
+scipy==1.18.1
+    # via scikit-learn
 starlette==1.10.0
     # via fastapi
+threadpoolctl==3.8.0
+    # via scikit-learn
 typing-extensions==4.16.0
     # via
     #   anyio

@@ -57,7 +57,7 @@ def probabilities(heads, matrix):
     ])
 
 
-def fit_predict(kind, train, held, texts, labels, embeddings):
+def fit_predict(kind, train, held, texts, labels, embeddings, regularization=1.0):
     vectorizer = None
     if kind == "tfidf":
         vectorizer = TfidfVectorizer(ngram_range=(1, 2), sublinear_tf=True)
@@ -76,7 +76,7 @@ def fit_predict(kind, train, held, texts, labels, embeddings):
         if kind == "majority" or len(set(observed)) < 2:
             heads.append(float(observed.mean() > 0.5) if observed.size else 0.0)
         else:
-            heads.append(LogisticRegression(class_weight="balanced", max_iter=1000, random_state=42)
+            heads.append(LogisticRegression(C=regularization, class_weight="balanced", max_iter=1000, random_state=42)
                          .fit(matrix[known], observed))
     return {"kind": kind, "vectorizer": vectorizer, "heads": heads, "labels": LABELS}, probabilities(heads, target)
 
@@ -98,7 +98,22 @@ def metrics(truth, predictions):
     return {"macro_f1": float(np.mean([v["f1"] for v in result.values()])), "micro_f1": micro_f1, "labels": result}
 
 
-def train_models(examples, use_minilm):
+def select_thresholds(truth, scores):
+    """Choose decision cutoffs using training out-of-fold predictions only."""
+    grid = (.2, .3, .4, .5, .6)
+    selected = []
+    for column, label in enumerate(LABELS):
+        known = truth[:, column] != "?"
+        expected = truth[known, column] == "1"
+        def quality(cutoff):
+            _, _, f1, _ = precision_recall_fscore_support(
+                expected, scores[known, column] >= cutoff, average="binary", zero_division=0)
+            return f1, -abs(cutoff - .5)
+        selected.append(max(grid, key=quality))
+    return selected
+
+
+def train_models(examples, use_minilm, regularization=1.0, tune_thresholds=False):
     train, validation = examples["train"], examples["validation"]
     texts = [row[0] for row in train + validation]
     labels = np.array([row[1] for row in train + validation])
@@ -114,13 +129,17 @@ def train_models(examples, use_minilm):
         per_fold = {}
         for fold in range(1, 6):
             held = train_indices[folds == fold]
-            _, scores_for_fold = fit_predict(kind, train_indices[folds != fold], held, texts, labels, embeddings)
+            _, scores_for_fold = fit_predict(kind, train_indices[folds != fold], held, texts, labels, embeddings, regularization)
             oof[held] = scores_for_fold
             per_fold[str(fold)] = metrics(labels[held], scores_for_fold >= 0.5)
-        artifact, val_scores = fit_predict(kind, train_indices, validation_indices, texts, labels, embeddings)
+        artifact, val_scores = fit_predict(kind, train_indices, validation_indices, texts, labels, embeddings, regularization)
+        thresholds = select_thresholds(labels[train_indices], oof) if tune_thresholds and kind != "majority" else [.5] * len(LABELS)
+        artifact["thresholds"] = thresholds
         artifacts[kind] = artifact
-        scores[kind] = {"folds": per_fold, "out_of_fold": metrics(labels[train_indices], oof >= 0.5),
-                        "validation": metrics(labels[validation_indices], val_scores >= 0.5)}
+        scores[kind] = {"folds": per_fold, "thresholds": thresholds,
+                        "out_of_fold_at_0_5": metrics(labels[train_indices], oof >= .5),
+                        "out_of_fold": metrics(labels[train_indices], oof >= thresholds),
+                        "validation": metrics(labels[validation_indices], val_scores >= thresholds)}
     rules = [suggest_labels(text) for text in texts[len(train):]]
     scores["scraper"] = {"validation": metrics(labels[validation_indices], np.array([
         [row[f"{label}_suggested"] == "1" for label in LABELS] for row in rules
@@ -133,7 +152,9 @@ def predict(artifact, description):
         raise ValueError("A nonempty job description is required.")
     matrix = (minilm_features([description]) if artifact["kind"] == "minilm"
               else artifact["vectorizer"].transform([description]))
-    return {label: bool(score >= 0.5) for label, score in zip(artifact["labels"], probabilities(artifact["heads"], matrix)[0])}
+    cutoffs = artifact.get("thresholds", [.5] * len(artifact["labels"]))
+    return {label: bool(score >= cutoff) for label, score, cutoff in
+            zip(artifact["labels"], probabilities(artifact["heads"], matrix)[0], cutoffs)}
 
 
 def main():
@@ -144,6 +165,8 @@ def main():
     train.add_argument("output_directory", type=Path)
     train.add_argument("annotations", type=Path, nargs="+")
     train.add_argument("--minilm", action="store_true")
+    train.add_argument("--regularization", type=float, default=1.0, help="Logistic-regression C; select using development data only")
+    train.add_argument("--tune-thresholds", action="store_true", help="Select label cutoffs from training out-of-fold scores, never test labels")
     infer = commands.add_parser("predict")
     infer.add_argument("artifact", type=Path)
     infer.add_argument("description_file", type=Path)
@@ -152,13 +175,16 @@ def main():
         print(json.dumps(predict(joblib.load(args.artifact), args.description_file.read_text(encoding="utf-8-sig")), indent=2))
         return
     examples = load_examples(args.split_directory, args.annotations)
-    artifacts, scores = train_models(examples, args.minilm)
+    if args.regularization <= 0:
+        parser.error("--regularization must be positive")
+    artifacts, scores = train_models(examples, args.minilm, args.regularization, args.tune_thresholds)
     args.output_directory.mkdir(parents=True, exist_ok=False)
     for kind, artifact in artifacts.items():
         if kind != "majority":
             joblib.dump(artifact, args.output_directory / f"{kind}.joblib")
     report = {"train_postings": len(examples["train"]), "validation_postings": len(examples["validation"]),
-              "scikit_learn": sklearn.__version__, "threshold": 0.5,
+              "scikit_learn": sklearn.__version__, "threshold": 0.5, "regularization": args.regularization,
+              "threshold_selection": "training OOF grid 0.2/0.3/0.4/0.5/0.6; ties closest to 0.5" if args.tune_thresholds else "fixed 0.5",
               "encoder_revision": ENCODER_REVISION if args.minilm else None, "models": scores}
     (args.output_directory / "metrics.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     for kind, results in scores.items():

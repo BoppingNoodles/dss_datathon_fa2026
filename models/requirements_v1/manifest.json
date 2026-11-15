@@ -1,0 +1,1371 @@
+{
+  "version": 1,
+  "frozen_before_test_review": true,
+  "training_rows": 58,
+  "validation_rows": 15,
+  "test_rows": 29,
+  "kind": "tfidf",
+  "regularization": 1.0,
+  "thresholds": [
+    0.4,
+    0.4,
+    0.3
+  ],
+  "selection": "C=1/10/100 had identical fixed-0.5 training OOF F1; selected simplest C=1. Cutoffs selected on training OOF grid only; no held-out test viewed or used.",
+  "model_sha256": "c6c09fa307cf09e78f04abb4d57f042802622bd494bc6453df0345db7da3125a",
+  "development_annotations_sha256": "95256a075c812df5c74af090edf259eb6d3294706a8c8113ac0d9fecfc250300",
+  "development": {
+    "train_postings": 58,
+    "validation_postings": 15,
+    "scikit_learn": "1.6.1",
+    "threshold": 0.5,
+    "regularization": 1.0,
+    "threshold_selection": "training OOF grid 0.2/0.3/0.4/0.5/0.6; ties closest to 0.5",
+    "encoder_revision": null,
+    "models": {
+      "majority": {
+        "folds": {
+          "1": {
+            "macro_f1": 0.0,
+            "micro_f1": 0.0,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 3,
+                "scored": 11
+              },
+              "experience_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 4,
+                "scored": 11
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 2,
+                "scored": 11
+              }
+            }
+          },
+          "2": {
+            "macro_f1": 0.0,
+            "micro_f1": 0.0,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 3,
+                "scored": 12
+              },
+              "experience_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 4,
+                "scored": 12
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 4,
+                "scored": 12
+              }
+            }
+          },
+          "3": {
+            "macro_f1": 0.0,
+            "micro_f1": 0.0,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 2,
+                "scored": 12
+              },
+              "experience_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 4,
+                "scored": 12
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 4,
+                "scored": 12
+              }
+            }
+          },
+          "4": {
+            "macro_f1": 0.0,
+            "micro_f1": 0.0,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 0,
+                "scored": 12
+              },
+              "experience_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 5,
+                "scored": 12
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 2,
+                "scored": 12
+              }
+            }
+          },
+          "5": {
+            "macro_f1": 0.0,
+            "micro_f1": 0.0,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 1,
+                "scored": 11
+              },
+              "experience_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 2,
+                "scored": 11
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 5,
+                "scored": 11
+              }
+            }
+          }
+        },
+        "thresholds": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "out_of_fold_at_0_5": {
+          "macro_f1": 0.0,
+          "micro_f1": 0.0,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 9,
+              "scored": 58
+            },
+            "experience_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 19,
+              "scored": 58
+            },
+            "certification_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 17,
+              "scored": 58
+            }
+          }
+        },
+        "out_of_fold": {
+          "macro_f1": 0.0,
+          "micro_f1": 0.0,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 9,
+              "scored": 58
+            },
+            "experience_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 19,
+              "scored": 58
+            },
+            "certification_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 17,
+              "scored": 58
+            }
+          }
+        },
+        "validation": {
+          "macro_f1": 0.0,
+          "micro_f1": 0.0,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 15
+            },
+            "experience_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 10,
+              "scored": 15
+            },
+            "certification_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 15
+            }
+          }
+        }
+      },
+      "tfidf": {
+        "folds": {
+          "1": {
+            "macro_f1": 0.13333333333333333,
+            "micro_f1": 0.2,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 3,
+                "scored": 11
+              },
+              "experience_required": {
+                "precision": 1.0,
+                "recall": 0.25,
+                "f1": 0.4,
+                "positives": 4,
+                "scored": 11
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 2,
+                "scored": 11
+              }
+            }
+          },
+          "2": {
+            "macro_f1": 0.13333333333333333,
+            "micro_f1": 0.16666666666666666,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 3,
+                "scored": 12
+              },
+              "experience_required": {
+                "precision": 1.0,
+                "recall": 0.25,
+                "f1": 0.4,
+                "positives": 4,
+                "scored": 12
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 4,
+                "scored": 12
+              }
+            }
+          },
+          "3": {
+            "macro_f1": 0.25,
+            "micro_f1": 0.42857142857142855,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 2,
+                "scored": 12
+              },
+              "experience_required": {
+                "precision": 0.75,
+                "recall": 0.75,
+                "f1": 0.75,
+                "positives": 4,
+                "scored": 12
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 4,
+                "scored": 12
+              }
+            }
+          },
+          "4": {
+            "macro_f1": 0.0,
+            "micro_f1": 0.0,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 0,
+                "scored": 12
+              },
+              "experience_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 5,
+                "scored": 12
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 2,
+                "scored": 12
+              }
+            }
+          },
+          "5": {
+            "macro_f1": 0.13333333333333333,
+            "micro_f1": 0.18181818181818182,
+            "labels": {
+              "education_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 1,
+                "scored": 11
+              },
+              "experience_required": {
+                "precision": 0.3333333333333333,
+                "recall": 0.5,
+                "f1": 0.4,
+                "positives": 2,
+                "scored": 11
+              },
+              "certification_required": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "positives": 5,
+                "scored": 11
+              }
+            }
+          }
+        },
+        "thresholds": [
+          0.4,
+          0.4,
+          0.3
+        ],
+        "out_of_fold_at_0_5": {
+          "macro_f1": 0.13793103448275862,
+          "micro_f1": 0.21428571428571427,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 9,
+              "scored": 58
+            },
+            "experience_required": {
+              "precision": 0.6,
+              "recall": 0.3157894736842105,
+              "f1": 0.41379310344827586,
+              "positives": 19,
+              "scored": 58
+            },
+            "certification_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 17,
+              "scored": 58
+            }
+          }
+        },
+        "out_of_fold": {
+          "macro_f1": 0.4417394017394018,
+          "micro_f1": 0.455026455026455,
+          "labels": {
+            "education_required": {
+              "precision": 0.25,
+              "recall": 0.7777777777777778,
+              "f1": 0.3783783783783784,
+              "positives": 9,
+              "scored": 58
+            },
+            "experience_required": {
+              "precision": 0.3275862068965517,
+              "recall": 1.0,
+              "f1": 0.4935064935064935,
+              "positives": 19,
+              "scored": 58
+            },
+            "certification_required": {
+              "precision": 0.29310344827586204,
+              "recall": 1.0,
+              "f1": 0.4533333333333333,
+              "positives": 17,
+              "scored": 58
+            }
+          }
+        },
+        "validation": {
+          "macro_f1": 0.3450980392156863,
+          "micro_f1": 0.4897959183673469,
+          "labels": {
+            "education_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 15
+            },
+            "experience_required": {
+              "precision": 0.6666666666666666,
+              "recall": 1.0,
+              "f1": 0.8,
+              "positives": 10,
+              "scored": 15
+            },
+            "certification_required": {
+              "precision": 0.13333333333333333,
+              "recall": 1.0,
+              "f1": 0.23529411764705882,
+              "positives": 2,
+              "scored": 15
+            }
+          }
+        }
+      },
+      "scraper": {
+        "validation": {
+          "macro_f1": 0.49673202614379086,
+          "micro_f1": 0.7272727272727273,
+          "labels": {
+            "education_required": {
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6666666666666666,
+              "positives": 2,
+              "scored": 15
+            },
+            "experience_required": {
+              "precision": 1.0,
+              "recall": 0.7,
+              "f1": 0.8235294117647058,
+              "positives": 10,
+              "scored": 15
+            },
+            "certification_required": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "positives": 2,
+              "scored": 15
+            }
+          }
+        }
+      }
+    }
+  },
+  "cohort_manifest": {
+    "source_name": "indeed_job_listings.csv",
+    "source_sha256": "624f5062b62ec16c95345b737b6415a66f60a02d9f78646752be30a959ff9ff3",
+    "seed": 20261114,
+    "splits": {
+      "train": 98571,
+      "validation": 21123,
+      "test": 21122
+    },
+    "fold_sizes": [
+      19715,
+      19714,
+      19714,
+      19714,
+      19714
+    ],
+    "description_length_range": [
+      250,
+      1500
+    ],
+    "training_credential_enrichment": true,
+    "review_samples": {
+      "train": [
+        {
+          "split": "train",
+          "row": 86466,
+          "jobid": "a50ee7b54d1c410f",
+          "fold": 1,
+          "job_family": "food_service_hospitality",
+          "job_title": "Housekeeper/Laundry Floater"
+        },
+        {
+          "split": "train",
+          "row": 64466,
+          "jobid": "c0d49b74cd9c8b23",
+          "fold": 1,
+          "job_family": "food_service_hospitality",
+          "job_title": "Grill Cook - Per-diem/Varied Shift"
+        },
+        {
+          "split": "train",
+          "row": 74203,
+          "jobid": "91d0f3d248f07d50",
+          "fold": 1,
+          "job_family": "food_service_hospitality",
+          "job_title": "Prep Cook"
+        },
+        {
+          "split": "train",
+          "row": 3027,
+          "jobid": "fe36777b3b3ebdbb",
+          "fold": 1,
+          "job_family": "food_service_hospitality",
+          "job_title": "Hotel Housekeeper"
+        },
+        {
+          "split": "train",
+          "row": 73928,
+          "jobid": "4b82663f2a1faad5",
+          "fold": 1,
+          "job_family": "logistics_warehouse",
+          "job_title": "Parts Warehouse Shipping"
+        },
+        {
+          "split": "train",
+          "row": 30695,
+          "jobid": "fac052a115a153ec",
+          "fold": 1,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Selector Nights"
+        },
+        {
+          "split": "train",
+          "row": 3224,
+          "jobid": "59528245668a9fca",
+          "fold": 1,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Associate"
+        },
+        {
+          "split": "train",
+          "row": 28813,
+          "jobid": "ecb400ac965b0232",
+          "fold": 1,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Office Support"
+        },
+        {
+          "split": "train",
+          "row": 23623,
+          "jobid": "2f85c80a194ec9f2",
+          "fold": 1,
+          "job_family": "retail_customer_service",
+          "job_title": "Cashier"
+        },
+        {
+          "split": "train",
+          "row": 92623,
+          "jobid": "b24a4c621ad76a9d",
+          "fold": 1,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service Rep I"
+        },
+        {
+          "split": "train",
+          "row": 89228,
+          "jobid": "39cc87c0d5450144",
+          "fold": 1,
+          "job_family": "retail_customer_service",
+          "job_title": "C-Store Cashier"
+        },
+        {
+          "split": "train",
+          "row": 85809,
+          "jobid": "b0c92a2f17ecdf12",
+          "fold": 2,
+          "job_family": "food_service_hospitality",
+          "job_title": "Salad Cook"
+        },
+        {
+          "split": "train",
+          "row": 80931,
+          "jobid": "cf0806bf516644c4",
+          "fold": 2,
+          "job_family": "food_service_hospitality",
+          "job_title": "Restaurant Ast Manager - #32 - Fontana - Sierra"
+        },
+        {
+          "split": "train",
+          "row": 83452,
+          "jobid": "100fe98454c1b558",
+          "fold": 2,
+          "job_family": "food_service_hospitality",
+          "job_title": "Housekeeper Needed for RSF Family Home-40 hours per week"
+        },
+        {
+          "split": "train",
+          "row": 39035,
+          "jobid": "1094d492a8b44f32",
+          "fold": 2,
+          "job_family": "food_service_hospitality",
+          "job_title": "Hospitality / Server"
+        },
+        {
+          "split": "train",
+          "row": 27747,
+          "jobid": "a0e1c8654ef17056",
+          "fold": 2,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Worker"
+        },
+        {
+          "split": "train",
+          "row": 13944,
+          "jobid": "eeb734e581bb8dc0",
+          "fold": 2,
+          "job_family": "logistics_warehouse",
+          "job_title": "Forklift Operator"
+        },
+        {
+          "split": "train",
+          "row": 35884,
+          "jobid": "52ef3bbb924012ce",
+          "fold": 2,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse/Packer"
+        },
+        {
+          "split": "train",
+          "row": 15632,
+          "jobid": "b98929dd95801fc6",
+          "fold": 2,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Order Selector"
+        },
+        {
+          "split": "train",
+          "row": 55863,
+          "jobid": "2d6bdcaa56a271d2",
+          "fold": 2,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service"
+        },
+        {
+          "split": "train",
+          "row": 70818,
+          "jobid": "a59320d14f51853c",
+          "fold": 2,
+          "job_family": "retail_customer_service",
+          "job_title": "Veterinary Customer Service Representative (CSR)"
+        },
+        {
+          "split": "train",
+          "row": 85079,
+          "jobid": "ed9cea5df5eb06f4",
+          "fold": 2,
+          "job_family": "retail_customer_service",
+          "job_title": "Cashier"
+        },
+        {
+          "split": "train",
+          "row": 7304,
+          "jobid": "0f7f7ec9d43b8a74",
+          "fold": 2,
+          "job_family": "retail_customer_service",
+          "job_title": "Cashier"
+        },
+        {
+          "split": "train",
+          "row": 9662,
+          "jobid": "6a6f425d02cc603a",
+          "fold": 3,
+          "job_family": "food_service_hospitality",
+          "job_title": "Sushi Chef"
+        },
+        {
+          "split": "train",
+          "row": 45602,
+          "jobid": "197f9561da2d0809",
+          "fold": 3,
+          "job_family": "food_service_hospitality",
+          "job_title": "Housekeeper - 3 hours daily"
+        },
+        {
+          "split": "train",
+          "row": 30754,
+          "jobid": "011ebdac49b426e4",
+          "fold": 3,
+          "job_family": "food_service_hospitality",
+          "job_title": "Cook"
+        },
+        {
+          "split": "train",
+          "row": 67936,
+          "jobid": "518df8c85dedab9f",
+          "fold": 3,
+          "job_family": "food_service_hospitality",
+          "job_title": "Hotel Housekeeper"
+        },
+        {
+          "split": "train",
+          "row": 33794,
+          "jobid": "7aa9a6b07686a3be",
+          "fold": 3,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Associate - Part Time"
+        },
+        {
+          "split": "train",
+          "row": 20872,
+          "jobid": "cfc52e4a7ae653c4",
+          "fold": 3,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Associate"
+        },
+        {
+          "split": "train",
+          "row": 75941,
+          "jobid": "e67a1716409386be",
+          "fold": 3,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse"
+        },
+        {
+          "split": "train",
+          "row": 97452,
+          "jobid": "3d3acd98fc471074",
+          "fold": 3,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Operations"
+        },
+        {
+          "split": "train",
+          "row": 9432,
+          "jobid": "b52831fd50461bf8",
+          "fold": 3,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service Rep"
+        },
+        {
+          "split": "train",
+          "row": 46123,
+          "jobid": "a0ba75c6c7414892",
+          "fold": 3,
+          "job_family": "retail_customer_service",
+          "job_title": "Work in Retail? Earn Extra Cash Delivering Groceries"
+        },
+        {
+          "split": "train",
+          "row": 27272,
+          "jobid": "983395405d23d9bc",
+          "fold": 3,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service"
+        },
+        {
+          "split": "train",
+          "row": 77002,
+          "jobid": "c865024dbe8262d0",
+          "fold": 3,
+          "job_family": "retail_customer_service",
+          "job_title": "Front End Clerk (Cashier or Courtesy Clerk)"
+        },
+        {
+          "split": "train",
+          "row": 61455,
+          "jobid": "473dd20df5b2281b",
+          "fold": 4,
+          "job_family": "food_service_hospitality",
+          "job_title": "Production/Cook"
+        },
+        {
+          "split": "train",
+          "row": 32200,
+          "jobid": "678b6946f8b7712c",
+          "fold": 4,
+          "job_family": "food_service_hospitality",
+          "job_title": "Cook"
+        },
+        {
+          "split": "train",
+          "row": 12282,
+          "jobid": "0670005a936fb496",
+          "fold": 4,
+          "job_family": "food_service_hospitality",
+          "job_title": "Food Service Aide Full Time"
+        },
+        {
+          "split": "train",
+          "row": 36783,
+          "jobid": "b0fa54557fa4aca7",
+          "fold": 4,
+          "job_family": "food_service_hospitality",
+          "job_title": "Cook - Buffalo Wild Wings"
+        },
+        {
+          "split": "train",
+          "row": 57046,
+          "jobid": "47e92eb0106a2831",
+          "fold": 4,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Associate for a distribution warehouse"
+        },
+        {
+          "split": "train",
+          "row": 82137,
+          "jobid": "2af243c02e1c80c8",
+          "fold": 4,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Associate"
+        },
+        {
+          "split": "train",
+          "row": 24350,
+          "jobid": "d978379ca6ef614b",
+          "fold": 4,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Manager"
+        },
+        {
+          "split": "train",
+          "row": 42374,
+          "jobid": "9295dd0715c7642f",
+          "fold": 4,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Worker/Freight Handler"
+        },
+        {
+          "split": "train",
+          "row": 46697,
+          "jobid": "e24c31770eee1bf4",
+          "fold": 4,
+          "job_family": "retail_customer_service",
+          "job_title": "Commercial Real Estate Investment Sales Associate"
+        },
+        {
+          "split": "train",
+          "row": 39563,
+          "jobid": "6655956bffcc7d6b",
+          "fold": 4,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service Representative"
+        },
+        {
+          "split": "train",
+          "row": 27574,
+          "jobid": "333f52ad5db993f4",
+          "fold": 4,
+          "job_family": "retail_customer_service",
+          "job_title": "Retail Associates"
+        },
+        {
+          "split": "train",
+          "row": 71371,
+          "jobid": "193c92c034edf28b",
+          "fold": 4,
+          "job_family": "retail_customer_service",
+          "job_title": "Corner Bakery Cafe Cashier: Store 1642"
+        },
+        {
+          "split": "train",
+          "row": 19060,
+          "jobid": "1082f6016954895f",
+          "fold": 5,
+          "job_family": "food_service_hospitality",
+          "job_title": "Dietary Cook (Specializing in Korean Cuisine)"
+        },
+        {
+          "split": "train",
+          "row": 38136,
+          "jobid": "522c9e28f6892cc7",
+          "fold": 5,
+          "job_family": "food_service_hospitality",
+          "job_title": "Restaurant Host"
+        },
+        {
+          "split": "train",
+          "row": 61948,
+          "jobid": "45a7c8a008145ce8",
+          "fold": 5,
+          "job_family": "food_service_hospitality",
+          "job_title": "Lighthouse Line Cook"
+        },
+        {
+          "split": "train",
+          "row": 35162,
+          "jobid": "f795316227fb7712",
+          "fold": 5,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Clerk"
+        },
+        {
+          "split": "train",
+          "row": 32769,
+          "jobid": "20bd4d9b2c5dc56a",
+          "fold": 5,
+          "job_family": "logistics_warehouse",
+          "job_title": "Classic Chevy Parts sales and warehouse associate"
+        },
+        {
+          "split": "train",
+          "row": 43088,
+          "jobid": "3fea113360b20286",
+          "fold": 5,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Associate (Part Time)"
+        },
+        {
+          "split": "train",
+          "row": 53500,
+          "jobid": "56be398bf9f15aa5",
+          "fold": 5,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Maintenance Associate"
+        },
+        {
+          "split": "train",
+          "row": 91938,
+          "jobid": "ce4c9d8c933773a8",
+          "fold": 5,
+          "job_family": "retail_customer_service",
+          "job_title": "Cashier"
+        },
+        {
+          "split": "train",
+          "row": 1067,
+          "jobid": "d577120b414cd077",
+          "fold": 5,
+          "job_family": "retail_customer_service",
+          "job_title": "Cashier"
+        },
+        {
+          "split": "train",
+          "row": 96607,
+          "jobid": "bae328d172fbe793",
+          "fold": 5,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service/Sales"
+        },
+        {
+          "split": "train",
+          "row": 78880,
+          "jobid": "fe9cf8f8a6ef08ee",
+          "fold": 5,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service/Sales"
+        }
+      ],
+      "validation": [
+        {
+          "split": "validation",
+          "row": 8660,
+          "jobid": "6f3c6b4b11b7d553",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Line Cook"
+        },
+        {
+          "split": "validation",
+          "row": 1919,
+          "jobid": "84ef7e230ccfd7bb",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Principal Food Service Worker (Limited)"
+        },
+        {
+          "split": "validation",
+          "row": 6332,
+          "jobid": "32e02739b5e9918f",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Housekeeper, Maid"
+        },
+        {
+          "split": "validation",
+          "row": 14784,
+          "jobid": "633e0c8d9a41eef2",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Restaurant Manager"
+        },
+        {
+          "split": "validation",
+          "row": 13108,
+          "jobid": "921f682f64c89973",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Hospitality Recruiting Business Partner"
+        },
+        {
+          "split": "validation",
+          "row": 20820,
+          "jobid": "c8752abf4e90b854",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Associate"
+        },
+        {
+          "split": "validation",
+          "row": 8277,
+          "jobid": "b7f7d0ebe972d850",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "warehouse associate"
+        },
+        {
+          "split": "validation",
+          "row": 11463,
+          "jobid": "1810f85a0945ec34",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse / Labor - 1st shift"
+        },
+        {
+          "split": "validation",
+          "row": 11681,
+          "jobid": "9798f4f993e855c8",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Receiving Lead 2nd shift"
+        },
+        {
+          "split": "validation",
+          "row": 11437,
+          "jobid": "57ee360650be563a",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Forklift Operator"
+        },
+        {
+          "split": "validation",
+          "row": 641,
+          "jobid": "30297eb31dd2946f",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Call Center Customer Service Representative"
+        },
+        {
+          "split": "validation",
+          "row": 9553,
+          "jobid": "d31fd4959b6f60cb",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service"
+        },
+        {
+          "split": "validation",
+          "row": 13697,
+          "jobid": "e0936a065c0aa92c",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Cashier"
+        },
+        {
+          "split": "validation",
+          "row": 19923,
+          "jobid": "13a8558996170ee6",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service Representative - State Farm Agent Team Member"
+        },
+        {
+          "split": "validation",
+          "row": 18055,
+          "jobid": "ed57cee5c13b0739",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Fine Jewelry Sales Associate"
+        }
+      ],
+      "test": [
+        {
+          "split": "test",
+          "row": 9585,
+          "jobid": "50074b696ef9dfe3",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Line Cook & Kitchen Staff"
+        },
+        {
+          "split": "test",
+          "row": 20074,
+          "jobid": "ddd60c3b4823baff",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "School Lunch Cook"
+        },
+        {
+          "split": "test",
+          "row": 14872,
+          "jobid": "6ba897cabf7a8f3f",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Barista/Supervisor"
+        },
+        {
+          "split": "test",
+          "row": 20388,
+          "jobid": "dc6a215f6e2ba131",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Experienced Line Cook"
+        },
+        {
+          "split": "test",
+          "row": 4353,
+          "jobid": "bd9b1ca8120d9c6c",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Dietary Cook"
+        },
+        {
+          "split": "test",
+          "row": 2865,
+          "jobid": "ef493bdc79cecca0",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Kitchen Cook"
+        },
+        {
+          "split": "test",
+          "row": 3784,
+          "jobid": "7cd1df9528a95a61",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Barista"
+        },
+        {
+          "split": "test",
+          "row": 17166,
+          "jobid": "82ec493b440255e0",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "FOOD SERVICE AIDE"
+        },
+        {
+          "split": "test",
+          "row": 1729,
+          "jobid": "319772a46d84f802",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Head Chef- Hot Chicken"
+        },
+        {
+          "split": "test",
+          "row": 5899,
+          "jobid": "13ad3bf91e93b514",
+          "fold": 0,
+          "job_family": "food_service_hospitality",
+          "job_title": "Cook"
+        },
+        {
+          "split": "test",
+          "row": 11659,
+          "jobid": "08a31a117c15c29a",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Order Processor"
+        },
+        {
+          "split": "test",
+          "row": 4355,
+          "jobid": "6170dedddbc7f2f8",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Associate (Part time)"
+        },
+        {
+          "split": "test",
+          "row": 20272,
+          "jobid": "4d8d092818d6d558",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Warehouse Associate Substitute Pool"
+        },
+        {
+          "split": "test",
+          "row": 5792,
+          "jobid": "c9ae020d2cdf0d22",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Stock and Material Handler - Part time - French Camp, California"
+        },
+        {
+          "split": "test",
+          "row": 1533,
+          "jobid": "cc6c90fee06f5ad2",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Material Handler"
+        },
+        {
+          "split": "test",
+          "row": 9217,
+          "jobid": "dc834a9f95e1863b",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Forklift Operator - Sit Down"
+        },
+        {
+          "split": "test",
+          "row": 4630,
+          "jobid": "900913bf7958b40e",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Forklift Operator"
+        },
+        {
+          "split": "test",
+          "row": 12877,
+          "jobid": "2053614d0180ca00",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Route and Warehouse Support"
+        },
+        {
+          "split": "test",
+          "row": 14864,
+          "jobid": "f32f94b971fec484",
+          "fold": 0,
+          "job_family": "logistics_warehouse",
+          "job_title": "Production/Warehouse Worker"
+        },
+        {
+          "split": "test",
+          "row": 13805,
+          "jobid": "ed8a686576b0509e",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Customer Service Rep. (Stockton)"
+        },
+        {
+          "split": "test",
+          "row": 5608,
+          "jobid": "93fb6ef9f42173b5",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "C-Store Cashier"
+        },
+        {
+          "split": "test",
+          "row": 16158,
+          "jobid": "cbd6d51cadb9dc54",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "C-Store Cashier"
+        },
+        {
+          "split": "test",
+          "row": 6775,
+          "jobid": "99b30981cb49e6bf",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Front Of House (Foh)/ Cashier At La Flor De Yucatan"
+        },
+        {
+          "split": "test",
+          "row": 3714,
+          "jobid": "29505ddcae6963c0",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Wholesale Sales Associate (In-Person)"
+        },
+        {
+          "split": "test",
+          "row": 4507,
+          "jobid": "f0138424d3299463",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Sandwich Artist/ Cashier"
+        },
+        {
+          "split": "test",
+          "row": 9679,
+          "jobid": "0ab7fa646b542a87",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "CUSTOMER SERVICE"
+        },
+        {
+          "split": "test",
+          "row": 20899,
+          "jobid": "63b255077be8a953",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Cashier - Cajero/a - SUNNYVALE"
+        },
+        {
+          "split": "test",
+          "row": 19200,
+          "jobid": "04234777863d2368",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "Retail Associates"
+        },
+        {
+          "split": "test",
+          "row": 6782,
+          "jobid": "24c5306a670c2f01",
+          "fold": 0,
+          "job_family": "retail_customer_service",
+          "job_title": "General Customer Service Job Family $18.42-20.00"
+        }
+      ]
+    },
+    "near_duplicate_jaccard_threshold": 0.9,
+    "withheld_near_duplicates": [
+      {
+        "split": "train",
+        "row": 81518,
+        "near_duplicate_of": "train:23623"
+      },
+      {
+        "split": "train",
+        "row": 24451,
+        "near_duplicate_of": "train:67936"
+      },
+      {
+        "split": "test",
+        "row": 12354,
+        "near_duplicate_of": "train:15632"
+      }
+    ]
+  }
+}
