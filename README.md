@@ -1,8 +1,29 @@
 # Phoenix — DSS Datathon Fall 2026
 
-Phoenix helps people returning from incarceration find relevant **jobs**, **neighborhood rental costs**, and **highly rated public or community services** in Oakland and nearby East Bay cities. One five-question form leads to three result tabs. See [Phoenix.md](Phoenix.md) for the full plan.
+Phoenix helps people preparing to leave incarceration or returning to their communities build a persistent **Reentry Plan**. Required four-step onboarding guides immediate stability, barriers, and independence; jobs, housing assistance, area rental costs, and services support the plan. See [Phoenix.md](Phoenix.md) for the original development plan and [the current implementation and verification report](docs/reentry_planner.md).
 
 > Phoenix shows information from datasets that may be out of date. It does not guarantee a job, housing approval, or service eligibility.
+
+## Reentry-specific flow
+
+1. Complete About you, Daily needs, Work, and Goals. Sensitive answers allow uncertainty or privacy choices; dates and extra details are optional.
+2. **Plan** shows one task list, live progress and the current situation. Tasks expand independently and retain their positions while statuses change.
+3. **Resources** contains Finances, Jobs, Housing, Services and Calendar. Each opportunity offers Selected for Plan, Interested or Not Interested. Selected opportunities create linked tasks. Finances estimates a budget from one selected job/housing option and editable U.S. household-cost defaults.
+4. Complete tasks or explicitly report housing, food and transportation secured. Search/contact actions alone do not claim a home or job. **View / update my situation** opens editable answers; the side chat interprets limited situation changes. Both show a preview before confirmation and retain completed work/history.
+5. Fictional/demo answers and progress save in this browser. **Clear saved data** removes them from this device. Use care on shared devices. No account, conviction details, case numbers, or officer contacts are requested.
+
+Existing API requests that omit `reentry` and `profile` still work. The frontend requires onboarding. The deterministic planner runs without an LLM. A checked-in experimental TF-IDF classifier informs uncertain requirement confirmation; exact requirement extraction remains stronger evidence. See the [reproducible model evaluation](reports/requirement_classifier_v1.md). The planner and heuristic scores are not trained ML.
+
+Compare three earlier fictional Oakland profiles with the same qualifications (the new stateful A–E cases are in `tests/test_adaptive_reentry.py`):
+
+```sh
+make fixtures
+python -m src.recommend.demo_reentry --source synthetic
+# With the organizer's processed data already installed:
+python -m src.recommend.demo_reentry --source real
+```
+
+See [planner rules, referral sources, tests and limitations](docs/reentry_planner.md).
 
 ## Status by workstream
 
@@ -10,12 +31,12 @@ Phoenix helps people returning from incarceration find relevant **jobs**, **neig
 | --- | --- | --- |
 | Places/Reviews cleaning, service taxonomy, rating ranker, API, audits | Person 4 | Implemented and run on the real exports (this README) |
 | Indeed/Zillow cleaning, job ranking, housing summaries, selected-job/interim preparation plan | Person 1 (Max) | Integrated through the API adapters; [run instructions](docs/person1_integration.md) |
-| Requirement classifier, evaluation, subgroup analysis | Person 2 | Annotation, split, and pilot validation scripts included; final trained model and evaluation pending |
-| Frontend and demo | Person 3 | MVP in [frontend/](frontend/): form, three tabs, service cards, rent calculator |
+| Requirement classifier, evaluation, subgroup analysis | Person 2 | Experimental trained artifact, Codex-reviewed labels, baseline and held-out metrics included. Rules outperform this pilot; independent human review and more labels are still needed. [Current report](reports/requirement_classifier_v1.md) |
+| Frontend and demo | Person 3 | Reentry-first desktop dashboard, required onboarding, resource tracking, preview/confirm updates, persistent progress and existing calendar |
 
 ## Setup
 
-You need **Python 3.12** for the backend and data pipeline, and **Node.js 20 or newer** for the frontend.
+You need **Python 3.12** for the backend and data pipeline, and **Node.js 20.9 or newer** for the frontend.
 
 **With pip:**
 
@@ -48,9 +69,25 @@ pytest -q
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev                          # http://localhost:3000
 ```
+
+The browser uses the frontend's `/api` proxy; the API defaults to `http://localhost:8000`. For another API address, set `PHOENIX_API_URL` when starting development or building production. An existing `NEXT_PUBLIC_API_URL` still overrides the proxy for separate-host setups.
+
+**Production and checks** (start the Python API separately):
+
+```bash
+cd frontend
+npm test
+npm run typecheck
+npm run build
+npm start                            # http://localhost:3000
+```
+
+Production uses Next.js's Webpack build with standard Tailwind PostCSS. Geist is bundled with its license, so builds do not download fonts. To verify production while development is running, use `PHOENIX_BUILD_DIR=.next-production` for both `npm run build` and `npm start`. The default build directory is `.next`.
+
+The app needs no API key or LLM account. For a download-free fictional demo, run `make fixtures` and `make api SOURCE=synthetic`. Real organizer data uses the runtime bundle or documented preparation steps below. External map tiles need network access; ZIP boundaries and available pins remain usable when tiles fail.
 
 ## Raw data
 
@@ -204,7 +241,8 @@ pinned frozen encoder and averages normalized chunk embeddings per posting.
 Metrics include five training folds, pooled out-of-fold scores, and development
 validation scores at a fixed 0.5 threshold. The command only reads train and
 validation. Load Joblib artifacts from trusted local runs. Jobs uses the scraper
-while evaluation of the trained models is pending.
+because the existing held-out report favors its evidence-bearing rules. The
+older models remain historical experiments with missing handoff artifacts. The active pilot is `models/requirements_v1/tfidf.joblib`, with checked-in annotation CSVs and [complete reproduction commands and actual results](reports/requirement_classifier_v1.md). Its training-OOF-selected thresholds are 0.4/0.4/0.3; the runtime uses it only for uncertain confirmation prompts with supporting source wording. It never establishes an applicant's eligibility or exact credential.
 
 ## Oakland Jobs data handoff
 

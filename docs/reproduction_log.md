@@ -11,7 +11,7 @@ uv sync --group dev --frozen
 shasum -a 256 data/raw/places/google_maps.csv data/raw/reviews/google_maps_reviews.csv
 # Prepare raw Indeed/Zillow per docs/person1_integration.md before make all.
 make all SOURCE=real
-# Person 2 training/evaluation commands remain pending.
+# Model training and frozen evaluation: reports/requirement_classifier_v1.md
 git status --porcelain reports/   # any diff vs committed reports must be explained
 ```
 
@@ -27,3 +27,4 @@ git status --porcelain reports/   # any diff vs committed reports must be explai
 | 2026-11-14 | Person 1 integration | Synced through 78c0854, Python 3.12.5, unchanged uv lock and frontend sources | Existing backend + 61 Person 1 tests + 11 adapter/API regression tests; real Places/Reviews rebuilt; full normalized Indeed/Zillow connected; Oakland export fallback retained | 114 tests passed; real-data privacy check passed on 6 profiles; live API returned the Oakland target/interim plan with 14 steps; frontend production build passed; browser form → 19 jobs / 14 housing areas / services, pay/rent comparison, and theme controls worked at desktop/mobile sizes. No final trained model evaluation claimed. |
 | | | **fresh clone** | full pipeline incl. Persons 1–2 | pending |
 | 2026-11-14 | Person 1 qualification fix | Main through 598353c plus concurrent backend listing changes, Python 3.12.5, unchanged dependency lock | Degree/experience extraction, role-specific matching, interim eligibility, and public evidence handling | 172 tests passed in the shared checkout, including 39 new qualification/API regression cases; all six real-data privacy profiles passed; the live Oakland API excludes Forklift Technician and returns the 15-step selected target/interim preparation flow |
+| 2026-11-14 | Feature-branch submission pass | Existing macOS checkout, Python 3.12, Node 24.15.0; not a fresh raw-data rebuild | App tests, real runtime readiness, production build and frozen model re-evaluation | 287 Python tests passed (14 dependency warnings); 70 frontend tests and TypeScript passed. Production Webpack build passed with bundled local font and standard Tailwind PostCSS. All three real runtime sections ready. Production browser checks covered onboarding drafts, explicit outcomes, saved selections/budget, qualification updates, map interaction and confirmed employment replanning with completed work preserved. Frozen macro-F1 reproduced: TF-IDF 0.4275, scraper 0.7222, majority 0.0. Raw-data rerun and final submission artifacts remain separate team work. |

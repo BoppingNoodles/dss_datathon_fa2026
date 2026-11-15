@@ -48,6 +48,49 @@ Frontend states to handle:
 - `eligibility.age_status = "eligibility_needs_confirmation"`
 - `review_evidence.sampled_review_count = 0` (the common case)
 
+### Stateful reentry profile/session extension
+
+The desktop client requires four-step onboarding before showing a personalized plan. POST `/recommendations` also accepts `profile: ReentryProfile`, optional `phoenix_session: PhoenixSession`, and optional `user_event: UserEvent`. The profile supplies location, qualification inputs, support needs and reentry barriers to the existing adapters. An anonymous profile ID stays stable across edits. A different session/profile ID is rejected.
+
+The response adds nullable `phoenix_session` containing validated profile, normalized recommendations, ordered tasks, selected/dismissed IDs, history, change summaries, warnings, top-job IDs and a 30-day suggested schedule. Source verification and availability are separate from personal `userStatus` and `userReportedAvailability`. Organization verification never confirms a bed or personal eligibility. Zillow recommendations remain aggregate-only; all live availability defaults to unknown.
+
+Each recommendation includes `resourceType`, `supportedResourceTypes`, and `serviceEvidence`. Tasks declare `allowedResourceTypes`; `relatedRecommendationIds` are validated compatible primary resources, `resourceMatchReasons` explains each join, `referenceLinks` retain contextual source information, and `resourceEmptyState` explains missing resources. A job posting is distinct from workforce training; Zillow areas are distinct from immediate housing assistance. `scheduleStartDate` anchors the flexible calendar window and completed assignments survive replanning. Rejected/dismissed/unavailable active job targets clear the native target calendar pointer while canonical selections/outcomes remain in history.
+
+Events include full validated `profile_updated`, resource status/unavailability, task status/notes, and employment/housing/transport changes. They apply to a copy, are idempotent by event ID, retain completed work/notes, and never mutate shared source data. Invalid task/resource IDs or completion before a required prerequisite return HTTP 422. Server calculations are pure previews; the client persists only after the appropriate user confirmation. No additional equivalent plan/replan endpoints were introduced.
+
+`barriers.hasFoodAccess` is nullable. Relevant tasks declare `completionOutcome` (`housing_arranged`, `food_secured`, or `transportation_arranged`). A completed `task_status` payload may include that matching `outcome` to report actual access; a research-only completion does not change circumstances. Housing arranged means temporary housing with an unknown end date unless stability was explicitly reported. Reopening a task does not undo reported access. Legacy completed searches can record the result later.
+
+`profile.finances` has four nullable monthly dollar amounts: `monthlyTakeHomePay`, `monthlyHousingCost`, `monthlyFoodCost`, `monthlyOtherCosts` (nonnegative, at most $1,000,000, two decimal places). Optional `projection` records `jobId`, `housingId`, `hoursPerWeek` (0–80, excluding zero), `takeHomePercent` (0–100, excluding zero), and `estimatedFields`. The frontend derives a budget from one selected posting and one selected housing option, labels assumptions, and submits it through the existing profile-preview flow. Financial planning amounts do not report employment or housing secured. Threshold prompts use Phoenix's 30% housing / 80% listed-spending targets. Missing amounts are not zero. Food and everyday-goods defaults come from BLS 2025 household spending and are editable.
+
+Resource preferences expose three choices: Selected for Plan (`selected`), Interested (`saved`), Not Interested (`dismissed`). Interested removes an option from the selected set; a dismissed option can be selected again. The existing richer status enum remains accepted for compatibility/history. Canonical selected-job events also synchronize the existing job-calendar target, without requiring a duplicate `selected_job_id` in the request.
+
+See `src/recommend/reentry_domain.py` and matching `frontend/lib/domain.ts` for exact fields/enums. Dates are optional and unknown fields remain nullable. The current `appointmentStatus` also distinguishes unknown/private answers from an explicit no. The existing `reentry_plan`, jobs, housing, services and selected-job preparation sections remain compatible. The new `phoenix_session` is authoritative for the adaptive dashboard.
+
+### Legacy optional reentry extension
+
+`reentry` is a nullable object: `release_status` (`preparing_for_release` or
+`already_released`), optional ISO `release_date`, `has_immediate_housing`, `has_id`,
+`has_transportation`, `has_phone_access` (`yes`, `no`, `unsure`),
+`has_required_appointment` (`yes`, `no`, `prefer_not_to_say`), and optional
+`priority_need` (same need vocabulary). Every nested answer defaults to null.
+`reentry: {}` opts in with unknown answers; omission or null opts out.
+
+`reentry_completed_ids` defaults to an empty list. It reports completed task IDs
+and independent calendar check-in IDs; unknown or dependency-invalid IDs are
+ignored. `reentry_start_date` optionally preserves the browser's initial calendar
+date. It never supplies an appointment date or changes today's urgency.
+
+The nullable `reentry_plan` has `version`, `start_date`, `synthetic`, `tasks`,
+`next_task_ids` (up to three currently eligible tasks), `completed_ids`,
+`daily_actions` (30 days), and `notes`. Each task has a stable semantic `task_id`,
+`title`, `action`, `barrier`, `priority`, `prerequisites`, `rationale`,
+`confirmations`, nullable reported-timing `deadline`, suggested `planning_day`,
+`status` (`todo`, `waiting`, `completed`), candidate `referrals`, and links.
+Daily actions include `task_ids` so several urgent actions can share day one.
+Checking an assigned calendar day reports its tasks; an unchecked prerequisite
+reopens dependent progress. Completion means an action was reported, not provider
+acceptance. See [rules and verification semantics](reentry_planner.md).
+
 ## Jobs and Housing integrations
 
 The Jobs adapter uses Person 1's normalized `data/processed/<source>/jobs.jsonl` with the matching coverage manifest. It ranks relevant roles within suitability and comparable-pay groups, using verified distance only when supplied. Each group returns up to 12 cards and its full matching count. Housing uses the matching rental inputs and publishes aggregates only.
@@ -86,6 +129,7 @@ The audit expects Person 1's cleaned files at the paths in `configs/audit.yaml`.
 | Date | Change |
 | --- | --- |
 | 2026-11-14 | Initial contract (Person 4) |
+| 2026-11-14 | Optional nested `reentry`, `reentry_completed_ids`, `reentry_start_date` request fields and nullable `reentry_plan` response. Existing discovery sections and generic requests preserved. |
 | 2026-11-14 | Person 1 adapters integrated; source-specific audit inputs; additive job selection, credential/interim-work plan and area-level proximity fields. Existing onboarding names and service schema/ranking retained. |
 
 

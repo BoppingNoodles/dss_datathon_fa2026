@@ -5,15 +5,15 @@ Person 4 assembles the deck and checks access. Each owner drafts their own slide
 | # | Slide | Owner | Source of truth |
 | --- | --- | --- | --- |
 | 1 | Problem: reentry means jobs, housing and services all at once | Person 1 | Phoenix.md §1 |
-| 2 | A fictional user and the five-question form | Person 3 | backend/fixtures/profiles.json |
-| 3 | Demo: Jobs / Housing / Services tabs | Person 3 | video |
+| 2 | A fictional user and four-step onboarding | Person 3 | backend/fixtures/reentry_profiles.json |
+| 3 | Demo: task progress, Resources, situation update and replan | Person 3 | Running Phoenix app; video still to record |
 | 4 | Four datasets and how they join | Person 1 + 4 | docs/data_decisions.md |
 | 5 | Services: need → location → verification → count-aware rating | **Person 4** | docs/service_ranking.md |
 | 6 | Services data findings and limits | **Person 4** | reports/places_reviews_coverage.json, service_ranking_audit.csv |
-| 7 | NLP requirement classifier: labels and training | Person 2 | reports/evaluation.md |
-| 8 | Baseline vs model on the held-out test set | Person 2 | reports/model_metrics.csv |
-| 9 | Subgroup results and five reviewed failures | Person 2 (Person 4 reviews) | reports/subgroup_metrics.csv, error_analysis.md |
-| 10 | Housing: rent ranges and the rent-burden scenario | Person 1 | housing summaries, /housing-comparison |
+| 7 | NLP requirement classifier: labels and training | Person 2 | reports/requirement_classifier_v1.md |
+| 8 | Baseline vs model on the held-out test set | Person 2 | reports/requirement_classifier_v1.json; pilot macro-F1 0.428, scraper 0.722 |
+| 9 | Three job-family error slices and reviewed failures | Person 2 (Person 4 reviews) | reports/requirement_classifier_v1.md and .json; not demographic fairness claims |
+| 10 | Housing support, ZIP rent estimates and editable budget | Person 1 | Housing and Finances in Resources; docs/reentry_planner.md |
 | 11 | Privacy and safety choices | **Person 4** | reports/privacy_check.json |
 | 12 | Limitations, and what we do *not* claim | All | below |
 | 13 | Social-good value, reproducibility, next steps | Person 1 + 4 | README, docs/reproduction_log.md |
