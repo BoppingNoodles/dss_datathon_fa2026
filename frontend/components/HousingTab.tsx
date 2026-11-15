@@ -2,14 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { compareHousing, money } from "@/lib/api";
-import type { HousingArea, HousingComparisonResponse, HousingSection, MappedPlace, PayComparisonJob, Pay, ServiceMapPoint } from "@/lib/types";
+import type { HousingArea, HousingComparisonResponse, HousingSection, JobCard, MappedPlace, PayComparisonJob, Pay, ServiceMapPoint } from "@/lib/types";
 import { payText } from "@/lib/jobs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import { EmptyState, Notes } from "./shared";
+import { Badge, EmptyState, Notes } from "./shared";
 import AreaMap from "./AreaMap";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +29,7 @@ function AreaCard({ a, selected, onSelect }: { a: HousingArea; selected: boolean
             <CardTitle><h4 className="text-lg font-semibold">{a.label}</h4></CardTitle>
             {selected && <span className="shrink-0 text-xs font-medium text-brand-text">On map</span>}
           </div>
+          {a.recommendation?.recommended && <div><Badge tone="ok">Suggested area #{a.recommendation.rank}</Badge></div>}
           <p className="mt-1 text-xl font-semibold">
             {range ? `${money(a.rent_p25)}–${money(a.rent_p75)}` : "Rent range unavailable"}
             {range && <span className="ml-1 text-sm font-normal text-muted-foreground">/ month</span>}
@@ -36,6 +37,9 @@ function AreaCard({ a, selected, onSelect }: { a: HousingArea; selected: boolean
           {a.rent_basis === "rent_estimate" && <p className="text-xs text-warn">Estimated rents</p>}
         </CardHeader>
         <CardContent className="pointer-events-none flex flex-col gap-2">
+          {a.recommendation?.recommended && <ul className="mb-2 flex flex-col gap-1 text-xs text-muted-foreground" aria-label={`Why ${a.label} is suggested`}>
+            {a.recommendation.reasons.map((reason) => <li key={reason}>{reason}</li>)}
+          </ul>}
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Nearby places</p>
           {places.length ? <ul className="flex flex-col gap-2.5">
             {places.map((place, index) => <li key={place.place_id} className="flex min-w-0 items-start gap-2 text-sm">
@@ -163,7 +167,7 @@ function RentCalculator({ job, rent, setRent }: { job: PayComparisonJob | null; 
 
 const NO_MAP_POINTS: ServiceMapPoint[] = [];
 
-export default function HousingTab({ data, job, mapPoints = NO_MAP_POINTS }: { data: HousingSection; job: PayComparisonJob | null; mapPoints?: ServiceMapPoint[] }) {
+export default function HousingTab({ data, job, selectedJob = null, mapPoints = NO_MAP_POINTS }: { data: HousingSection; job: PayComparisonJob | null; selectedJob?: JobCard | null; mapPoints?: ServiceMapPoint[] }) {
   const [rent, setRent] = useState("");
   const zipAreas = data.areas.filter((area) => area.area_type === "zip");
   const areas = zipAreas.length ? zipAreas : data.areas;
@@ -181,12 +185,13 @@ export default function HousingTab({ data, job, mapPoints = NO_MAP_POINTS }: { d
   return (
     <div className="flex flex-col gap-5">
       <p className="text-sm text-muted-foreground">Monthly rent ranges and three nearby places to know. Ranges cover the middle half of snapshot rents, across home sizes.</p>
+      {data.ranking_note && <p className="text-sm text-muted-foreground">{data.ranking_note}</p>}
       <Notes notes={data.status === "not_integrated" ? [] : data.notes} />
       {data.status === "not_integrated" ? <EmptyState title="Neighborhood rent ranges aren't connected yet" />
         : areas.length === 0 ? <EmptyState title="Not enough rental listings here">Try a nearby city or ZIP code.</EmptyState>
         : <div className="grid items-start gap-5 lg:gap-6 lg:grid-cols-[minmax(20rem,0.85fr)_minmax(0,1.65fr)]">
           <div className="order-first lg:sticky lg:top-5 lg:order-last">
-            <AreaMap zip={zip} label={selected?.label ?? "Your area"} places={places} />
+            <AreaMap zip={zip} label={selected?.label ?? "Your area"} places={places} job={selectedJob} />
           </div>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
             {areas.map((area) => <AreaCard key={area.area_id} a={area} selected={area.area_id === selected?.area_id} onSelect={() => {

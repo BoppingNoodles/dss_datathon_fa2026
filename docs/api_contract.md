@@ -184,3 +184,35 @@ privacy contract and audit remain unchanged. The frontend joins by `place_id` to
 draw up to ten numbered nearby-place pins on a zoomable street map. Housing cards
 keep a compact preview of the first three places, and selecting any part of a card
 updates its map. Public-place links remain separate actions.
+
+### Housing recommendations and selected-job pin (November 14, 2026)
+
+`HousingArea.recommendation` adds `rank`, `recommended` (the first three), short
+`reasons`, optional gross-pay rent-burden bounds, and the income-scenario stage.
+`HousingSection.ranking_note` explains the policy. Compare ZIP areas when present,
+otherwise cities; do not compare overlapping city/ZIP populations together.
+Suppressions and the five-property minimum remain in force. All areas stay available.
+
+Without a usable income scenario, work/housing priorities use lower median rent
+first; other priorities first prefer measured access to a relevant service type,
+then lower rent. Service metrics refer to sampled properties and straight-line
+proximity, not travel time, confirmed availability, or eligibility. Unknown access
+is not zero. When an existing selected-job income scenario is usable, areas within
+the 30% lower-gross-pay guide rank first, followed by pay ranges that might meet it;
+relevant service access and rent order those groups. Remaining areas use lower rent
+first. Hourly pay does not silently assume hours/weeks. Age, education, and inferred
+personal characteristics do not rank housing. This is an explainable comparison
+policy, not a trained rental-approval or affordability model.
+
+Job `location` adds nullable `latitude`/`longitude`, `map_precision`, and `map_note`.
+Only supplied worksite points are labeled `worksite`. A city/ZIP reference point
+is labeled `approximate_area`; city fallback resolves the **job city**, never the
+user's home location. No usable point means `unavailable`. These are job-area/public
+worksite coordinates, never rental-property coordinates. They do not change the
+rule that job distances require supplied worksite coordinates.
+
+The housing map shows the selected target job as a green **J** pin, alongside the
+numbered public-place pins and selected ZIP boundary. Its legend and popup disclose
+approximate job areas. Fit-area bounds include the job pin. Missing coordinates
+produce a note instead of a fabricated worksite. Existing housing selections,
+street-map controls, and browser persistence remain in place.

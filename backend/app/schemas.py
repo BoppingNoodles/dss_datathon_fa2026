@@ -103,6 +103,10 @@ class JobLocation(Strict):
     source: str | None = None
     distance_miles: float | None = None
     reference_point: str | None = None
+    latitude: float | None = Field(None, ge=-90, le=90)
+    longitude: float | None = Field(None, ge=-180, le=180)
+    map_precision: Literal["worksite", "approximate_area", "unavailable"] = "unavailable"
+    map_note: str | None = None
 
 
 class JobCard(Strict):
@@ -166,6 +170,15 @@ class NearbyPlace(Strict):
     maps_url: str | None = None
 
 
+class HousingRecommendation(Strict):
+    rank: int = Field(ge=1)
+    recommended: bool
+    reasons: list[str]
+    rent_burden_minimum: float | None = Field(None, ge=0)
+    rent_burden_maximum: float | None = Field(None, ge=0)
+    income_stage: Literal["not_selected", "target_job_scenario", "interim_job_scenario"] = "not_selected"
+
+
 class HousingArea(Strict):
     """Publishable ZIP / city aggregate. No property addresses, IDs, or coordinates (Zillow README)."""
 
@@ -183,12 +196,14 @@ class HousingArea(Strict):
     nearby_services: list[NearbyServiceSummary] = Field(default_factory=list)
     nearby_places: list[NearbyPlace] = Field(default_factory=list, max_length=10)
     source_note: str | None = None
+    recommendation: HousingRecommendation | None = None
 
 
 class HousingSection(Strict):
     status: Literal["ok", "no_results", "not_integrated"]
     areas: list[HousingArea] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+    ranking_note: str | None = None
 
 
 # ----------------------------------------------------------------------------- services (Person 4)

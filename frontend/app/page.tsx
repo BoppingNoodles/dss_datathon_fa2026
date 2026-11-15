@@ -317,6 +317,9 @@ export default function Home() {
   }
 
   const showResults = data && !editing;
+  const selectedTarget = data?.selected_job_id
+    ? [...data.jobs.groups, ...(data.jobs.other_groups ?? [])].flatMap((group) => group.items).find((item) => item.job_id === data.selected_job_id) ?? null
+    : null;
 
   useEffect(() => {
     if (showResults) window.scrollTo({ top: 0 });
@@ -436,7 +439,7 @@ export default function Home() {
                 )}
               </TabsContent>
               <TabsContent value="housing" className="text-base">
-                <HousingTab data={data.housing_areas} job={job} mapPoints={data.service_map_points} />
+                <HousingTab data={data.housing_areas} job={job} selectedJob={selectedTarget} mapPoints={data.service_map_points} />
               </TabsContent>
               <TabsContent value="services" className="text-base">
                 <ServicesTab data={data.services} loading={loading || isSample}

@@ -215,6 +215,8 @@ def recommendations(req: RecommendationRequest) -> dict:
     housing = housing_section(req, d["candidates"])
     map_points = _optional("src.recommend.housing", "service_map_points")
     selection = selection_section(req)
+    from src.recommend.housing_recommendations import recommend_housing
+    housing = recommend_housing(housing, req.model_dump(), selection)
     return {
         "open_tab": OPEN_TAB.get(req.priority_need, "services"),
         "jobs": jobs,

@@ -98,7 +98,8 @@ export interface JobCard {
   gaps: string[];
   unknowns: string[];
   pay: Pay;
-  location: { text: string | null; city: string | null; precision: string; distance_miles: number | null; reference_point: string | null };
+  location: { text: string | null; city: string | null; precision: string; distance_miles: number | null; reference_point: string | null;
+    latitude?: number | null; longitude?: number | null; map_precision?: "worksite" | "approximate_area" | "unavailable"; map_note?: string | null };
   rank_explanation: string;
   source?: { dataset?: string };
   selectable?: boolean;
@@ -213,12 +214,21 @@ export interface HousingArea {
   nearby_services: { family: string; family_label: string; count_within_1_mile: number | null; nearest_miles: number | null }[];
   nearby_places?: NearbyPlace[];
   source_note: string | null;
+  recommendation?: {
+    rank: number;
+    recommended: boolean;
+    reasons: string[];
+    rent_burden_minimum: number | null;
+    rent_burden_maximum: number | null;
+    income_stage: "not_selected" | "target_job_scenario" | "interim_job_scenario";
+  } | null;
 }
 
 export interface HousingSection {
   status: "ok" | "no_results" | "not_integrated";
   areas: HousingArea[];
   notes: string[];
+  ranking_note?: string | null;
 }
 
 export interface RecommendationResponse {

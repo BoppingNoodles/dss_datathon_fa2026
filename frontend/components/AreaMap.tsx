@@ -5,13 +5,13 @@ import type { FeatureCollection, MultiPolygon, Polygon } from "geojson";
 import type { FeatureGroup, LatLngBounds, Map as LeafletMap } from "leaflet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { MappedPlace } from "@/lib/types";
+import type { JobCard, MappedPlace } from "@/lib/types";
 
 type MapData = FeatureCollection<Polygon | MultiPolygon, { zip: string; lat: number; lon: number }>;
 type MapInstance = { L: typeof import("leaflet"); map: LeafletMap; overlays: FeatureGroup };
 let boundaryRequest: Promise<MapData> | undefined;
 
-export default function AreaMap({ zip, label, places }: { zip: string | null; label: string; places: MappedPlace[] }) {
+export default function AreaMap({ zip, label, places, job = null }: { zip: string | null; label: string; places: MappedPlace[]; job?: JobCard | null }) {
   const container = useRef<HTMLDivElement>(null);
   const instance = useRef<MapInstance | null>(null);
   const areaBounds = useRef<LatLngBounds | null>(null);
@@ -21,6 +21,10 @@ export default function AreaMap({ zip, label, places }: { zip: string | null; la
   const [boundaryFailed, setBoundaryFailed] = useState(false);
   const [tileFailed, setTileFailed] = useState(false);
   const [zoom, setZoom] = useState<number | null>(null);
+  const jobLat = job?.location.latitude;
+  const jobLon = job?.location.longitude;
+  const hasJobPoint = jobLat != null && jobLon != null && Number.isFinite(jobLat) && Number.isFinite(jobLon);
+  const approximateJob = job?.location.map_precision !== "worksite";
 
   useEffect(() => {
     let cancelled = false;
@@ -102,10 +106,30 @@ export default function AreaMap({ zip, label, places }: { zip: string | null; la
         .bindPopup(content, { maxWidth: 240 }).addTo(overlays);
       marker.getElement()?.setAttribute("aria-label", `Place ${place.number}: ${place.name}`);
     });
+    if (job && hasJobPoint) {
+      const icon = L.divIcon({ className: "phoenix-job-pin",
+        html: '<span class="phoenix-pin-shape phoenix-job-marker"><b>J</b></span>',
+        iconSize: [32, 32], iconAnchor: [16, 38], popupAnchor: [0, -32] });
+      const content = document.createElement("div");
+      const name = document.createElement("strong");
+      name.textContent = job.title;
+      const note = document.createElement("p");
+      note.textContent = job.location.map_note ?? "Selected job location. Confirm the worksite with the employer.";
+      content.append(name, note);
+      if (job.url && /^https?:\/\//i.test(job.url)) {
+        const link = document.createElement("a");
+        link.href = job.url; link.target = "_blank"; link.rel = "noopener noreferrer";
+        link.textContent = "View job posting ↗"; content.append(link);
+      }
+      const markerLabel = `Selected job: ${job.title}${approximateJob ? " (approximate job area)" : ""}`;
+      const marker = L.marker([jobLat!, jobLon!], { icon, title: markerLabel, keyboard: true, riseOnHover: true, zIndexOffset: 1000 })
+        .bindPopup(content, { maxWidth: 280 }).addTo(overlays);
+      marker.getElement()?.setAttribute("aria-label", markerLabel);
+    }
     const bounds = overlays.getBounds();
     areaBounds.current = bounds.isValid() ? bounds : null;
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [25, 25], maxZoom: 14, animate: false });
-  }, [data, places, ready, zip]);
+  }, [data, places, ready, zip, job, jobLat, jobLon, hasJobPoint, approximateJob]);
 
   const hasBoundary = data?.features.some((feature) => feature.properties.zip === zip);
   return (
@@ -114,7 +138,7 @@ export default function AreaMap({ zip, label, places }: { zip: string | null; la
         <p className="text-xs font-medium text-brand-text">Explore the area</p>
         <div className="flex items-center justify-between gap-3">
           <CardTitle><h3 className="text-lg font-semibold">{label}</h3></CardTitle>
-          <Button type="button" size="sm" variant="outline" disabled={!ready || (!hasBoundary && !places.length)} onClick={() => {
+          <Button type="button" size="sm" variant="outline" disabled={!ready || (!hasBoundary && !places.length && !hasJobPoint)} onClick={() => {
             if (areaBounds.current) instance.current?.map.fitBounds(areaBounds.current, { padding: [25, 25], maxZoom: 14 });
           }}>Fit area</Button>
         </div>
@@ -131,7 +155,9 @@ export default function AreaMap({ zip, label, places }: { zip: string | null; la
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
           {hasBoundary && <span className="flex items-center gap-2"><span className="size-2.5 rounded-sm border border-primary bg-accent" aria-hidden="true" />ZIP {zip}</span>}
           <span>{places.length} nearby place{places.length === 1 ? "" : "s"} pinned</span>
+          {job && hasJobPoint && <span className="flex items-center gap-2"><span className="size-2.5 rounded-full bg-ok" aria-hidden="true" />Selected job{approximateJob ? " · approximate area" : ""}</span>}
         </div>
+        {job && !hasJobPoint && <p className="text-xs text-muted-foreground">The selected job has no mappable coordinates. Check its posting for the worksite.</p>}
         {tileFailed && <p role="status" className="text-xs text-muted-foreground">Street tiles couldn&apos;t load. The ZIP boundary and place pins are still shown.</p>}
         {(boundaryFailed || (data && !hasBoundary)) && <p className="text-xs text-muted-foreground">A ZIP-area boundary is unavailable for this location.</p>}
         <p className="text-xs text-muted-foreground">Drag to explore. Use + / − or pinch to zoom. Select a pin for details.</p>

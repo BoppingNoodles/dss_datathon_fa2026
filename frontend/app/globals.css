@@ -226,3 +226,13 @@
   outline: 3px solid var(--ring);
   outline-offset: 3px;
 }
+.phoenix-job-marker {
+  background: var(--ok);
+}
+.phoenix-job-marker b {
+  color: var(--background);
+}
+.phoenix-job-pin:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -40,8 +41,25 @@ def walk(obj, path=""):
 
 def scan(response: dict) -> list[str]:
     problems = []
+    # Explicit public-job map contract. Rental/user coordinates remain forbidden.
+    public_job_coordinates = set()
+    jobs = response.get("jobs", {})
+    if isinstance(jobs, dict):
+        for group_key in ("groups", "other_groups"):
+            for group_index, group in enumerate(jobs.get(group_key, [])):
+                for job_index, job in enumerate(group.get("items", [])):
+                    location = job.get("location", {})
+                    lat, lon = location.get("latitude"), location.get("longitude")
+                    precision = location.get("map_precision")
+                    valid = (precision == "unavailable" and lat is None and lon is None) or (
+                        precision in {"worksite", "approximate_area"}
+                        and all(isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+                                for value in (lat, lon)) and -90 <= lat <= 90 and -180 <= lon <= 180)
+                    if valid:
+                        prefix = f".jobs.{group_key}[{group_index}].items[{job_index}].location"
+                        public_job_coordinates.update({prefix + ".latitude", prefix + ".longitude"})
     for p, key, val in walk(response):
-        if key in FORBIDDEN_KEYS:
+        if key in FORBIDDEN_KEYS and p not in public_job_coordinates:
             problems.append(f"forbidden key {p}")
         if isinstance(val, str):
             for name, pat in FORBIDDEN_PATTERNS.items():

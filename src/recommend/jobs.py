@@ -40,13 +40,31 @@ def _public(card, job, source: str) -> dict:
         "location":{"text":card.location_text, "city":card.city,
                     "precision":"worksite" if card.location_precision == "worksite" else "city" if card.city else "unknown",
                     "source":card.worksite_location_source or "Indeed city text; precise worksite coordinates not supplied",
-                    "distance_miles":card.approximate_distance_miles, "reference_point":card.distance_reference},
+                    "distance_miles":card.approximate_distance_miles, "reference_point":card.distance_reference,
+                    **job_map_location(job, source)},
         "rank_explanation":" ".join(card.ranking_explanation),
         "selectable":card.selectable, "is_selected":card.is_selected, "credential_summary":card.credential_summary,
         "matches_reported_role":card.matches_reported_role,
         "qualification_checks":[check.model_dump() for check in card.qualification_checks],
         "source":{"dataset":"Indeed provided export", "mode":source, "file":job.source_file,
                   "posting_status":card.availability, "pay_basis":card.pay_basis, "pay_source":card.pay.source}}
+
+
+def job_map_location(job, source: str) -> dict:
+    point = job.point
+    if point and point.precision == "worksite":
+        return {"latitude": point.latitude, "longitude": point.longitude, "map_precision": "worksite",
+                "map_note": "Worksite coordinates supplied by the job data; confirm the posting."}
+    if point is None or point.precision not in {"city_center", "zip_center"}:
+        try:
+            point = native_profile({"location": job.city, "priority_need": "work"}, source).reference_point if job.city else None
+        except (OSError, ValueError, Person1DataUnavailable):
+            point = None
+    if point:
+        return {"latitude": point.latitude, "longitude": point.longitude, "map_precision": "approximate_area",
+                "map_note": f"Approximate job area: {job.city or job.location_text}. Exact worksite coordinates are unavailable."}
+    return {"latitude": None, "longitude": None, "map_precision": "unavailable",
+            "map_note": "This posting has no mappable worksite or area coordinates."}
 
 
 def _profile_with_jobs(request: dict, source: str):
