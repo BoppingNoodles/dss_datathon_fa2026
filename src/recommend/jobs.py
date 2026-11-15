@@ -96,13 +96,14 @@ def rank_jobs(request: dict, sort: str, *, source: str = "real", area_city: str 
     groups = OrderedDict()
     other_groups = OrderedDict()
     selected_id = request.get("selected_job_id")
+    selected_ids = {key[4:] for key in (request.get("phoenix_session") or {}).get("selectedRecommendationIds", []) if key.startswith("job:")}
     for card in cards:
         card = card.model_copy(update={"is_selected":card.job_id == selected_id})
         tier = TIER[card.fit_tier]
         key = tier if sort == "nearest" else tier + ":" + card.pay_basis
         destination = other_groups if card.matches_reported_role is False else groups
         group = destination.setdefault(key, {"key":key, "label":LABELS[tier] + ("" if sort == "nearest" else " · " + card.pay_basis), "total":0, "items":[]})
-        if (len(group["items"]) < oakland_jobs.LIMIT_PER_GROUP or card.job_id == selected_id
+        if (len(group["items"]) < oakland_jobs.LIMIT_PER_GROUP or card.job_id == selected_id or card.job_id in selected_ids
                 or card.job_id in (request.get("qualification_answers") or {})):
             group["items"].append(_public(card, by_id[card.job_id], source))
         group["total"] += 1

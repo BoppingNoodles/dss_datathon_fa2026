@@ -8,11 +8,14 @@ Every value that can be unknown is nullable. Unknown is never encoded as 0.
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, model_validator
 
 from src.phoenix.models import QualificationCheck, ThirtyDayPlan
+from src.recommend.reentry_models import ReentryPlan, ReentrySituation
+from src.recommend.reentry_domain import ReentryProfile, PhoenixSession, UserEvent, profile_request
 
 Need = Literal["work", "housing", "food", "health_care", "transportation", "community_support"]
 EducationLevel = Literal[
@@ -55,17 +58,39 @@ class RecommendationRequest(Strict):
     experience: Experience = Field(default_factory=Experience)
     education: Education = Field(default_factory=Education)
     service_sort: Literal["highly_rated", "nearest"] = "highly_rated"
+    service_need: Need | None = None
     job_sort: Literal["highest_pay", "nearest"] = "highest_pay"
     selected_job_id: str | None = Field(None, min_length=1)
     qualification_answers: dict[str, dict[str, StrictBool]] = Field(default_factory=dict, max_length=100)
     selected_interim_job_id: str | None = Field(None, min_length=1)
     scenario_hours_per_week: float | None = Field(None, gt=0, le=80)
     scenario_weeks_per_year: float | None = Field(None, gt=0, le=53)
+    reentry: ReentrySituation | None = None
+    reentry_completed_ids: list[str] = Field(default_factory=list, max_length=200)
+    reentry_start_date: date | None = None
+    profile: ReentryProfile | None = None
+    phoenix_session: PhoenixSession | None = None
+    user_event: UserEvent | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def adapt_profile(cls, value):
+        if isinstance(value, dict):
+            profile = value.get("profile")
+            state = value.get("phoenix_session")
+            if not profile and state:
+                profile = state.profile if isinstance(state, PhoenixSession) else state.get("profile")
+            if profile:
+                parsed = ReentryProfile.model_validate(profile)
+                value = {**value, **profile_request(parsed), "profile": parsed}
+        return value
 
     @model_validator(mode="after")
     def interim_requires_target(self):
         if self.selected_interim_job_id and not self.selected_job_id:
             raise ValueError("Select a target job before selecting interim work")
+        if self.profile and self.phoenix_session and self.profile.profileId != self.phoenix_session.profile.profileId:
+            raise ValueError("Session and profile IDs differ")
         return self
 
 
@@ -348,6 +373,8 @@ class RecommendationResponse(Strict):
     data_coverage: DataCoverage
     next_steps: list[NextStep]
     disclaimer: str
+    reentry_plan: ReentryPlan | None = None
+    phoenix_session: PhoenixSession | None = None
     selected_job_id: str | None = None
     thirty_day_plan: ThirtyDayPlan | None = None
     housing_comparisons: list[dict] = Field(default_factory=list)

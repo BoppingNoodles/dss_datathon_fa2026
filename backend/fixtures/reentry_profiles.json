@@ -1,0 +1,23 @@
+[
+  {
+    "_fixture": "A: recently released, no housing or ID (fictional)",
+    "location": "Oakland", "priority_need": "work", "age": null,
+    "experience": {"skills": ["Warehouse"], "text": null, "years": 2, "no_experience_yet": false},
+    "education": {"level": "high_school_or_ged", "credentials": [], "no_credentials": true},
+    "reentry": {"release_status": "already_released", "release_date": null, "has_immediate_housing": "no", "has_id": "no", "has_transportation": "yes", "has_phone_access": "yes", "has_required_appointment": "no", "employment_goal": "find_work"}
+  },
+  {
+    "_fixture": "B: recently released, housing and ID, seeking work (fictional)",
+    "location": "Oakland", "priority_need": "work", "age": null,
+    "experience": {"skills": ["Warehouse"], "text": null, "years": 2, "no_experience_yet": false},
+    "education": {"level": "high_school_or_ged", "credentials": [], "no_credentials": true},
+    "reentry": {"release_status": "already_released", "release_date": null, "has_immediate_housing": "yes", "has_id": "yes", "has_transportation": "yes", "has_phone_access": "yes", "has_required_appointment": "no", "employment_goal": "find_work"}
+  },
+  {
+    "_fixture": "C: preparing for release, transport barrier and appointment (fictional)",
+    "location": "Oakland", "priority_need": "transportation", "age": null,
+    "experience": {"skills": ["Warehouse"], "text": null, "years": 2, "no_experience_yet": false},
+    "education": {"level": "high_school_or_ged", "credentials": [], "no_credentials": true},
+    "reentry": {"release_status": "preparing_for_release", "release_date": null, "has_immediate_housing": "yes", "has_id": "yes", "has_transportation": "no", "has_phone_access": "yes", "has_required_appointment": "yes", "employment_goal": "prepare_for_work"}
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "resource_id": "manual:apsc-roots2reentry",
+    "name": "APSC ROOTS 2 Reentry",
+    "url": "https://www.asianprisonersupport.com/roots-2-reentry",
+    "verification": "verified_reentry_scope",
+    "provider_category": "Community reentry navigation",
+    "resource_types": ["housing_assistance", "identification_assistance", "workforce_training", "community_support"],
+    "scope": "Provider describes support for formerly incarcerated APIs and others in Alameda County: ID navigation and referrals for housing, employment, training, and education. This is navigation, not a guaranteed bed or ID issuer.",
+    "source_url": "https://www.asianprisonersupport.com/roots-2-reentry",
+    "checked_on": "2026-11-14",
+    "cities": ["Oakland", "Berkeley", "Emeryville", "Alameda", "Piedmont", "Albany", "San Leandro", "Hayward", "San Lorenzo", "Castro Valley"],
+    "barriers": ["identification", "housing", "employment", "qualifications", "documents", "community_support"]
+  },
+  {
+    "resource_id": "manual:roots-reentry",
+    "name": "Roots Community Health reentry navigation",
+    "url": "https://rootscommunityhealth.org/our-work/community-engagement-transition-services/reentry-services/",
+    "verification": "verified_reentry_scope",
+    "provider_category": "Community health and reentry navigation",
+    "resource_types": ["housing_assistance", "community_support"],
+    "scope": "Provider describes employment and housing navigation for formerly incarcerated people. Its Safe Landing shuttle is specifically described for people leaving Santa Rita Jail; general transportation service is not verified.",
+    "source_url": "https://rootscommunityhealth.org/our-work/community-engagement-transition-services/reentry-services/",
+    "checked_on": "2026-11-14",
+    "cities": ["Oakland"],
+    "barriers": ["housing", "employment", "qualifications", "health_care", "community_support"]
+  },
+  {
+    "resource_id": "manual:accfb-food-helpline",
+    "name": "Alameda County Community Food Bank — Food Helpline",
+    "url": "https://www.foodnow.net/",
+    "verification": "verified_general_service",
+    "provider_category": "Food assistance and referrals",
+    "resource_types": ["food_assistance"],
+    "scope": "Call 510-635-3663 or use FoodNow to find nearby grocery and hot-meal distributions. This is a referral service; confirm pickup location, hours and any requirements. The warehouse address is not presented as a walk-in pantry.",
+    "source_url": "https://www.accfb.org/about-us/food-distribution/",
+    "checked_on": "2026-11-14",
+    "phone": "510-635-3663",
+    "cities": ["Oakland", "Berkeley", "Emeryville", "Alameda", "Piedmont", "Albany", "San Leandro", "Hayward", "San Lorenzo", "Castro Valley", "Fremont", "Union City", "Newark"],
+    "barriers": ["food"]
+  }
+]

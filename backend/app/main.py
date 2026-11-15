@@ -19,6 +19,8 @@ from __future__ import annotations
 import importlib
 import json
 import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from functools import lru_cache
 from typing import Any
 
@@ -198,18 +200,34 @@ def health() -> dict:
 
 @app.post("/recommendations", response_model=RecommendationResponse)
 def recommendations(req: RecommendationRequest) -> dict:
+    previous = req.phoenix_session
+    if req.profile is not None:
+        from src.recommend.reentry_domain import apply_event, profile_request
+        try:
+            profile, previous = apply_event(previous.profile if previous else req.profile, previous, req.user_event)
+            req = RecommendationRequest.model_validate({**req.model_dump(), **profile_request(profile), "profile": profile, "phoenix_session": previous})
+            if req.user_event and req.user_event.type == "resource_status" and previous:
+                event_id = req.user_event.payload.get("recommendationId", "")
+                if isinstance(event_id, str) and event_id.startswith("job:") and req.user_event.payload.get("status") == "selected":
+                    req = req.model_copy(update={"selected_job_id": event_id[4:]})
+            target = next((r for r in previous.recommendations if r.id == f"job:{req.selected_job_id}"), None) if previous else None
+            restored = req.user_event and req.user_event.type == "resource_status" and req.user_event.payload.get("recommendationId") == f"job:{req.selected_job_id}" and req.user_event.payload.get("status") == "recommended"
+            if target and (target.userStatus in {"rejected", "dismissed", "saved"} or target.userReportedAvailability == "unavailable" or restored):
+                req = req.model_copy(update={"selected_job_id": None, "selected_interim_job_id": None})
+        except (ValueError, KeyError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
     source = data_source()
     try:
         d = load_data(source)
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e)) from e
     if d.get("services_unavailable"):
-        services = {"status": "no_results", "priority_need": req.priority_need, "need_label": "Services",
+        services = {"status": "no_results", "priority_need": req.service_need or req.priority_need, "need_label": "Services",
                     "sort": req.service_sort, "reference_point": {}, "search_area": req.location,
                     "families_considered": [], "ranking_settings": {}, "groups": [],
                     "notes": ["Service data has not been prepared in this checkout."]}
     else:
-        services = rank_services(d["candidates"], d["refs"], need=req.priority_need, location=req.location,
+        services = rank_services(d["candidates"], d["refs"], need=req.service_need or req.priority_need, location=req.location,
                                  age=req.age, sort=req.service_sort)
     jobs = jobs_section(req, d["refs"])
     housing = housing_section(req, d["candidates"])
@@ -217,6 +235,38 @@ def recommendations(req: RecommendationRequest) -> dict:
     selection = selection_section(req)
     from src.recommend.housing_recommendations import recommend_housing
     housing = recommend_housing(housing, req.model_dump(), selection)
+    phoenix_session = None
+    if req.profile is not None:
+        from src.recommend.reentry_matching import recommend_for_profile, preserve_resource_state
+        from src.recommend.reentry_planner import planned_session
+        today = datetime.now(ZoneInfo("America/Los_Angeles")).date()
+        resources, top_ids, warnings = recommend_for_profile(req.profile, req.model_dump(), jobs, housing, services,
+            d["candidates"], d["refs"], source=source, today=today)
+        resources = preserve_resource_state(resources, previous)
+        # Keep existing card contracts; model flags are uncertain evidence, never
+        # a substitute for a diploma/license or the employer's explicit wording.
+        by_job = {r.details["jobId"]: r for r in resources if r.category == "job" and r.active}
+        for group in jobs.get("groups", []) + jobs.get("other_groups", []):
+            for card in group["items"]:
+                if card["job_id"] in by_job:
+                    card["requirements"] = by_job[card["job_id"]].details["requirements"]
+        phoenix_session = planned_session(req.profile, resources, previous, req.user_event, today=today,
+            top_job_ids=[key for key in top_ids if key not in (previous.dismissedRecommendationIds if previous else [])],
+            warnings=warnings, selected_job_id=req.selected_job_id, legacy_completed_ids=req.reentry_completed_ids, start_date=req.reentry_start_date)
+    reentry_plan = None
+    if req.reentry is not None:
+        from src.recommend.reentry_planner import build_reentry_plan, candidate_referrals
+        today = datetime.now(ZoneInfo("America/Los_Angeles")).date()
+        # Reuse each service-family lookup across tasks; no runtime network calls.
+        referrals = {}
+        def lookup(barrier):
+            if barrier not in referrals:
+                referrals[barrier] = candidate_referrals(barrier, req.model_dump(), d["candidates"], d["refs"], source=source, today=today)
+            return referrals[barrier]
+        reentry_plan = build_reentry_plan(req.model_dump(), jobs, housing, selection,
+                                         source=source, today=today, referral_lookup=lookup)
+        if req.reentry_start_date is not None:
+            reentry_plan.start_date = req.reentry_start_date
     return {
         "open_tab": OPEN_TAB.get(req.priority_need, "services"),
         "jobs": jobs,
@@ -226,6 +276,8 @@ def recommendations(req: RecommendationRequest) -> dict:
         "data_coverage": coverage(source, d["stats"], jobs, housing),
         "next_steps": next_steps(req.priority_need),
         "disclaimer": DISCLAIMER,
+        "reentry_plan": reentry_plan,
+        "phoenix_session": phoenix_session,
         **selection,
     }
 
